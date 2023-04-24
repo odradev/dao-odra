@@ -1,0 +1,20 @@
+[package]
+name = "dao_contracts"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+odra = { workspace = true, features = [], default-features = false }
+
+[dev-dependencies]
+cucumber = "0.15.0"
+futures = "0.3.5"
+
+[features]
+default = ["mock-vm"]
+mock-vm = ["odra/mock-vm"]
+casper = ["odra/casper"]
+
+[[test]]
+name = "test_flipper"
+harness = false  # allows Cucumber to print output instead of libtest

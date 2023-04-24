@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "dao_contracts"
+]
+
+[workspace.dependencies]
+odra = { path = "../odra/core" }
+

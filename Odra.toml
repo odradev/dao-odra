@@ -1,0 +1,3 @@
+[[contracts]]
+name = "flipper"
+fqn = "dao_contracts::Flipper"
