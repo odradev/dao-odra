@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-odra = { workspace = true, features = [], default-features = false }
+odra = { git = "https://github.com/odradev/odra.git", branch = "release/0.2.1", features = [], default-features = false }
 
 [dev-dependencies]
 cucumber = "0.15.0"

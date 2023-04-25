@@ -4,5 +4,5 @@ members = [
 ]
 
 [workspace.dependencies]
-odra = { path = "../odra/core" }
+odra = { git = "https://github.com/odradev/odra.git", branch = "release/0.2.1" }
 

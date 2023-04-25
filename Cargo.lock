@@ -42,9 +42,9 @@ dependencies = [
 
 [[package]]
 name = "anstream"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e579a7752471abc2a8268df8b20005e3eadd975f585398f17efcfd8d4927371"
+checksum = "6342bd4f5a1205d7f41e94a41a901f5647c938cdfa96036338e8533c9d6c2450"
 dependencies = [
  "anstyle",
  "anstyle-parse",
@@ -81,9 +81,9 @@ dependencies = [
 
 [[package]]
 name = "anstyle-wincon"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bcd8291a340dd8ac70e18878bc4501dd7b4ff970cfa21c207d36ece51ea88fd"
+checksum = "180abfa45703aebe0093f79badacc01b8fd4ea2e35118747e5811127f926e188"
 dependencies = [
  "anstyle",
  "windows-sys 0.48.0",
@@ -253,9 +253,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.12.0"
+version = "3.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d261e256854913907f67ed06efbc3338dfe6179796deefc1ff763fc1aee5535"
+checksum = "9b1ce199063694f33ffb7dd4e0ee620741495c32833cde5aa08f02a0bf96f0c8"
 
 [[package]]
 name = "bytecount"
@@ -299,6 +299,28 @@ dependencies = [
  "serde",
  "tempfile",
  "toml",
+]
+
+[[package]]
+name = "casper-event-standard"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d13741e5f5d2eb57fec7ebb80766730618c4809ef2d7dcb0460cae85fc84b2ac"
+dependencies = [
+ "casper-contract",
+ "casper-event-standard-macro",
+ "casper-types",
+]
+
+[[package]]
+name = "casper-event-standard-macro"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3520ef38533f4f1f875bae90bde34b80b6b88f7f27706cae8c95f9367955395e"
+dependencies = [
+ "proc-macro2 1.0.56",
+ "quote 1.0.26",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -1348,9 +1370,9 @@ checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.3.3"
+version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b085a4f2cde5781fc4b1717f2e86c62f5cda49de7ba99a7c2eae02b61c9064c"
+checksum = "36eb31c1778188ae1e64398743890d0877fef36d11521ac60406b42016e8c2cf"
 
 [[package]]
 name = "lmdb"
@@ -1555,9 +1577,11 @@ dependencies = [
 [[package]]
 name = "odra"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "cfg-if",
  "hex",
+ "num-traits",
  "odra-casper-backend",
  "odra-casper-codegen",
  "odra-casper-test-env",
@@ -1572,8 +1596,10 @@ dependencies = [
 [[package]]
 name = "odra-casper-backend"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "casper-contract",
+ "casper-event-standard",
  "casper-types",
  "hex",
  "lazy_static",
@@ -1586,7 +1612,9 @@ dependencies = [
 [[package]]
 name = "odra-casper-codegen"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
+ "casper-event-standard",
  "casper-types",
  "odra-casper-types",
  "odra-types",
@@ -1600,7 +1628,9 @@ dependencies = [
 [[package]]
 name = "odra-casper-shared"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
+ "casper-event-standard",
  "hex",
  "odra-casper-types",
 ]
@@ -1608,6 +1638,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-test-env"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "casper-engine-test-support",
  "casper-execution-engine",
@@ -1621,19 +1652,24 @@ dependencies = [
 [[package]]
 name = "odra-casper-types"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
+ "casper-event-standard",
  "casper-types",
+ "num-traits",
  "odra-types",
 ]
 
 [[package]]
 name = "odra-codegen"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "convert_case",
  "derive_more",
  "odra-ir",
  "odra-utils",
+ "pretty_assertions",
  "proc-macro-error",
  "proc-macro2 1.0.56",
  "quote 1.0.26",
@@ -1643,7 +1679,9 @@ dependencies = [
 [[package]]
 name = "odra-ir"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
+ "anyhow",
  "itertools",
  "proc-macro-error",
  "proc-macro2 1.0.56",
@@ -1654,6 +1692,7 @@ dependencies = [
 [[package]]
 name = "odra-mock-vm"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "anyhow",
  "hex",
@@ -1666,9 +1705,11 @@ dependencies = [
 [[package]]
 name = "odra-mock-vm-types"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "borsh",
  "hex",
+ "num-traits",
  "odra-types",
  "odra-utils",
  "uint",
@@ -1677,6 +1718,7 @@ dependencies = [
 [[package]]
 name = "odra-proc-macros"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "odra-codegen",
  "odra-ir",
@@ -1688,10 +1730,12 @@ dependencies = [
 [[package]]
 name = "odra-types"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 
 [[package]]
 name = "odra-utils"
 version = "0.2.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
 dependencies = [
  "convert_case",
 ]
@@ -2029,9 +2073,9 @@ checksum = "a5996294f19bd3aae0453a862ad728f60e6600695733dd5df01da90c54363a3c"
 
 [[package]]
 name = "rustix"
-version = "0.37.13"
+version = "0.37.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f79bef90eb6d984c72722595b5b1348ab39275a5e5123faca6863bf07d75a4e0"
+checksum = "d9b864d3c18a5785a05953adeed93e2dca37ed30f18e69bba9f30079d51f363f"
 dependencies = [
  "bitflags",
  "errno",
@@ -2431,13 +2475,13 @@ dependencies = [
 
 [[package]]
 name = "tracing-attributes"
-version = "0.1.23"
+version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4017f8f45139870ca7e672686113917c71c7a6e02d4924eda67186083c03081a"
+checksum = "0f57e3ca2a01450b1a921183a9c9cbfda207fd822cef4ccb00a65402cbba7a74"
 dependencies = [
  "proc-macro2 1.0.56",
  "quote 1.0.26",
- "syn 1.0.109",
+ "syn 2.0.15",
 ]
 
 [[package]]
