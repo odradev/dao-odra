@@ -1,3 +1,3 @@
 [[contracts]]
-name = "flipper"
-fqn = "dao_contracts::Flipper"
+name = "variable_repository"
+fqn = "dao_contracts::VariableRepository"

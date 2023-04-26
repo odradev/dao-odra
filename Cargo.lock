@@ -597,9 +597,9 @@ dependencies = [
 
 [[package]]
 name = "cucumber"
-version = "0.15.3"
+version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7caf6b065bc7e298e24cb0d3c91e90a975df247e564056b09638d567cd7d2016"
+checksum = "a845da7c9fb958144700201d22e3f61f55114f9e269c13f03fe179d9da500984"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -621,13 +621,14 @@ dependencies = [
  "once_cell",
  "regex",
  "sealed 0.4.0",
+ "smart-default",
 ]
 
 [[package]]
 name = "cucumber-codegen"
-version = "0.15.3"
+version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "247ca81b8999f840d81ad68c2f78d3e8b9ac6a42f72f10ed2f80f8cc75224ae1"
+checksum = "0dfb841fe8742f57fbe94738a189022e7dc858f2560c7fba5da44dc945a139e1"
 dependencies = [
  "cucumber-expressions",
  "inflections",
@@ -715,7 +716,24 @@ name = "dao_contracts"
 version = "0.1.0"
 dependencies = [
  "cucumber",
+ "dao_modules",
+ "dao_utils",
  "futures",
+ "odra",
+]
+
+[[package]]
+name = "dao_modules"
+version = "0.1.0"
+dependencies = [
+ "dao_utils",
+ "odra",
+]
+
+[[package]]
+name = "dao_utils"
+version = "0.1.0"
+dependencies = [
  "odra",
 ]
 
@@ -1577,7 +1595,7 @@ dependencies = [
 [[package]]
 name = "odra"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "cfg-if",
  "hex",
@@ -1596,7 +1614,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-backend"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "casper-contract",
  "casper-event-standard",
@@ -1612,7 +1630,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-codegen"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "casper-event-standard",
  "casper-types",
@@ -1622,13 +1640,15 @@ dependencies = [
  "pretty_assertions",
  "proc-macro2 1.0.56",
  "quote 1.0.26",
+ "serde",
+ "serde_json",
  "syn 1.0.109",
 ]
 
 [[package]]
 name = "odra-casper-shared"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "casper-event-standard",
  "hex",
@@ -1638,7 +1658,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-test-env"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "casper-engine-test-support",
  "casper-execution-engine",
@@ -1652,7 +1672,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-types"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "casper-event-standard",
  "casper-types",
@@ -1663,7 +1683,7 @@ dependencies = [
 [[package]]
 name = "odra-codegen"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "convert_case",
  "derive_more",
@@ -1679,7 +1699,7 @@ dependencies = [
 [[package]]
 name = "odra-ir"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "anyhow",
  "itertools",
@@ -1692,7 +1712,7 @@ dependencies = [
 [[package]]
 name = "odra-mock-vm"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "anyhow",
  "hex",
@@ -1705,7 +1725,7 @@ dependencies = [
 [[package]]
 name = "odra-mock-vm-types"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "borsh",
  "hex",
@@ -1718,7 +1738,7 @@ dependencies = [
 [[package]]
 name = "odra-proc-macros"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "odra-codegen",
  "odra-ir",
@@ -1730,12 +1750,12 @@ dependencies = [
 [[package]]
 name = "odra-types"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 
 [[package]]
 name = "odra-utils"
 version = "0.2.0"
-source = "git+https://github.com/odradev/odra.git?branch=release/0.2.1#148d4c50254669c283bf7baf4dba9706c196f23d"
+source = "git+https://github.com/odradev/odra.git?branch=feature/derive-odra-type#c05268a7539ef79f96ac32bd7481eb201f3ce6df"
 dependencies = [
  "convert_case",
 ]
@@ -2073,9 +2093,9 @@ checksum = "a5996294f19bd3aae0453a862ad728f60e6600695733dd5df01da90c54363a3c"
 
 [[package]]
 name = "rustix"
-version = "0.37.14"
+version = "0.37.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9b864d3c18a5785a05953adeed93e2dca37ed30f18e69bba9f30079d51f363f"
+checksum = "a0661814f891c57c930a610266415528da53c4933e6dea5fb350cbfe048a9ece"
 dependencies = [
  "bitflags",
  "errno",
@@ -2254,6 +2274,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6528351c9bc8ab22353f9d776db39a20288e8d6c37ef8cfe3317cf875eecfc2d"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "smart-default"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "133659a15339456eeeb07572eb02a91c91e9815e9cbc89566944d2c8d3efdbf6"
+dependencies = [
+ "proc-macro2 1.0.56",
+ "quote 1.0.26",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -2463,11 +2494,10 @@ dependencies = [
 
 [[package]]
 name = "tracing"
-version = "0.1.37"
+version = "0.1.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ce8c33a8d48bd45d624a6e523445fd21ec13d3653cd51f681abf67418f54eb8"
+checksum = "cf9cf6a813d3f40c88b0b6b6f29a5c95c6cdbf97c1f9cc53fb820200f5ad814d"
 dependencies = [
- "cfg-if",
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",

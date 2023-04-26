@@ -1,2 +1,2 @@
-pub mod flipper;
-pub use flipper::{Flipper, FlipperRef};
+pub mod variable_repository;
+pub use variable_repository::{VariableRepository, VariableRepositoryRef};

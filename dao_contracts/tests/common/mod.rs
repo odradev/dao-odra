@@ -1,9 +1,9 @@
 use std::fmt::{Debug, Formatter};
-use dao_contracts::{flipper::FlipperDeployer, FlipperRef};
+use dao_contracts::{variable_repository::VariableRepositoryDeployer, VariableRepositoryRef};
 
 #[derive(cucumber::World)]
 pub struct DaoWorld {
-    pub flipper: FlipperRef,
+    pub variable_repository: VariableRepositoryRef,
 }
 
 impl DaoWorld {
@@ -13,7 +13,7 @@ impl DaoWorld {
 impl Default for DaoWorld {
     fn default() -> Self {
         Self {
-            flipper: FlipperDeployer::initial_settings(),
+            variable_repository: VariableRepositoryDeployer::default(),
         }
     }
 }
