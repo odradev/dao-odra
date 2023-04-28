@@ -35,12 +35,12 @@
 //!
 //!  [Repo Voting]: crate::repo_voter::RepoVoterContractInterface
 
+use dao_modules::{AccessControl, Record, Repository};
+use dao_utils::errors::Error;
 use odra::contract_env::caller;
-use dao_modules::{AccessControl, Repository, Record};
-use odra::types::Address;
-use dao_utils::{Bytes, errors::Error};
-use std::collections::BTreeMap;
+use odra::types::{Address, Bytes};
 use odra::UnwrapOrRevert;
+use std::collections::BTreeMap;
 
 #[odra::module]
 pub struct VariableRepository {
@@ -54,20 +54,20 @@ impl VariableRepository {
         to self.access_control {
             /// Checks whether the given address is added to the whitelist.
             /// [`Read more`](AccessControl::is_whitelisted()).
-            fn is_whitelisted(&self, address: Address) -> bool;
+            pub fn is_whitelisted(&self, address: Address) -> bool;
             /// Returns the address of the current owner.
             /// [`Read more`](AccessControl::get_owner()).
-            fn get_owner(&self) -> Option<Address>;
+            pub fn get_owner(&self) -> Option<Address>;
             /// Changes the ownership of the contract. Transfers ownership to the `owner`.
             /// Only the current owner is permitted to call this method.
             /// [`Read more`](AccessControl::change_ownership())
-            fn change_ownership(&mut self, owner: Address);
+            pub fn change_ownership(&mut self, owner: Address);
             /// Adds a new address to the whitelist.
             /// [`Read more`](AccessControl::add_to_whitelist())
-            fn add_to_whitelist(&mut self, address: Address);
+            pub fn add_to_whitelist(&mut self, address: Address);
             /// Remove address from the whitelist.
             /// [`Read more`](AccessControl::remove_from_whitelist())
-            fn remove_from_whitelist(&mut self, address: Address);
+            pub fn remove_from_whitelist(&mut self, address: Address);
         }
     }
 
@@ -84,7 +84,13 @@ impl VariableRepository {
     /// * [`AddedToWhitelist`](casper_dao_modules::events::AddedToWhitelist),
     /// * multiple [`ValueUpdated`](casper_dao_modules::events::ValueUpdated) events,
     /// one per value of the default repository configuration.
-    fn init(&mut self, fiat_conversion: Address, bid_escrow_wallet: Address, voting_ids: Address) {
+    #[odra(init)]
+    pub fn init(
+        &mut self,
+        fiat_conversion: Address,
+        bid_escrow_wallet: Address,
+        voting_ids: Address,
+    ) {
         let deployer = caller();
         self.access_control.init(deployer);
         self.repository
@@ -107,7 +113,7 @@ impl VariableRepository {
     /// is not a whitelisted user.
     /// * [`ActivationTimeInPast`](casper_dao_utils::Error::ActivationTimeInPast) if
     /// the activation time has passed already.
-    fn update_at(&mut self, key: String, value: Bytes, activation_time: Option<u64>) {
+    pub fn update_at(&mut self, key: String, value: Bytes, activation_time: Option<u64>) {
         self.access_control.ensure_whitelisted();
         self.repository.update_at(key, value, activation_time);
     }
@@ -115,7 +121,7 @@ impl VariableRepository {
     /// Returns the value stored under the given key.
     ///
     /// If the key does not exist, the `None` value is returned.
-    fn get(&self, key: String) -> Option<Bytes> {
+    pub fn get(&self, key: String) -> Option<Bytes> {
         self.repository.get(key)
     }
 
@@ -123,7 +129,7 @@ impl VariableRepository {
     /// See [`Record`](casper_dao_modules::Record).
     ///
     /// If the key does not exist, the `None` value is returned.
-    fn get_full_value(&self, key: String) -> Option<Record> {
+    pub fn get_full_value(&self, key: String) -> Option<Record> {
         self.repository.get_full_value(key)
     }
 
@@ -133,24 +139,20 @@ impl VariableRepository {
     /// The index range is 0 to #keys-1.
     ///
     /// If the given index exceeds #keys-1 the `None` value is returned.
-    fn get_key_at(&self, index: u32) -> Option<String> {
+    pub fn get_key_at(&self, index: u32) -> Option<String> {
         self.repository.keys.get(index)
     }
 
     /// Returns the number of existing keys in the [`Repository`](casper_dao_modules::Repository).
-    fn keys_count(&self) -> u32 {
+    pub fn keys_count(&self) -> u32 {
         self.repository.keys.len()
     }
 
     /// Reads all the stored variables and returns a map key to value.
-    fn all_variables(&self) -> BTreeMap<String, Bytes> {
+    pub fn all_variables(&self) -> BTreeMap<String, Bytes> {
         let mut result: BTreeMap<String, Bytes> = BTreeMap::new();
 
-        for key in 0..self
-            .repository
-            .keys
-            .len()
-        {
+        for key in 0..self.repository.keys.len() {
             let repo_key = self
                 .repository
                 .keys

@@ -1,19 +1,22 @@
-use std::fmt::{Debug, Formatter};
 use dao_contracts::{variable_repository::VariableRepositoryDeployer, VariableRepositoryRef};
+use odra::test_env;
+use std::fmt::{Debug, Formatter};
 
 #[derive(cucumber::World)]
 pub struct DaoWorld {
     pub variable_repository: VariableRepositoryRef,
 }
 
-impl DaoWorld {
-
-}
+impl DaoWorld {}
 
 impl Default for DaoWorld {
     fn default() -> Self {
         Self {
-            variable_repository: VariableRepositoryDeployer::default(),
+            variable_repository: VariableRepositoryDeployer::init(
+                test_env::get_account(0),
+                test_env::get_account(1),
+                test_env::get_account(2),
+            ),
         }
     }
 }

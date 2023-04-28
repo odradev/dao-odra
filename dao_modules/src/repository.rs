@@ -3,21 +3,31 @@ use dao_utils::consts;
 use dao_utils::errors::Error::{ActivationTimeInPast, KeyValueStorageError};
 use odra::contract_env::{get_block_time, revert};
 use odra::types::event::OdraEvent;
-use odra::types::{Address, OdraType, U512};
-use odra::{List, Mapping, UnwrapOrRevert};
+use odra::types::{Address, Bytes, OdraType as OdraTyped, U512};
+use odra::{List, Mapping, OdraItem, OdraType, UnwrapOrRevert};
 
 /// A data struct stored in the repository.
 ///
 /// The first value represents the current value.
 ///
 /// The second value is an optional tuple consisting of the future value and its activation time.
-pub type Record = (Vec<u8>, Option<(Vec<u8>, u64)>);
+#[derive(OdraType, Clone)]
+pub struct Record {
+    pub current_value: Bytes,
+    pub next_value: Option<(Bytes, u64)>,
+}
+
+impl OdraItem for Record {
+    fn is_module() -> bool {
+        false
+    }
+}
 
 /// A module that stores the DAO configuration.
 ///
 /// The modules stores key-value pairs and a set of keys.
 /// The repository is initialized with the default values.
-#[odra::module]
+#[odra::module(events = [ValueUpdated])]
 pub struct Repository {
     pub storage: Mapping<String, Record>,
     pub keys: List<String>,
@@ -41,12 +51,15 @@ impl Repository {
         }
     }
 
-    pub fn update_at(&mut self, key: String, value: Vec<u8>, activation_time: Option<u64>) {
+    pub fn update_at(&mut self, key: String, value: Bytes, activation_time: Option<u64>) {
         let now = get_block_time();
         let value_for_event = value.clone();
         let new_value: Record = match activation_time {
             // If no activation_time provided update the record to the value from argument.
-            None => (value, None),
+            None => Record {
+                current_value: value,
+                next_value: None,
+            },
 
             // If activation_time is in the past, raise an error.
             Some(activation_time) if activation_time < now => revert(ActivationTimeInPast),
@@ -54,24 +67,35 @@ impl Repository {
             // If activation time is in future.
             Some(activation_time) => {
                 // Load the record.
-                let (current_value, current_next_value) = self
+                let record = self
                     .storage
                     .get(&key)
                     .unwrap_or_revert_with(KeyValueStorageError);
+                let current_value = record.current_value;
+                let current_next_value = record.next_value;
                 match current_next_value {
                     // If current_next_value is not set, update it to the value from arguments.
-                    None => (current_value, Some((value, activation_time))),
+                    None => Record {
+                        current_value,
+                        next_value: Some((value, activation_time)),
+                    },
 
                     // If current_next_value is set, but it is in the past, make it a current
                     // value and set next_value to values from arguments.
                     Some((current_next_value, current_activation_time))
                         if current_activation_time < now =>
                     {
-                        (current_next_value, Some((value, activation_time)))
+                        Record {
+                            current_value: current_next_value,
+                            next_value: Some((value, activation_time)),
+                        }
                     }
 
                     // If current_next_value is set in future, update it.
-                    Some(_) => (current_value, Some((value, activation_time))),
+                    Some(_) => Record {
+                        current_value,
+                        next_value: Some((value, activation_time)),
+                    },
                 }
             }
         };
@@ -85,36 +109,37 @@ impl Repository {
         .emit();
     }
 
-    pub fn get(&self, key: String) -> Option<Vec<u8>> {
-        let (current, future) = self.storage.get(&key)?;
+    pub fn get(&self, key: String) -> Option<Bytes> {
+        let record = self.storage.get(&key)?;
         let now = get_block_time();
-        if let Some((value, activation_time)) = future {
+        if let Some((value, activation_time)) = record.next_value {
             if now > activation_time {
                 return Some(value);
             }
         }
-        Some(current)
+        Some(record.current_value)
     }
 
     pub fn get_full_value(&self, key: String) -> Option<Record> {
         self.storage.get(&key)
     }
 
-    fn set(&mut self, key: String, value: Vec<u8>) {
+    fn set(&mut self, key: String, value: Bytes) {
         self.update_at(key, value, None);
     }
 }
 
 struct RepositoryDefaults {
-    pub items: Vec<(String, Vec<u8>)>,
+    pub items: Vec<(String, Bytes)>,
 }
 
 impl RepositoryDefaults {
-    pub fn push<T: OdraType>(&mut self, key: &str, value: T) {
-        self.items.push((key.to_string(), value.as_bytes().unwrap()));
+    pub fn push<T: OdraTyped>(&mut self, key: &str, value: T) {
+        self.items
+            .push((key.to_string(), value.as_bytes().unwrap().into()));
     }
 
-    pub fn items(self) -> Vec<(String, Vec<u8>)> {
+    pub fn items(self) -> Vec<(String, Bytes)> {
         self.items
     }
 }
@@ -153,13 +178,14 @@ impl Default for RepositoryDefaults {
 }
 
 pub mod events {
+    use odra::types::Bytes;
     use odra::Event;
 
     /// Informs the repository value has been changed.
     #[derive(Event, PartialEq, Eq, Debug)]
     pub struct ValueUpdated {
         pub key: String,
-        pub value: Vec<u8>,
+        pub value: Bytes,
         pub activation_time: Option<u64>,
     }
 }

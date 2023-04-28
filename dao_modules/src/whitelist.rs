@@ -1,9 +1,9 @@
-use odra::contract_env::{caller, revert};
-use odra::Mapping;
-use odra::types::Address;
-use dao_utils::errors::Error;
-use odra::types::event::OdraEvent;
 use crate::whitelist::events::{AddedToWhitelist, RemovedFromWhitelist};
+use dao_utils::errors::Error;
+use odra::contract_env::{caller, revert};
+use odra::types::event::OdraEvent;
+use odra::types::Address;
+use odra::Mapping;
 
 /// The Whitelist module.
 #[odra::module]
@@ -41,8 +41,8 @@ impl Whitelist {
 pub mod events {
     //! Events definitions.
 
-    use odra::Event;
     use odra::types::Address;
+    use odra::Event;
 
     /// Informs new address has been added to the whitelist.
     #[derive(Debug, PartialEq, Eq, Event)]

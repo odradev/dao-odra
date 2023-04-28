@@ -5,4 +5,4 @@ pub use owner::{Owner, OwnerRef};
 pub mod whitelist;
 pub use whitelist::{Whitelist, WhitelistRef};
 pub mod repository;
-pub use repository::{Repository, RepositoryRef, Record};
+pub use repository::{Record, Repository, RepositoryRef};

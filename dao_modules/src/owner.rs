@@ -1,9 +1,9 @@
-use odra::contract_env::{caller, revert};
-use odra::types::Address;
-use odra::types::event::OdraEvent;
-use odra::Variable;
 use crate::owner::events::OwnerChanged;
 use dao_utils::errors::Error;
+use odra::contract_env::{caller, revert};
+use odra::types::event::OdraEvent;
+use odra::types::Address;
+use odra::Variable;
 
 /// The Owner module.
 #[odra::module]
@@ -24,9 +24,7 @@ impl Owner {
     pub fn change_ownership(&mut self, owner: Address) {
         self.owner.set(owner);
 
-        OwnerChanged {
-            new_owner: owner,
-        }.emit();
+        OwnerChanged { new_owner: owner }.emit();
     }
 
     /// Verify if the contract caller is the owner. Revert otherwise.
@@ -46,8 +44,8 @@ impl Owner {
 }
 pub mod events {
     //! Events definitions.
-    use odra::Event;
     use odra::types::Address;
+    use odra::Event;
 
     /// Informs the owner change.
     #[derive(Debug, PartialEq, Eq, Event)]
