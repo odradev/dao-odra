@@ -36,7 +36,7 @@ impl ContractCall {
         call_contract(
             self.address().clone(),
             self.entry_point().as_str(),
-            self.call_args().clone(),
+            self.call_args(),
             self.amount(),
         )
     }

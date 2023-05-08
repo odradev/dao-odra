@@ -6,10 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-odra = { path = "../../odra/core", default-features = false }
+odra = { path = "../../odra/odra/core", default-features = false }
+odra-modules = { path = "../../odra/odra/modules", default-features = false }
 utils = { path = "../utils", default-features = false }
 
 [features]
 default = ["mock-vm"]
-mock-vm = ["odra/mock-vm", "utils/mock-vm"]
-casper = ["odra/casper", "utils/casper"]
+mock-vm = ["odra/mock-vm", "odra-modules/mock-vm", "utils/mock-vm"]
+casper = ["odra/casper", "odra-modules/casper", "utils/casper"]

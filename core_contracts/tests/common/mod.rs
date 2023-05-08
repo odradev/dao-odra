@@ -1,4 +1,4 @@
-use core_contracts::{variable_repository::VariableRepositoryDeployer, VariableRepositoryRef};
+use core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef};
 use odra::test_env;
 use std::fmt::{Debug, Formatter};
 
