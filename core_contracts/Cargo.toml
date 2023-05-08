@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-odra = { path = "../../odra/core", default-features = false }
+odra = { workspace = true, default-features = false }
+odra-modules = { path = "../../odra/odra/modules", default-features = false }
 modules = { path = "../modules", default-features = false }
 utils = { path = "../utils", default-features = false }
 
@@ -14,8 +15,8 @@ futures = "0.3.5"
 
 [features]
 default = ["mock-vm"]
-mock-vm = ["odra/mock-vm", "modules/mock-vm", "utils/mock-vm"]
-casper = ["odra/casper", "modules/casper", "utils/casper"]
+mock-vm = ["odra/mock-vm", "odra-modules/mock-vm", "modules/mock-vm", "utils/mock-vm"]
+casper = ["odra/casper", "odra-modules/casper", "modules/casper", "utils/casper"]
 
 [[test]]
 name = "test_flipper"

@@ -1,8 +1,15 @@
-pub mod variable_repository;
-pub use variable_repository::{VariableRepository, VariableRepositoryRef};
-pub mod reputation_contract;
-pub use reputation_contract::{ReputationContract, ReputationContractRef};
+mod dao_nft;
+mod kyc_ntf;
+mod va_nft;
 pub mod refs;
-pub mod va_nft_contract;
+mod variable_repository;
 
-pub use va_nft_contract::{VaNftContract, VaNftContractRef};
+pub use dao_nft::{DaoNft, DaoNftComposer, DaoNftDeployer, DaoNftRef};
+pub use kyc_ntf::{
+    KycNftContract, KycNftContractComposer, KycNftContractDeployer, KycNftContractRef,
+};
+pub use va_nft::{VaNftContract, VaNftContractComposer, VaNftContractDeployer, VaNftContractRef};
+pub use variable_repository::{
+    VariableRepository, VariableRepositoryComposer, VariableRepositoryDeployer,
+    VariableRepositoryRef,
+};

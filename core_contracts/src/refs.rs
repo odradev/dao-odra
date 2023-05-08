@@ -1,7 +1,8 @@
 //! Utility modules providing references to common contracts that are used by most of the voting contracts.
-use crate::{ReputationContractRef, VaNftContractRef, VariableRepositoryRef};
 use odra::types::Address;
 use odra::Variable;
+
+use crate::{VaNftContractRef, VariableRepositoryRef};
 
 /// Provides references to common contracts that are used by most of the voting contracts.
 pub trait ContractRefs {

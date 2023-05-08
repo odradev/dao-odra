@@ -3,11 +3,8 @@ name = "utils"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-odra = { path = "../../odra/core", default-features = false }
-odra-types = { path = "../../odra/types", default-features = false }
+odra = { workspace = true, default-features = false }
 
 [features]
 default = ["mock-vm"]

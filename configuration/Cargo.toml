@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 core_contracts = { path = "../core_contracts", default-features = false }
 utils = { path = "../utils", default-features = false }
-odra = { path = "../../odra/core", default-features = false }
+odra = { workspace = true, default-features = false }
 
 [features]
 default = ["mock-vm"]
