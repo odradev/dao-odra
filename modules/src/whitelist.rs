@@ -1,9 +1,9 @@
 use crate::whitelist::events::{AddedToWhitelist, RemovedFromWhitelist};
-use dao_utils::errors::Error;
 use odra::contract_env::{caller, revert};
 use odra::types::event::OdraEvent;
 use odra::types::Address;
 use odra::Mapping;
+use utils::errors::Error;
 
 /// The Whitelist module.
 #[odra::module]

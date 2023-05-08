@@ -541,6 +541,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
 
 [[package]]
+name = "core_contracts"
+version = "0.1.0"
+dependencies = [
+ "cucumber",
+ "futures",
+ "modules",
+ "odra",
+ "utils",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -709,32 +720,6 @@ dependencies = [
  "proc-macro2 1.0.56",
  "quote 1.0.26",
  "syn 2.0.15",
-]
-
-[[package]]
-name = "dao_contracts"
-version = "0.1.0"
-dependencies = [
- "cucumber",
- "dao_modules",
- "dao_utils",
- "futures",
- "odra",
-]
-
-[[package]]
-name = "dao_modules"
-version = "0.1.0"
-dependencies = [
- "dao_utils",
- "odra",
-]
-
-[[package]]
-name = "dao_utils"
-version = "0.1.0"
-dependencies = [
- "odra",
 ]
 
 [[package]]
@@ -1448,6 +1433,14 @@ name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
+name = "modules"
+version = "0.1.0"
+dependencies = [
+ "odra",
+ "utils",
+]
 
 [[package]]
 name = "nom"
@@ -2586,6 +2579,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
+name = "utils"
+version = "0.1.0"
+dependencies = [
+ "odra",
+ "odra-types",
+]
+
+[[package]]
 name = "uuid"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2610,6 +2611,14 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
+
+[[package]]
+name = "voting"
+version = "0.1.0"
+dependencies = [
+ "odra",
+ "utils",
+]
 
 [[package]]
 name = "wait-timeout"

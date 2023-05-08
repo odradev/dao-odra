@@ -1,8 +1,9 @@
 [workspace]
 members = [
-    "dao_contracts",
-    "dao_modules",
-    "dao_utils"
+    "core_contracts",
+    "modules",
+    "utils",
+    "voting",
 ]
 
 [workspace.dependencies]

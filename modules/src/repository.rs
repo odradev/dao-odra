@@ -1,26 +1,20 @@
 use crate::repository::events::ValueUpdated;
-use dao_utils::consts;
-use dao_utils::errors::Error::{ActivationTimeInPast, KeyValueStorageError};
 use odra::contract_env::{get_block_time, revert};
 use odra::types::event::OdraEvent;
 use odra::types::{Address, Bytes, OdraType as OdraTyped, U512};
 use odra::{List, Mapping, OdraItem, OdraType, UnwrapOrRevert};
+use utils::consts;
+use utils::errors::Error::{ActivationTimeInPast, KeyValueStorageError};
 
 /// A data struct stored in the repository.
 ///
 /// The first value represents the current value.
 ///
 /// The second value is an optional tuple consisting of the future value and its activation time.
-#[derive(OdraType, Clone)]
+#[derive(OdraType)]
 pub struct Record {
     pub current_value: Bytes,
     pub next_value: Option<(Bytes, u64)>,
-}
-
-impl OdraItem for Record {
-    fn is_module() -> bool {
-        false
-    }
 }
 
 /// A module that stores the DAO configuration.

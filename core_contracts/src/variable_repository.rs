@@ -35,12 +35,12 @@
 //!
 //!  [Repo Voting]: crate::repo_voter::RepoVoterContractInterface
 
-use dao_modules::{AccessControl, Record, Repository};
-use dao_utils::errors::Error;
+use modules::{AccessControl, Record, Repository};
 use odra::contract_env::caller;
 use odra::types::{Address, Bytes};
 use odra::UnwrapOrRevert;
 use std::collections::BTreeMap;
+use utils::errors::Error;
 
 #[odra::module]
 pub struct VariableRepository {

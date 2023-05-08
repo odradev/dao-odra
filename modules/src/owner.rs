@@ -1,9 +1,9 @@
 use crate::owner::events::OwnerChanged;
-use dao_utils::errors::Error;
 use odra::contract_env::{caller, revert};
 use odra::types::event::OdraEvent;
 use odra::types::Address;
 use odra::Variable;
+use utils::errors::Error;
 
 /// The Owner module.
 #[odra::module]

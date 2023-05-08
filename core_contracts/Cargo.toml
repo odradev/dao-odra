@@ -1,12 +1,12 @@
 [package]
-name = "dao_contracts"
+name = "core_contracts"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 odra = { path = "../../odra/core", default-features = false }
-dao_modules = { path = "../dao_modules", default-features = false }
-dao_utils = { path = "../dao_utils", default-features = false }
+modules = { path = "../modules", default-features = false }
+utils = { path = "../utils", default-features = false }
 
 [dev-dependencies]
 cucumber = "0.19.1"
@@ -14,8 +14,8 @@ futures = "0.3.5"
 
 [features]
 default = ["mock-vm"]
-mock-vm = ["odra/mock-vm", "dao_modules/mock-vm", "dao_utils/mock-vm"]
-casper = ["odra/casper", "dao_modules/casper", "dao_utils/casper"]
+mock-vm = ["odra/mock-vm", "modules/mock-vm", "utils/mock-vm"]
+casper = ["odra/casper", "modules/casper", "utils/casper"]
 
 [[test]]
 name = "test_flipper"
