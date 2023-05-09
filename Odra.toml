@@ -1,3 +1,15 @@
 [[contracts]]
 name = "variable_repository"
 fqn = "core_contracts::VariableRepository"
+
+[[contracts]]
+name = "admin"
+fqn = "voting_contracts::Admin"
+
+[[contracts]]
+name = "reputation_contract"
+fqn = "core_contracts::reputation_contract::ReputationContract"
+
+[[contracts]]
+name = "va_nft_contract"
+fqn = "core_contracts::va_nft_contract::VaNftContract"

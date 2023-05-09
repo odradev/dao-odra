@@ -17,8 +17,8 @@ impl ContractCall {
     }
 
     /// Get the contract call's entry point.
-    pub fn entry_point(&self) -> String {
-        self.entry_point.clone()
+    pub fn entry_point(&self) -> &str {
+        self.entry_point.as_str()
     }
 
     /// Get a reference to the contract call's runtime args.
@@ -26,7 +26,7 @@ impl ContractCall {
         &self.call_args
     }
 
-    /// Get a reference to the contract call's amount.
+    /// Get a contract call's amount.
     pub fn amount(&self) -> Option<Balance> {
         self.amount
     }
@@ -35,8 +35,8 @@ impl ContractCall {
     pub fn call(&self) {
         call_contract(
             self.address().clone(),
-            self.entry_point().as_str(),
-            self.call_args().clone(),
+            self.entry_point(),
+            &self.call_args(),
             self.amount(),
         )
     }

@@ -2,7 +2,7 @@ use crate::repository::events::ValueUpdated;
 use odra::contract_env::{get_block_time, revert};
 use odra::types::event::OdraEvent;
 use odra::types::{Address, Bytes, OdraType as OdraTyped, U512};
-use odra::{List, Mapping, OdraItem, OdraType, UnwrapOrRevert};
+use odra::{List, Mapping, OdraType, UnwrapOrRevert};
 use utils::consts;
 use utils::errors::Error::{ActivationTimeInPast, KeyValueStorageError};
 
@@ -130,7 +130,7 @@ struct RepositoryDefaults {
 impl RepositoryDefaults {
     pub fn push<T: OdraTyped>(&mut self, key: &str, value: T) {
         self.items
-            .push((key.to_string(), value.as_bytes().unwrap().into()));
+            .push((key.to_string(), value.serialize().unwrap().into()));
     }
 
     pub fn items(self) -> Vec<(String, Bytes)> {

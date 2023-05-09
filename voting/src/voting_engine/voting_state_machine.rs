@@ -1,5 +1,5 @@
-use crate::configuration::VotingConfiguration;
 use crate::types::VotingId;
+use crate::voting_configuration::VotingConfiguration;
 use odra::types::{Address, U512};
 
 /// Serializable voting state with a state machine capabilities.

@@ -1,11 +1,14 @@
 [workspace]
 members = [
+    "bid_escrow",
     "core_contracts",
+    "configuration",
     "modules",
     "utils",
     "voting",
+    "voting_contracts",
 ]
 
 [workspace.dependencies]
-odra = { path = "../../odra/core" }
+odra = { path = "../odra/core" }
 

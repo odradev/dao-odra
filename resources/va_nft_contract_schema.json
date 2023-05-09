@@ -1,0 +1,35 @@
+{
+  "name": "VaNftContract",
+  "entrypoints": [
+    {
+      "name": "initial_settings",
+      "is_mutable": true,
+      "args": [],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "set",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "value",
+          "ty": "Bool"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "get",
+      "is_mutable": false,
+      "args": [],
+      "return_ty": "Bool"
+    },
+    {
+      "name": "total_supply",
+      "is_mutable": false,
+      "args": [],
+      "return_ty": "U512"
+    }
+  ],
+  "events": []
+}

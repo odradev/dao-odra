@@ -41,7 +41,7 @@ pub const ARG_TOKEN_ID: &str = "token_id";
 
 /// The key the collection length is stored under.
 pub const LENGTH_SUFFIX: &str = "_length";
-/// The key the contracts' events are stored under.
+/// The key the voting_contracts' events are stored under.
 pub const NAME_EVENTS: &str = "events";
 
 // REPO KEYS

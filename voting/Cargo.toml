@@ -8,8 +8,10 @@ edition = "2021"
 [dependencies]
 odra = { path = "../../odra/core", default-features = false }
 utils = { path = "../utils", default-features = false }
+core_contracts = { path = "../core_contracts", default-features = false }
+configuration = { path = "../configuration", default-features = false }
 
 [features]
 default = ["mock-vm"]
-mock-vm = ["odra/mock-vm", "utils/mock-vm"]
-casper = ["odra/casper", "utils/casper"]
+mock-vm = ["odra/mock-vm", "utils/mock-vm", "core_contracts/mock-vm", "configuration/mock-vm"]
+casper = ["odra/casper", "utils/casper", "core_contracts/casper", "configuration/casper"]
