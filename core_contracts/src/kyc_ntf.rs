@@ -11,7 +11,7 @@
 //!
 //! [`KYC Voting`]: crate::kyc_voter::KycVoterContractInterface
 use crate::dao_nft::{DaoNft, TokenId, TokenUri};
-use odra::types::{Address, U256};
+use odra::types::{Address, U256, U512};
 
 /// Kyc Owned Nft contract acts like an erc-721 token and derives most of erc-721 standard.
 ///
@@ -57,7 +57,7 @@ impl KycNftContract {
             /// Returns the number of tokens owned by `owner`.
             pub fn balance_of(&self, owner: Address) -> U256;
             /// Returns the total number of tokens.
-            pub fn total_supply(&self) -> U256;
+            pub fn total_supply(&self) -> U512;
             /// Returns a distinct Uniform Resource Identifier (URI) for a given asset.
             pub fn token_uri(&self, token_id: TokenId) -> TokenUri;
             /// Returns a URI prefix that is used by all the assets.

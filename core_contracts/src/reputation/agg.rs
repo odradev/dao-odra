@@ -4,9 +4,8 @@ use odra::{
     types::{Address, U512},
     OdraType,
 };
-use voting::types::VotingId;
 
-use super::{balances::BalanceStorage, stakes::StakesStorage, BidId};
+use super::{balances::BalanceStorage, stakes::StakesStorage, BidId, VotingId};
 
 /// A module that provides aggregated data about reputation tokens.
 #[odra::module]

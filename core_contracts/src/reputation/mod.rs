@@ -29,6 +29,7 @@ pub mod token;
 
 // TODO: remove once BidEscrow module is done.
 pub type BidId = u32;
+pub type VotingId = u32;
 
 // TODO: remove once BidEscrow module is done.
 #[derive(OdraType)]

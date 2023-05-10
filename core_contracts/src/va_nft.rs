@@ -12,7 +12,7 @@
 //! Each [`Address`] can own only one VA token.
 //!
 //! [`Bid Escrow`]: crate::bid_escrow::BidEscrowContractInterface.
-use odra::types::{Address, U256};
+use odra::types::{Address, U256, U512};
 
 use crate::dao_nft::{DaoNft, TokenId, TokenUri};
 
@@ -36,39 +36,39 @@ impl VaNftContract {
             /// Changes the ownership of the contract. Transfers ownership to the `owner`.
             /// Only the current owner is permitted to call this method.
             /// [`Read more`](AccessControl::change_ownership())
-            fn change_ownership(&mut self, owner: Address);
+            pub fn change_ownership(&mut self, owner: Address);
             /// Adds a new address to the whitelist.
             /// [`Read more`](AccessControl::add_to_whitelist())
-            fn add_to_whitelist(&mut self, address: Address);
+            pub fn add_to_whitelist(&mut self, address: Address);
             /// Remove address from the whitelist.
             /// [`Read more`](AccessControl::remove_from_whitelist())
-            fn remove_from_whitelist(&mut self, address: Address);
+            pub fn remove_from_whitelist(&mut self, address: Address);
             /// Checks whether the given address is added to the whitelist.
             /// [`Read more`](AccessControl::is_whitelisted()).
-            fn is_whitelisted(&self, address: Address) -> bool;
+            pub fn is_whitelisted(&self, address: Address) -> bool;
             /// Returns the address of the current owner.
             /// [`Read more`](AccessControl::get_owner()).
-            fn get_owner(&self) -> Option<Address>;
+            pub fn get_owner(&self) -> Option<Address>;
             /// Returns a descriptive name for a collection of tokens in this contract.
-            fn name(&self) -> String;
+            pub fn name(&self) -> String;
             /// Gets an abbreviated name for tokens in this contract.
-            fn symbol(&self) -> String;
+            pub fn symbol(&self) -> String;
             /// Returns the address of the owner of the token.
             ///
             /// If the given `token_id` does not exist the None value is returned.
-            fn owner_of(&self, token_id: TokenId) -> Address;
+            pub fn owner_of(&self, token_id: TokenId) -> Address;
             /// Returns a token id for the given the `address`.
             ///
             /// If the `owner` does not own any token the None value is returned.
-            fn token_id(&self, address: Address) -> Option<TokenId>;
+            pub fn token_id(&self, address: Address) -> Option<TokenId>;
             /// Returns the number of tokens owned by `owner`.
-            fn balance_of(&self, owner: Address) -> U256;
+            pub fn balance_of(&self, owner: Address) -> U256;
             /// Returns the total number of tokens.
-            fn total_supply(&self) -> U256;
+            pub fn total_supply(&self) -> U512;
             /// Returns a distinct Uniform Resource Identifier (URI) for a given asset.
-            fn token_uri(&self, token_id: TokenId) -> TokenUri;
+            pub fn token_uri(&self, token_id: TokenId) -> TokenUri;
             /// Returns a URI prefix that is used by all the assets.
-            fn base_uri(&self) -> TokenUri;
+            pub fn base_uri(&self) -> TokenUri;
             /// Creates a new token with the next id and transfers it to a new owner.
             /// Increments the total supply and the balance of the `to` address.
             ///
@@ -84,7 +84,7 @@ impl VaNftContract {
             ///
             /// # Events
             /// * [`Transfer`](casper_dao_erc721::events::Transfer) when minted successfully.
-            fn mint(&mut self, to: Address);
+            pub fn mint(&mut self, to: Address);
             /// Burns a token with a given id. Decrements the balance of the token owner
             /// and decrements the total supply.
             ///
@@ -94,7 +94,7 @@ impl VaNftContract {
             ///
             /// # Events
             /// * [`Transfer`](casper_dao_erc721::events::Transfer) when burnt successfully.
-            fn burn(&mut self, owner: Address);
+            pub fn burn(&mut self, owner: Address);
         }
     }
 }

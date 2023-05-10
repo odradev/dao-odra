@@ -579,7 +579,6 @@ dependencies = [
  "odra",
  "odra-modules",
  "utils",
- "voting",
 ]
 
 [[package]]

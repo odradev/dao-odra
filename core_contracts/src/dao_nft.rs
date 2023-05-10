@@ -1,7 +1,7 @@
 use modules::AccessControl;
 use odra::{
     contract_env,
-    types::{event::OdraEvent, Address, U256},
+    types::{event::OdraEvent, Address, U256, U512},
     Mapping, Sequence, Variable,
 };
 use odra_modules::erc721::events::Transfer;
@@ -24,7 +24,7 @@ pub struct DaoNft {
     access_control: AccessControl,
     tokens: Mapping<Address, Option<TokenId>>,
     id_gen: Sequence<TokenId>,
-    total_supply: Variable<U256>,
+    total_supply: Variable<U512>,
 }
 
 #[odra::module]
@@ -80,7 +80,7 @@ impl DaoNft {
     }
 
     /// Returns the total number of tokens.
-    pub fn total_supply(&self) -> U256 {
+    pub fn total_supply(&self) -> U512 {
         self.total_supply.get_or_default()
     }
 
@@ -125,7 +125,7 @@ impl DaoNft {
             contract_env::revert(Error::TokenAlreadyExists)
         }
         self.core.balances.add(&to, U256::one());
-        self.total_supply.add(U256::one());
+        self.total_supply.add(U512::one());
         self.core.owners.set(&token_id, Some(to));
 
         self.tokens.set(&to, Some(token_id));

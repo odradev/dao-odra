@@ -10,6 +10,6 @@ members = [
 ]
 
 [workspace.dependencies]
-odra = { path = "../odra/odra/core" }
-odra-modules = { path = "../odra/odra/modules" }
+odra = { path = "../odra/odra/core", default-features = false }
+odra-modules = { path = "../odra/odra/modules", default-features = false }
 

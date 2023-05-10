@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-odra = { workspace = true, default-features = false }
-odra-modules = { workspace = true, default-features = false }
+odra = { workspace = true }
+odra-modules = { workspace = true }
 utils = { path = "../utils", default-features = false }
 core_contracts = { path = "../core_contracts", default-features = false }
 configuration = { path = "../configuration", default-features = false }

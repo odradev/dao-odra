@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-odra = { workspace = true, default-features = false }
+odra = { workspace = true }
 modules = { path = "../modules", default-features = false }
 utils = { path = "../utils", default-features = false }
 
