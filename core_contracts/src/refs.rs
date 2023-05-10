@@ -2,7 +2,7 @@
 use odra::types::Address;
 use odra::Variable;
 
-use crate::{VaNftContractRef, VariableRepositoryRef, ReputationContractRef};
+use crate::{ReputationContractRef, VaNftContractRef, VariableRepositoryRef};
 
 /// Provides references to common contracts that are used by most of the voting contracts.
 pub trait ContractRefs {

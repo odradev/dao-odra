@@ -5,6 +5,7 @@ members = [
     "configuration",
     "modules",
     "utils",
+    "utils-contracts",
     "voting",
     "voting_contracts",
 ]
