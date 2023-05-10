@@ -1,42 +1,27 @@
+use std::hash::Hash;
 
+use modules::AccessControl;
+use odra::{
+    contract_env,
+    types::{event::OdraEvent, Address, OdraType, U512},
+    Mapping, UnwrapOrRevert,
+};
+use utils::errors::Error;
+use voting::types::VotingId;
 
-use dao_modules::AccessControl;
-use dao_utils::errors::Error;
-use odra::{Mapping, types::{Address, U512, OdraType}, OdraType, contract_env, UnwrapOrRevert};
-
-use super::balances::BalanceStorage;
-
-// TODO: remove once Voting module is done.
-pub type VotingId = u32;
-// TODO: remove once BidEscrow module is done.
-pub type BidId = u32;
-
-// TODO: remove once BidEscrow module is done.
-#[derive(OdraType)]
-pub struct ShortenedBid {
-    pub bid_id: BidId,
-    pub reputation_stake: U512,
-    pub worker: Address,
-}
-
-#[derive(OdraType)]
-pub struct ShortenedBallot {
-    /// The voter's address.
-    pub voter: Address,
-    /// Vote power.
-    pub stake: U512,
-}
-
+use super::{
+    balances::BalanceStorage,
+    token::events::{Stake, Unstake},
+    BidId, ShortenedBallot, ShortenedBid,
+};
 
 /// A module that stores information about stakes.
-#[odra::module]
+#[odra::module(events = [Stake, Unstake])]
 pub struct StakesStorage {
     total_stake: Mapping<Address, U512>,
     bids: Mapping<Address, Vec<(Address, BidId)>>,
     votings: Mapping<Address, Vec<(Address, VotingId)>>,
-    // #[scoped = "contract"]
     access_control: AccessControl,
-    // #[scoped = "contract"]
     reputation_storage: BalanceStorage,
 }
 
@@ -131,11 +116,12 @@ impl StakesStorage {
         self.inc_total_stake(worker, reputation_stake);
         self.bids.push_record(&worker, (voter_contract, bid_id));
 
-        // emit(Stake {
-        //     worker: bid.worker,
-        //     amount: bid.reputation_stake,
-        //     bid_id: bid.bid_id,
-        // })
+        Stake {
+            worker: bid.worker,
+            amount: bid.reputation_stake,
+            bid_id: bid.bid_id,
+        }
+        .emit();
     }
 
     /// Decreases the bidder's stake and total stake.
@@ -156,11 +142,12 @@ impl StakesStorage {
         self.bids
             .remove_record(&bid.worker, (voter_contract, bid.bid_id));
 
-        // emit(Unstake {
-        //     worker: bid.worker,
-        //     amount: bid.reputation_stake,
-        //     bid_id: bid.bid_id,
-        // })
+        Unstake {
+            worker: bid.worker,
+            amount: bid.reputation_stake,
+            bid_id: bid.bid_id,
+        }
+        .emit();
     }
 
     // Decreases all the bidders stake and total stake.
@@ -239,26 +226,25 @@ impl StakesStorage {
 }
 
 trait UpdatableVec<K, R> {
-    fn push_record(&self, key: &K, record: R);
-    fn remove_record(&self, key: &K, record: R);
+    fn push_record(&mut self, key: &K, record: R);
+    fn remove_record(&mut self, key: &K, record: R);
 }
 
-// impl<Key, Record> UpdatableVec<Key, Record> for Mapping<Key, Vec<Record>>
-// where
-//     Key: OdraType,
-//     Record: OdraType + PartialEq,
-// {
-//     fn push_record(&self, key: &Key, record: Record) {
-//         let mut records = self.get(key).unwrap_or_default();
-//         records.push(record);
-//         self.set(key, records);
-//     }
+impl<Key> UpdatableVec<Key, (Address, u32)> for Mapping<Key, Vec<(Address, u32)>>
+where
+    Key: OdraType + Hash,
+{
+    fn push_record(&mut self, key: &Key, record: (Address, u32)) {
+        let mut records = self.get(key).unwrap_or_default();
+        records.push(record);
+        self.set(key, records);
+    }
 
-//     fn remove_record(&self, key: &Key, record: Record) {
-//         let mut records = self.get(key).unwrap_or_default();
-//         if let Some(position) = records.iter().position(|r| r == &record) {
-//             records.remove(position);
-//         }
-//         self.set(key, records);
-//     }
-// }
+    fn remove_record(&mut self, key: &Key, record: (Address, u32)) {
+        let mut records = self.get(key).unwrap_or_default();
+        if let Some(position) = records.iter().position(|r| r == &record) {
+            records.remove(position);
+        }
+        self.set(key, records);
+    }
+}

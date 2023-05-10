@@ -1,5 +1,4 @@
 use modules::AccessControl;
-use utils::errors::Error;
 use odra::{
     contract_env,
     types::{event::OdraEvent, Address, U256},
@@ -11,6 +10,7 @@ use odra_modules::erc721::{
     extensions::erc721_metadata::{Erc721Metadata, Erc721MetadataExtension},
     Erc721,
 };
+use utils::errors::Error;
 
 /// A unique token id.
 pub type TokenId = U256;

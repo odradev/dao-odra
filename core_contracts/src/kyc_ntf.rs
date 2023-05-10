@@ -71,7 +71,7 @@ impl KycNftContract {
             /// Each user is entitled to own only one token.
             ///
             /// # Errors
-            /// * [`UserAlreadyOwnsToken`](dao_utils::errors::Error::UserAlreadyOwnsToken) if the `to` address
+            /// * [`UserAlreadyOwnsToken`](utils::errors::Error::UserAlreadyOwnsToken) if the `to` address
             /// already owns a token.
             ///
             /// # Events
@@ -81,7 +81,7 @@ impl KycNftContract {
             /// and decrements the total supply.
             ///
             /// # Errors
-            /// * [`NotWhitelisted`](dao_utils::errors::Error::NotWhitelisted) if the caller
+            /// * [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if the caller
             /// is not whitelisted.
             ///
             /// # Events

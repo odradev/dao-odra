@@ -1,16 +1,17 @@
 use std::{collections::BTreeMap, slice::Iter};
 
-use odra::{types::{Address, U512}, OdraType};
+use odra::{
+    types::{Address, U512},
+    OdraType,
+};
+use voting::types::VotingId;
 
-use super::{balances::BalanceStorage, stakes::StakesStorage};
-
+use super::{balances::BalanceStorage, stakes::StakesStorage, BidId};
 
 /// A module that provides aggregated data about reputation tokens.
 #[odra::module]
 pub struct BalanceAggregates {
-    // #[scoped = "contract"]
     reputation_storage: BalanceStorage,
-    // #[scoped = "contract"]
     stakes_storage: StakesStorage,
 }
 

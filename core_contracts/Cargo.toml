@@ -8,6 +8,7 @@ odra = { workspace = true, default-features = false }
 odra-modules = { path = "../../odra/odra/modules", default-features = false }
 modules = { path = "../modules", default-features = false }
 utils = { path = "../utils", default-features = false }
+voting = { path = "../voting", default-features = false }
 
 [dev-dependencies]
 cucumber = "0.19.1"
@@ -15,8 +16,8 @@ futures = "0.3.5"
 
 [features]
 default = ["mock-vm"]
-mock-vm = ["odra/mock-vm", "odra-modules/mock-vm", "modules/mock-vm", "utils/mock-vm"]
-casper = ["odra/casper", "odra-modules/casper", "modules/casper", "utils/casper"]
+mock-vm = ["odra/mock-vm", "odra-modules/mock-vm", "modules/mock-vm", "utils/mock-vm", "voting/mock-vm"]
+casper = ["odra/casper", "odra-modules/casper", "modules/casper", "utils/casper", "voting/mock-vm"]
 
 [[test]]
 name = "test_flipper"

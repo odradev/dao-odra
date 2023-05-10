@@ -79,7 +79,7 @@ impl VaNftContract {
             /// Each user is entitled to own only one token.
             ///
             /// # Errors
-            /// * [`UserAlreadyOwnsToken`](Error::UserAlreadyOwnsToken) if the `to` address
+            /// * [`UserAlreadyOwnsToken`](utils::errors::Error::UserAlreadyOwnsToken) if the `to` address
             /// already owns a token.
             ///
             /// # Events
@@ -89,7 +89,7 @@ impl VaNftContract {
             /// and decrements the total supply.
             ///
             /// # Errors
-            /// * [`NotWhitelisted`](casper_dao_utils::Error::NotWhitelisted) if caller
+            /// * [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if caller
             /// is not whitelisted.
             ///
             /// # Events

@@ -3,26 +3,15 @@ use std::{
     ops::{AddAssign, SubAssign},
 };
 
-use dao_modules::AccessControl;
-use dao_utils::errors::Error;
-use odra::{types::{Address, U512}, Variable, List, Iter, Mapping, UnwrapOrRevert};
+use modules::AccessControl;
+use odra::{
+    contract_env,
+    types::{event::OdraEvent, Address, U512},
+    Iter, List, Mapping, UnwrapOrRevert, Variable,
+};
+use utils::errors::Error;
 
-// use casper_dao_modules::access_control::AccessControl;
-// use casper_dao_utils::{
-//     casper_contract::unwrap_or_revert::UnwrapOrRevert,
-//     casper_dao_macros::Instance,
-//     casper_env::{emit, revert},
-//     Address,
-//     Error,
-//     Iter,
-//     Mapping,
-//     OrderedCollection,
-//     Set,
-//     Variable,
-// };
-// use casper_types::U512;
-
-// use super::token::events::{Burn, Mint};
+use super::token::events::{Burn, Mint};
 
 /// A module that stores information about the users' token balances and the total token supply.
 ///
@@ -32,12 +21,11 @@ use odra::{types::{Address, U512}, Variable, List, Iter, Mapping, UnwrapOrRevert
 /// If an Address owns a "passive token", it means he's impacted the system (eg. have done a job).
 ///
 /// Having both types of balances allows for keeping track of the total value of the system.
-#[odra::module]
+#[odra::module(events = [Mint, Burn])]
 pub struct BalanceStorage {
     balances: Mapping<Address, U512>,
     holders: List<Address>,
     total_supply: TotalSupply,
-    // #[scoped = "contract"]
     access_control: AccessControl,
 }
 
@@ -52,7 +40,7 @@ impl BalanceStorage {
     ///
     /// # Errors
     ///
-    /// [`NotWhitelisted`](casper_dao_utils::Error::NotWhitelisted) if called by a not whitelisted account.
+    /// [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if called by a not whitelisted account.
     pub fn mint(&mut self, recipient: Address, amount: U512) {
         self.access_control.ensure_whitelisted();
         self.inc_balance(&recipient, amount);
@@ -60,10 +48,11 @@ impl BalanceStorage {
 
         self.holders.push(recipient);
 
-        // emit(Mint {
-        //     address: recipient,
-        //     amount,
-        // });
+        Mint {
+            address: recipient,
+            amount,
+        }
+        .emit();
     }
 
     /// Decreases the user's balance and the total supply.
@@ -76,17 +65,17 @@ impl BalanceStorage {
     ///
     /// # Errors
     ///
-    /// [`NotWhitelisted`](casper_dao_utils::Error::NotWhitelisted) if called by a not whitelisted account.
+    /// [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if called by a not whitelisted account.
     pub fn burn(&mut self, owner: Address, amount: U512) {
         self.access_control.ensure_whitelisted();
         self.dec_balance(&owner, amount);
         self.total_supply -= amount;
 
-        // Emit Burn event.
-        // emit(Burn {
-        //     address: owner,
-        //     amount,
-        // });
+        Burn {
+            address: owner,
+            amount,
+        }
+        .emit();
     }
 
     /// Performs mint and/or burn for multiple accounts at once.
@@ -99,7 +88,7 @@ impl BalanceStorage {
     ///
     /// # Errors
     ///
-    /// [`NotWhitelisted`](casper_dao_utils::Error::NotWhitelisted) if called by a not whitelisted account.
+    /// [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if called by a not whitelisted account.
     pub fn bulk_mint_burn(
         &mut self,
         mints: BTreeMap<Address, U512>,
@@ -129,7 +118,7 @@ impl BalanceStorage {
     ///
     /// # Errors
     ///
-    /// [`NotWhitelisted`](casper_dao_utils::Error::NotWhitelisted) if called by a not whitelisted account.
+    /// [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if called by a not whitelisted account.
     pub fn burn_all(&mut self, owner: Address) {
         self.access_control.ensure_whitelisted();
 
@@ -179,8 +168,7 @@ impl BalanceStorage {
 
 /// Wraps `total_supply` and some operations for convenience.
 #[odra::module]
-struct TotalSupply {
-    // #[scoped = "parent"]
+pub struct TotalSupply {
     total_supply: Variable<U512>,
 }
 
@@ -198,7 +186,7 @@ impl AddAssign<U512> for TotalSupply {
     fn add_assign(&mut self, rhs: U512) {
         let (new_value, is_overflowed) = self.value().overflowing_add(rhs);
         if is_overflowed {
-            // revert(Error::TotalSupplyOverflow);
+            contract_env::revert(Error::TotalSupplyOverflow)
         }
         self.set(new_value);
     }
@@ -208,7 +196,7 @@ impl SubAssign<U512> for TotalSupply {
     fn sub_assign(&mut self, rhs: U512) {
         let (new_value, is_overflowed) = self.value().overflowing_sub(rhs);
         if is_overflowed {
-            // revert(Error::TotalSupplyOverflow);
+            contract_env::revert(Error::TotalSupplyOverflow)
         }
         self.total_supply.set(new_value);
     }
