@@ -1,4 +1,3 @@
-use core_contracts::refs::ContractRefs;
 use odra::call_contract;
 use odra::contract_env::revert;
 use odra::types::{Address, Bytes, CallArgs, OdraType, U512};
@@ -18,9 +17,7 @@ pub struct ConfigurationBuilder {
 
 impl ConfigurationBuilder {
     /// Creates a new instance of ConfigurationBuilder.
-    pub fn new<T: ContractRefs>(refs: &T) -> Self {
-        let total_onboarded = refs.va_token().total_supply();
-        let variables = refs.variable_repository().all_variables();
+    pub fn new(total_onboarded: U512, variables: &BTreeMap<String, Bytes>) -> Self {
         use consts::*;
         ConfigurationBuilder {
             configuration: Configuration::new(

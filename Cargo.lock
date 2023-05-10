@@ -539,7 +539,6 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 name = "configuration"
 version = "0.1.0"
 dependencies = [
- "core_contracts",
  "odra",
  "utils",
 ]
@@ -579,6 +578,7 @@ dependencies = [
  "odra",
  "odra-modules",
  "utils",
+ "voting",
 ]
 
 [[package]]
@@ -2695,7 +2695,6 @@ name = "voting"
 version = "0.1.0"
 dependencies = [
  "configuration",
- "core_contracts",
  "odra",
  "odra-modules",
  "utils",

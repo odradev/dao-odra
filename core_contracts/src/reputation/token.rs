@@ -6,12 +6,13 @@ use odra::{
     types::{Address, U512},
     Instance,
 };
+use voting::types::VotingId;
 
 use super::{
     agg::{AggregatedBalance, AggregatedStake, BalanceAggregates, BalanceAggregatesComposer},
     balances::{BalanceStorage, BalanceStorageComposer},
     stakes::{StakesStorage, StakesStorageComposer},
-    ShortenedBallot, ShortenedBid, VotingId,
+    ShortenedBallot, ShortenedBid,
 };
 
 /// Implementation of the Reputation Contract.

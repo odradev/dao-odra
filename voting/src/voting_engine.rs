@@ -2,7 +2,6 @@ use crate::ballot::{Ballot, Choice};
 use crate::types::VotingId;
 use crate::voting_engine::voting_state_machine::{VotingStateMachine, VotingType};
 use configuration::configuration::Configuration;
-use core_contracts::refs::ContractRefsStorage;
 use odra::contract_env::get_block_time;
 use odra::types::{Address, U512};
 use odra::{List, Mapping};
@@ -25,7 +24,6 @@ pub mod voting_state_machine;
 ///
 /// For example implementation see [AdminContract](crate::admin::AdminContract).
 pub struct VotingEngine {
-    refs: ContractRefsStorage,
     voting_states: Mapping<VotingId, Option<VotingStateMachine>>,
     ballots: Mapping<(VotingId, VotingType, Address), Ballot>,
     voters: Mapping<(VotingId, VotingType), List<Address>>,

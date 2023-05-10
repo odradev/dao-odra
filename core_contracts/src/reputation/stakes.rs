@@ -7,11 +7,12 @@ use odra::{
     Mapping, UnwrapOrRevert,
 };
 use utils::errors::Error;
+use voting::types::VotingId;
 
 use super::{
     balances::BalanceStorage,
     token::events::{Stake, Unstake},
-    BidId, ShortenedBallot, ShortenedBid, VotingId,
+    BidId, ShortenedBallot, ShortenedBid,
 };
 
 /// A module that stores information about stakes.
