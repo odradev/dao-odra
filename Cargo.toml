@@ -1,13 +1,7 @@
 [workspace]
 members = [
-    "bid_escrow",
-    "core_contracts",
-    "configuration",
-    "modules",
-    "utils",
-    "utils-contracts",
-    "voting",
-    "voting_contracts",
+    "dao",
+    "macros",
 ]
 
 [workspace.dependencies]
