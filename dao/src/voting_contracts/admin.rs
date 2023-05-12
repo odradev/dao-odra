@@ -29,82 +29,85 @@ impl AdminContract {
     delegate! {
         to self.voting_engine {
             fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
-    //         fn get_voting(
-    //             &self,
-    //             voting_id: VotingId,
-    //         ) -> Option<VotingStateMachine>;
-    //         fn get_ballot(
-    //             &self,
-    //             voting_id: VotingId,
-    //             voting_type: VotingType,
-    //             address: Address,
-    //         ) -> Option<Ballot>;
-    //         fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
-    //     }
-    //
-    //     to self.access_control {
-    //         fn change_ownership(&mut self, owner: Address);
-    //         fn add_to_whitelist(&mut self, address: Address);
-    //         fn remove_from_whitelist(&mut self, address: Address);
-    //         fn is_whitelisted(&self, address: Address) -> bool;
-    //         fn get_owner(&self) -> Option<Address>;
-    //     }
-    //
-    //     to self.refs {
-    //         fn variable_repository_address(&self) -> Address;
-    //         fn reputation_token_address(&self) -> Address;
-    //     }
+            fn get_voting(
+                &self,
+                voting_id: VotingId,
+            ) -> Option<VotingStateMachine>;
+            fn get_ballot(
+                &self,
+                voting_id: VotingId,
+                voting_type: VotingType,
+                address: Address,
+            ) -> Option<Ballot>;
+            fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
+        }
+
+        to self.access_control {
+            fn change_ownership(&mut self, owner: Address);
+            fn add_to_whitelist(&mut self, address: Address);
+            fn remove_from_whitelist(&mut self, address: Address);
+            fn is_whitelisted(&self, address: Address) -> bool;
+            fn get_owner(&self) -> Option<Address>;
+        }
+
+        to self.refs {
+            fn variable_repository_address(&self) -> Address;
+            fn reputation_token_address(&self) -> Address;
+        }
     }
-    //
-    // fn init(&mut self, variable_repository: Address, reputation_token: Address, va_token: Address) {
-    //     self.refs
-    //         .init(variable_repository, reputation_token, va_token);
-    //     self.access_control.init(caller());
-    // }
-    //
-    // fn create_voting(
-    //     &mut self,
-    //     contract_to_update: Address,
-    //     action: Action,
-    //     address: Address,
-    //     stake: U512,
-    // ) {
-    //     let mut call_args = CallArgs::new();
-    //     call_args.insert(action.get_arg(), address);
-    //
-    //     let voting_configuration = ConfigurationBuilder::new(self.refs.reputation_token().total_supply(), &self.refs.variable_repository().all_variables())
-    //         .contract_call(ContractCall {
-    //             address: contract_to_update,
-    //             entry_point: action.get_entry_point(),
-    //             call_args,
-    //             amount: None
-    //         })
-    //         .build();
-    //
-    //     let (info, _) = self
-    //         .voting_engine
-    //         .create_voting(caller(), stake, voting_configuration);
-    //
-    //     emit_event(AdminVotingCreated::new(
-    //         contract_to_update,
-    //         action,
-    //         address,
-    //         info,
-    //     ));
-    // }
-    //
-    // fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: U512) {
-    //     self.voting_engine
-    //         .vote(caller(), voting_id, voting_type, choice, stake);
-    // }
-    //
-    // fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
-    //     self.voting_engine.finish_voting(voting_id, voting_type);
-    // }
-    //
-    // fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
-    //     self.access_control.ensure_whitelisted();
-    //     self.voting_engine.slash_voter(voter, voting_id);
+
+    fn init(&mut self, variable_repository: Address, reputation_token: Address, va_token: Address) {
+        self.refs
+            .init(variable_repository, reputation_token, va_token);
+        self.access_control.init(caller());
+    }
+
+    fn create_voting(
+        &mut self,
+        contract_to_update: Address,
+        action: Action,
+        address: Address,
+        stake: U512,
+    ) {
+        let mut call_args = CallArgs::new();
+        call_args.insert(action.get_arg(), address);
+
+        let voting_configuration = ConfigurationBuilder::new(
+            self.refs.reputation_token().total_supply(),
+            &self.refs.variable_repository().all_variables(),
+        )
+        .contract_call(ContractCall {
+            address: contract_to_update,
+            entry_point: action.get_entry_point(),
+            call_args,
+            amount: None,
+        })
+        .build();
+
+        let (info, _) = self
+            .voting_engine
+            .create_voting(caller(), stake, voting_configuration);
+
+        emit_event(AdminVotingCreated::new(
+            contract_to_update,
+            action,
+            address,
+            info,
+        ));
+    }
+
+    fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: U512) {
+        self.voting_engine
+            .vote(caller(), voting_id, voting_type, choice, stake);
+    }
+
+    fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
+        self.voting_engine.finish_voting(voting_id, voting_type);
+    }
+
+    fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
+        self.access_control.ensure_whitelisted();
+        self.voting_engine.slash_voter(voter, voting_id);
     }
 }
 

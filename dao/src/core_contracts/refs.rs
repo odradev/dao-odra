@@ -49,7 +49,7 @@ impl ContractRefsStorage {
 }
 
 impl ContractRefsStorage {
-        /// Returns the Ref of [Reputation Token](crate::core_contracts::ReputationContract) contract.
+    /// Returns the Ref of [Reputation Token](crate::core_contracts::ReputationContract) contract.
     pub fn reputation_token(&self) -> ReputationContractRef {
         ReputationContractRef::at(
             self.reputation_token
