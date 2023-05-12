@@ -1,7 +1,7 @@
-use odra::OdraType;
-use odra::types::{Address, Type, Typed, U512};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
+use odra::types::{Address, Type, Typed, U512};
+use odra::OdraType;
 
 /// Represents user's vote.
 #[derive(OdraType)]
@@ -22,6 +22,28 @@ pub struct Ballot {
     pub canceled: bool,
 }
 
+impl Ballot {
+    pub fn new(
+        voter: Address,
+        voting_id: VotingId,
+        voting_type: VotingType,
+        choice: Choice,
+        stake: U512,
+        unbound: bool,
+        canceled: bool,
+    ) -> Self {
+        Self {
+            voter,
+            voting_id,
+            voting_type,
+            choice,
+            stake,
+            unbound,
+            canceled,
+        }
+    }
+}
+
 /// Choice enum, can be converted to bool using `is_in_favor()`
 #[derive(OdraType, Copy, PartialEq, Eq, Debug)]
 pub enum Choice {
@@ -34,5 +56,39 @@ pub enum Choice {
 impl Typed for Choice {
     fn ty() -> Type {
         Type::Any
+    }
+}
+
+impl Choice {
+    pub fn is_in_favor(&self) -> bool {
+        match self {
+            Choice::InFavor => true,
+            Choice::Against => false,
+        }
+    }
+
+    pub fn is_against(&self) -> bool {
+        !self.is_in_favor()
+    }
+}
+
+/// Short version of [`Ballot`] struct.
+///
+/// Derives from the [`Ballot`] struct.
+/// Contains only the essential fields from the original [`Ballot`] required in cross-contract communication.
+#[derive(OdraType, Debug)]
+pub struct ShortenedBallot {
+    /// The voter's address.
+    pub voter: Address,
+    /// Vote power.
+    pub stake: U512,
+}
+
+impl From<Ballot> for ShortenedBallot {
+    fn from(value: Ballot) -> Self {
+        Self {
+            voter: value.voter,
+            stake: value.stake,
+        }
     }
 }

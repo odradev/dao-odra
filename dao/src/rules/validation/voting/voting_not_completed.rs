@@ -1,7 +1,7 @@
-use macros::Rule;
 use crate::rules::validation::VotingValidation;
 use crate::utils::Error;
 use crate::voting::voting_engine::voting_state_machine::{VotingState, VotingStateMachine};
+use macros::Rule;
 
 /// Verifies voting is still in progress. May return [Error::VotingAlreadyFinished].
 #[derive(Rule)]

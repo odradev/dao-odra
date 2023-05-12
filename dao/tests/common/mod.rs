@@ -1,6 +1,6 @@
+use dao::core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef};
 use odra::test_env;
 use std::fmt::{Debug, Formatter};
-use dao::core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef};
 
 #[derive(cucumber::World)]
 pub struct DaoWorld {

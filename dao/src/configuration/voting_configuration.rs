@@ -1,6 +1,6 @@
+use crate::utils::ContractCall;
 use odra::types::Address;
 use odra::OdraType;
-use crate::utils::ContractCall;
 
 #[derive(OdraType)]
 pub struct VotingConfiguration {

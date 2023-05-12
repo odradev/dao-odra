@@ -1,8 +1,8 @@
-use odra::types::BlockTime;
-use macros::Rule;
 use crate::rules::validation::VotingValidation;
 use crate::utils::Error;
 use crate::voting::voting_engine::voting_state_machine::{VotingState, VotingStateMachine};
+use macros::Rule;
+use odra::types::BlockTime;
 
 /// Verifies if a ballot is cast in the right time. May return [Error::InformalVotingNotStarted],
 /// [Error::VotingDuringTimeBetweenVotingsNotAllowed] or [Error::VoteOnCompletedVotingNotAllowed].

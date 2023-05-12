@@ -1,18 +1,19 @@
 use std::collections::BTreeMap;
 
 use crate::modules::{access_control::AccessControlComposer, AccessControl};
+use crate::voting::ballot::ShortenedBallot;
+use crate::voting::types::VotingId;
 use odra::{
     contract_env,
     types::{Address, U512},
     Instance,
 };
-use crate::voting::types::VotingId;
 
 use super::{
     agg::{AggregatedBalance, AggregatedStake, BalanceAggregates, BalanceAggregatesComposer},
     balances::{BalanceStorage, BalanceStorageComposer},
     stakes::{StakesStorage, StakesStorageComposer},
-    ShortenedBallot, ShortenedBid,
+    ShortenedBid,
 };
 
 /// Implementation of the Reputation Contract.
@@ -179,11 +180,11 @@ impl ReputationContract {
 }
 
 pub mod events {
+    use crate::core_contracts::reputation::BidId;
     use odra::{
         types::{Address, U512},
         Event,
     };
-    use crate::core_contracts::reputation::BidId;
 
     /// Informs tokens have been burnt.
     #[derive(Debug, PartialEq, Eq, Event)]

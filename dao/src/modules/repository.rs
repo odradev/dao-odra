@@ -1,10 +1,10 @@
 use crate::modules::repository::events::ValueUpdated;
+use crate::utils::consts;
+use crate::utils::Error::{ActivationTimeInPast, KeyValueStorageError};
 use odra::contract_env::{get_block_time, revert};
 use odra::types::event::OdraEvent;
 use odra::types::{Address, Bytes, OdraType as OdraTyped, U512};
 use odra::{List, Mapping, OdraType, UnwrapOrRevert};
-use crate::utils::consts;
-use crate::utils::Error::{ActivationTimeInPast, KeyValueStorageError};
 
 /// A data struct stored in the repository.
 ///

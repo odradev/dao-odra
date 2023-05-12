@@ -1,6 +1,6 @@
 //! Calculation utility functions.
-use odra::types::U512;
 use crate::utils::Error;
+use odra::types::U512;
 
 const RATIO_DIVISOR: u32 = 1000;
 

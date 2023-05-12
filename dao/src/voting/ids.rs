@@ -1,6 +1,6 @@
+use crate::voting::types::VotingId;
 use odra::call_contract;
 use odra::types::{Address, CallArgs};
-use crate::voting::types::VotingId;
 
 /// Calls a contract at `voting_ids_address` to generate a next voting id.
 ///

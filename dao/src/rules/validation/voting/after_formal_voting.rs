@@ -1,8 +1,8 @@
-use odra::types::BlockTime;
-use macros::Rule;
 use crate::rules::validation::VotingValidation;
 use crate::utils::Error;
 use crate::voting::voting_engine::voting_state_machine::{VotingState, VotingStateMachine};
+use macros::Rule;
+use odra::types::BlockTime;
 
 /// Verifies if the `Formal Voting` ended. May return [Error::FormalVotingNotCompleted].
 #[derive(Rule)]

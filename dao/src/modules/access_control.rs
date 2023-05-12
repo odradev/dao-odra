@@ -1,5 +1,5 @@
-use odra::types::Address;
 use crate::modules::{Owner, Whitelist};
+use odra::types::Address;
 
 /// A AccessControl module storage definition.
 #[odra::module]

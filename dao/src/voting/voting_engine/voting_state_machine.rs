@@ -1,11 +1,11 @@
-use odra::OdraType;
-use odra::types::{Address, BlockTime, Type, Typed, U512};
 use crate::configuration::Configuration;
-use crate::voting::types::VotingId;
-use crate::voting::ballot::Choice;
-use crate::utils::ContractCall;
-use crate::rules::RulesBuilder;
 use crate::rules::validation::voting::{AfterFormalVoting, VoteInTime, VotingNotCompleted};
+use crate::rules::RulesBuilder;
+use crate::utils::ContractCall;
+use crate::voting::ballot::Choice;
+use crate::voting::types::VotingId;
+use odra::types::{Address, BlockTime, Type, Typed, U512};
+use odra::OdraType;
 
 /// Serializable voting state with a state machine capabilities.
 ///

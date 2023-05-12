@@ -1,11 +1,13 @@
 //! Set of voting events.
-use std::collections::BTreeMap;
-use odra::{Event, OdraType};
-use odra::types::{Address, BlockTime, Type, Typed, U512};
 use crate::configuration::Configuration;
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
-use crate::voting::voting_engine::voting_state_machine::{Stats, VotingResult, VotingStateMachine, VotingType};
+use crate::voting::voting_engine::voting_state_machine::{
+    Stats, VotingResult, VotingStateMachine, VotingType,
+};
+use odra::types::{Address, BlockTime, Type, Typed, U512};
+use odra::{Event, OdraType};
+use std::collections::BTreeMap;
 
 // TODO: Check if OdraType serialization is the same as in DAO
 /// Represents an explanation for a particular action (mint, burn, stake).

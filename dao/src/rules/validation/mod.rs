@@ -4,9 +4,9 @@ mod is_user_kyced;
 // pub mod bid_escrow;
 pub mod voting;
 
-pub use is_user_kyced::IsUserKyced;
 use crate::utils::Error;
 use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
+pub use is_user_kyced::IsUserKyced;
 
 /// A generic validation.
 pub trait Validation {

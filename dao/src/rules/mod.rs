@@ -1,15 +1,13 @@
 //! Abstractions facilitating error handling.
 
+use crate::rules::validation::{Validation, VotingValidation};
 use odra::contract_env::revert;
-use crate::{
-    rules::validation::{Validation, VotingValidation},
-};
 
 mod builder;
 pub mod validation;
 
-pub use builder::RulesBuilder;
 use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
+pub use builder::RulesBuilder;
 
 /// A set of validation rules.
 ///

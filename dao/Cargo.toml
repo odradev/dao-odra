@@ -16,8 +16,8 @@ futures = "0.3.5"
 
 [features]
 default = ["mock-vm"]
-mock-vm = ["odra/mock-vm", "odra-modules/mock-vm"]
-casper = ["odra/casper", "odra-modules/casper"]
+mock-vm = ["odra/mock-vm", "odra-modules/mock-vm", "macros/mock-vm"]
+casper = ["odra/casper", "odra-modules/casper", "macros/casper"]
 
 [[test]]
 name = "test_flipper"

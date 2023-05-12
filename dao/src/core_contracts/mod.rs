@@ -9,6 +9,7 @@ pub use dao_nft::{DaoNft, DaoNftComposer, DaoNftDeployer, DaoNftRef};
 pub use kyc_ntf::{
     KycNftContract, KycNftContractComposer, KycNftContractDeployer, KycNftContractRef,
 };
+pub use refs::ContractRefsStorage;
 pub use reputation::token::{
     events::*, ReputationContract, ReputationContractComposer, ReputationContractDeployer,
     ReputationContractRef,
@@ -18,4 +19,3 @@ pub use variable_repository::{
     VariableRepository, VariableRepositoryComposer, VariableRepositoryDeployer,
     VariableRepositoryRef,
 };
-pub use refs::{ContractRefs, ContractRefsStorage};

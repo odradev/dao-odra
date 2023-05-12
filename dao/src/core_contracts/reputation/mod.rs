@@ -37,11 +37,3 @@ pub struct ShortenedBid {
     pub reputation_stake: U512,
     pub worker: Address,
 }
-
-#[derive(OdraType)]
-pub struct ShortenedBallot {
-    /// The voter's address.
-    pub voter: Address,
-    /// Vote power.
-    pub stake: U512,
-}

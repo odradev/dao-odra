@@ -4,12 +4,12 @@ use std::{
 };
 
 use crate::modules::AccessControl;
+use crate::utils::Error;
 use odra::{
     contract_env,
     types::{event::OdraEvent, Address, U512},
     Iter, List, Mapping, UnwrapOrRevert, Variable,
 };
-use crate::utils::Error;
 
 use super::token::events::{Burn, Mint};
 

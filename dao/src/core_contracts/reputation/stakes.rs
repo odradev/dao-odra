@@ -1,18 +1,19 @@
 use std::hash::Hash;
 
 use crate::modules::AccessControl;
+use crate::utils::Error;
+use crate::voting::ballot::ShortenedBallot;
+use crate::voting::types::VotingId;
 use odra::{
     contract_env,
     types::{event::OdraEvent, Address, OdraType, U512},
     Mapping, UnwrapOrRevert,
 };
-use crate::utils::Error;
-use crate::voting::types::VotingId;
 
 use super::{
     balances::BalanceStorage,
     token::events::{Stake, Unstake},
-    BidId, ShortenedBallot, ShortenedBid,
+    BidId, ShortenedBid,
 };
 
 /// A module that stores information about stakes.

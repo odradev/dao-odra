@@ -1,7 +1,7 @@
+use crate::configuration::{DaoConfiguration, VotingConfiguration};
+use crate::utils::{per_mil_of, per_mil_of_as_u32, to_per_mils, ContractCall, Error};
 use odra::types::{Address, BlockTime, U512};
 use odra::{OdraType, UnwrapOrRevert};
-use crate::configuration::{DaoConfiguration, VotingConfiguration};
-use crate::utils::{ContractCall, Error, per_mil_of, per_mil_of_as_u32, to_per_mils};
 
 /// Represents the current system configuration.
 #[derive(OdraType)]

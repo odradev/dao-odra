@@ -1,13 +1,13 @@
-use odra::call_contract;
-use odra::contract_env::revert;
-use odra::types::{Address, Bytes, CallArgs, OdraType, U512};
-use std::collections::BTreeMap;
 use crate::configuration::configuration::Configuration;
 use crate::configuration::dao_configuration::DaoConfiguration;
 use crate::configuration::voting_configuration::VotingConfiguration;
 use crate::utils::consts;
 use crate::utils::ContractCall;
 use crate::utils::Error;
+use odra::call_contract;
+use odra::contract_env::revert;
+use odra::types::{Address, Bytes, CallArgs, OdraType, U512};
+use std::collections::BTreeMap;
 
 /// Utility to crate a [Configuration] instance.
 pub struct ConfigurationBuilder {

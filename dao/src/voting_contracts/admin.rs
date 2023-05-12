@@ -1,17 +1,16 @@
-use odra::types::{Address, BlockTime, CallArgs, Type, Typed, U512};
+use crate::configuration::ConfigurationBuilder;
+use crate::core_contracts::refs::ContractRefsStorage;
+use crate::modules::AccessControl;
+use crate::utils::ContractCall;
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
-use crate::core_contracts::refs::ContractRefsStorage;
-use crate::voting::voting_engine::VotingEngine;
-use crate::voting::voting_engine::voting_state_machine::VotingType;
-use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
-use crate::modules::AccessControl;
-use crate::configuration::ConfigurationBuilder;
-use odra::contract_env::{caller, emit_event};
-use odra::{Event, OdraType};
-use crate::core_contracts::ContractRefs;
-use crate::utils::ContractCall;
 use crate::voting::voting_engine::events::VotingCreatedInfo;
+use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
+use crate::voting::voting_engine::voting_state_machine::VotingType;
+use crate::voting::voting_engine::VotingEngine;
+use odra::contract_env::{caller, emit_event};
+use odra::types::{Address, BlockTime, CallArgs, Type, Typed, U512};
+use odra::{Event, OdraType};
 
 /// Admin contract uses [VotingEngine](VotingEngine) to vote on changes of ownership and managing whitelists of other contracts.
 ///
@@ -27,9 +26,9 @@ pub struct AdminContract {
 
 #[odra::module(events = [AdminVotingCreated])]
 impl AdminContract {
-    //  delegate! {
-    //     to self.voting_engine {
-    //         fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
+    delegate! {
+        to self.voting_engine {
+            fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
     //         fn get_voting(
     //             &self,
     //             voting_id: VotingId,
@@ -55,7 +54,7 @@ impl AdminContract {
     //         fn variable_repository_address(&self) -> Address;
     //         fn reputation_token_address(&self) -> Address;
     //     }
-    // }
+    }
     //
     // fn init(&mut self, variable_repository: Address, reputation_token: Address, va_token: Address) {
     //     self.refs
@@ -106,7 +105,7 @@ impl AdminContract {
     // fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
     //     self.access_control.ensure_whitelisted();
     //     self.voting_engine.slash_voter(voter, voting_id);
-    // }
+    }
 }
 
 /// Event emitted once voting is created.
