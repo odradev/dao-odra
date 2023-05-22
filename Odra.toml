@@ -11,5 +11,9 @@ name = "reputation_contract"
 fqn = "dao::core_contracts::reputation_contract::ReputationContract"
 
 [[contracts]]
+name = "reputation_voter_contract"
+fqn = "dao::core_contracts::reputation_voter_contract::ReputationVoterContract"
+
+[[contracts]]
 name = "va_nft_contract"
 fqn = "dao::core_contracts::va_nft_contract::VaNftContract"
