@@ -1,12 +1,13 @@
 
 mod account;
 // mod bid_escrow;
-// mod cspr;
+pub mod cspr;
 // mod events;
 mod kyc;
 mod ownership;
-// mod reputation;
+mod reputation;
 mod va;
+pub mod tokens;
 // mod voting;
 
 // #[macro_export]

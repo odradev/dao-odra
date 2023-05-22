@@ -148,6 +148,7 @@ impl ReputationContract {
     /// # Events
     /// * [`OwnerChanged`](modules::events::OwnerChanged),
     /// * [`AddedToWhitelist`](modules::events::AddedToWhitelist).
+    #[odra(init)]
     pub fn init(&mut self) {
         let deployer = contract_env::caller();
         self.access_control.init(deployer);

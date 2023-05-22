@@ -1,7 +1,7 @@
 use odra::test_env;
 
 use crate::common::{
-    params::{Account, Balance, TokenId},
+    params::{Account, TokenId},
     DaoWorld,
 };
 
@@ -46,11 +46,11 @@ impl DaoWorld {
     //         .expect("VA Token should burned successfully");
     // }
 
-    pub fn va_token_balance_of(&self, account: &Account) -> Balance {
-        let address = self.get_address(account);
+    // pub fn va_token_balance_of(&self, account: &Account) -> Balance {
+    //     let address = self.get_address(account);
 
-        self.va_token.balance_of(address).into()
-    }
+    //     self.va_token.balance_of(address).into()
+    // }
 
     pub fn get_va_token_id(&self, holder: &Account) -> TokenId {
         let holder = self.get_address(holder);

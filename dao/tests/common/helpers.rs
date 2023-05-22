@@ -1,7 +1,7 @@
 use std::{fmt::Debug, str::FromStr};
 use odra::types::BlockTime;
 
-use super::params::TimeUnit;
+use super::params::{TimeUnit, Balance};
 
 #[allow(dead_code)]
 pub fn parse_bool(value: String) -> bool {
@@ -44,13 +44,14 @@ pub fn parse_bool(value: String) -> bool {
 //     }
 // }
 
-// pub fn is_balance_close_enough<A: Into<Balance>, B: Into<Balance>>(a: A, b: B) -> bool {
-//     let a: Balance = a.into();
-//     let b: Balance = b.into();
-//     let (a, b) = (a.0, b.0);
-//     let diff = if a > b { a - b } else { b - a };
-//     diff < U512::from(10_000_000)
-// }
+pub fn is_balance_close_enough<A: Into<Balance>, B: Into<Balance>>(a: A, b: B) -> bool {
+    // let a: Balance = a.into();
+    // let b: Balance = b.into();
+    // let (a, b) = (a.0, b.0);
+    // let diff = if a > b { a - b } else { b - a };
+    // diff < odra::types::Balance::from(10_000_000)
+    false
+}
 
 #[allow(dead_code)]
 pub fn to_seconds(value: BlockTime, unit: TimeUnit) -> BlockTime {

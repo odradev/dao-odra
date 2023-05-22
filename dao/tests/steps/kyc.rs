@@ -1,7 +1,7 @@
 use cucumber::{given, then, when};
 
 use crate::common::{
-    params::{Account, TokenId},
+    params::{Account, TokenId, Contract},
     DaoWorld,
 };
 
@@ -9,7 +9,7 @@ use crate::common::{
 fn setup_user_with_token(world: &mut DaoWorld, user: Account) {
     world.mint_kyc_token(&Account::Owner, &user);
 
-    assert_eq!(world.balance_of(&user), 1);
+    assert_eq!(world.nft_balance_of(Contract::KycToken, &user), 1);
 }
 
 #[when(expr = "{account} mints a KYC Token to {account}")]
@@ -24,12 +24,12 @@ fn burn(world: &mut DaoWorld, burner: Account, holder: Account) {
 
 #[then(expr = "the {account}'s balance of KYC Token is {int}")]
 fn assert_balance(world: &mut DaoWorld, user: Account, expected_balance: u32) {
-    assert_eq!(world.balance_of(&user), expected_balance);
+    assert_eq!(world.nft_balance_of(Contract::KycToken, &user), expected_balance);
 }
 
 #[then(expr = "KYC Token with id {token_id} belongs to {account}")]
 fn assert_token_ownership(world: &mut DaoWorld, token_id: TokenId, user: Account) {
-    let token_owner = world.kyc_token.owner_of(*token_id);
+    let token_owner = world.nft_owner_of(Contract::KycToken, *token_id);
     let user_address = world.get_address(&user);
 
     assert_eq!(token_owner, user_address);
@@ -38,7 +38,7 @@ fn assert_token_ownership(world: &mut DaoWorld, token_id: TokenId, user: Account
 
 #[then(expr = "total supply of KYC Token is {int} token(s)")]
 fn assert_total_supply(world: &mut DaoWorld, expected_total_supply: u32) {
-    let total_supply = world.kyc_token.total_supply();
+    let total_supply = world.total_supply(Contract::KycToken);
     assert_eq!(total_supply.as_u32(), expected_total_supply);
 }
 
@@ -50,12 +50,4 @@ fn assert_kyced(world: &mut DaoWorld, account: Account) {
 #[then(expr = "{account} is not kyced")]
 fn assert_not_kyced(world: &mut DaoWorld, account: Account) {
     assert!(!world.is_account_kyced(&account));
-}
-
-impl DaoWorld {
-    fn balance_of(&self, account: &Account) -> u32 {
-        self.kyc_token
-            .balance_of(self.get_address(account))
-            .as_u32()
-    }
 }

@@ -1,19 +1,37 @@
-use dao::core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer};
-use odra::test_env;
+use dao::core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer, ReputationContractRef, ReputationContractDeployer};
+use odra::{test_env, types::Address};
 use std::fmt::{Debug, Formatter};
 
-use self::params::Account;
+use self::{params::Account, contracts::cspr::VirtualBalances};
 
 #[derive(cucumber::World)]
 pub struct DaoWorld {
-    pub variable_repository: VariableRepositoryRef,
-    pub kyc_token: KycNftContractRef,
-    pub va_token: VaNftContractRef,
+    variable_repository: VariableRepositoryRef,
+    kyc_token: KycNftContractRef,
+    va_token: VaNftContractRef,
+    reputation_token: ReputationContractRef,
+    virtual_balances: VirtualBalances
 }
 
 impl DaoWorld {
     pub fn set_caller(&mut self, caller: &Account) {
         test_env::set_caller(self.get_address(caller));
+    }
+
+    pub fn variable_repository_address(&self) -> Address {
+        self.variable_repository.address()
+    }
+
+    pub fn kyc_token_address(&self) -> Address {
+        self.kyc_token.address()
+    }
+
+    pub fn va_token_address(&self) -> Address {
+        self.va_token.address()
+    }
+
+    pub fn reputation_token_address(&self) -> Address {
+        self.reputation_token.address()
     }
 }
 
@@ -29,6 +47,8 @@ impl Default for DaoWorld {
             ),
             kyc_token: KycNftContractDeployer::init("kyc_token".to_string(), "KYC".to_string(), "".to_string()),
             va_token: VaNftContractDeployer::init("va_token".to_string(), "VAT".to_string(), "".to_string()),
+            reputation_token: ReputationContractDeployer::init(),
+            virtual_balances: Default::default()
         }
     }
 }
