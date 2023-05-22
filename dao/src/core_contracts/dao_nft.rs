@@ -155,7 +155,7 @@ impl DaoNft {
             self.core.balances.subtract(&owner, U256::from(1));
             self.core.owners.set(&token_id, None);
             self.core.clear_approval(token_id);
-
+            self.total_supply.subtract(U512::from(1));
             self.tokens.set(&owner, None);
 
             Transfer {

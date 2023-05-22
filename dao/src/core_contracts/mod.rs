@@ -5,7 +5,7 @@ mod reputation;
 mod va_nft;
 mod variable_repository;
 
-pub use dao_nft::{DaoNft, DaoNftComposer, DaoNftDeployer, DaoNftRef};
+pub use dao_nft::{DaoNft, DaoNftComposer, DaoNftDeployer, DaoNftRef, TokenId, TokenUri};
 pub use kyc_ntf::{
     KycNftContract, KycNftContractComposer, KycNftContractDeployer, KycNftContractRef,
 };
