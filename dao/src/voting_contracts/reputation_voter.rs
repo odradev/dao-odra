@@ -24,7 +24,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingSummary};
 use crate::voting::voting_engine::VotingEngine;
 use odra::contract_env::{caller, emit_event};
-use odra::types::{Address, BlockTime, CallArgs, Type, Typed, U512};
+use odra::types::{Address, BlockTime, CallArgs,  U512};
 use odra::{Event, OdraType};
 
 /// ReputationVoterContract
@@ -182,12 +182,6 @@ impl ReputationVotingCreated {
     }
 }
 
-impl Typed for ReputationVotingCreated {
-    fn ty() -> Type {
-        Type::Any
-    }
-}
-
 /// Action to perform against reputation
 #[derive(OdraType, Debug, PartialEq, Eq, Copy)]
 pub enum Action {
@@ -218,11 +212,5 @@ impl Action {
                 call_args
             }
         }
-    }
-}
-
-impl Typed for Action {
-    fn ty() -> Type {
-        Type::Any
     }
 }

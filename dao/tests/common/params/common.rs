@@ -12,7 +12,7 @@ impl FromStr for Balance {
     type Err = String;
 
     fn from_str(s: &str) -> core::result::Result<Self, Self::Err> {
-        let value = U512::from((s.parse::<f32>().unwrap() * 1_000f32) as u32) * 1_000_000;
+        let value = U512::from((s.parse::<f32>().unwrap() * 1_000f32) as u32) * U512::from(1_000_000);
         Ok(Balance(value))
     }
 }
@@ -25,12 +25,7 @@ impl From<U512> for Balance {
 
 impl From<U256> for Balance {
     fn from(value: U256) -> Self {
-        let mut bytes_vec = value.0.to_vec();
-        bytes_vec.resize(8, 0);
-
-        let mut bytes = [0u64; 8];
-        bytes.copy_from_slice(bytes_vec.as_slice());
-        U512(bytes).into()
+        Balance(value.to_u512().unwrap())
     }
 }
 
@@ -54,9 +49,18 @@ impl Balance {
     }
 }
 
-#[derive(Debug, Default, derive_more::FromStr, derive_more::Deref, Parameter, PartialEq)]
+#[derive(Debug, Default, derive_more::Deref, Parameter, PartialEq)]
 #[param(name = "token_id", regex = r"\d+")]
 pub struct TokenId(pub dao::core_contracts::TokenId);
+
+impl FromStr for TokenId {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        let num: u32 = s.parse().map_err(|_| format!("Invalid token id: {}", s))?;
+        Ok(Self(dao::core_contracts::TokenId::from(num)))
+    }
+}
 
 #[derive(Debug, Parameter)]
 #[param(name = "time_unit", regex = r".*")]

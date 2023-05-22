@@ -9,7 +9,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::VotingEngine;
 use odra::contract_env::{caller, emit_event};
-use odra::types::{Address, BlockTime, CallArgs, Type, Typed, U512};
+use odra::types::{Address, BlockTime, CallArgs,  U512};
 use odra::{Event, OdraType};
 
 /// Admin contract uses [VotingEngine](VotingEngine) to vote on changes of ownership and managing whitelists of other contracts.
@@ -141,12 +141,6 @@ pub struct AdminVotingCreated {
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 
-impl Typed for AdminVotingCreated {
-    fn ty() -> Type {
-        Type::Any
-    }
-}
-
 impl AdminVotingCreated {
     pub fn new(
         contract_to_update: Address,
@@ -184,12 +178,6 @@ pub enum Action {
     AddToWhitelist,
     RemoveFromWhitelist,
     ChangeOwner,
-}
-
-impl Typed for Action {
-    fn ty() -> Type {
-        Type::Any
-    }
 }
 
 impl Action {

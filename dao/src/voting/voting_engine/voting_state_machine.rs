@@ -4,7 +4,7 @@ use crate::rules::RulesBuilder;
 use crate::utils::ContractCall;
 use crate::voting::ballot::Choice;
 use crate::voting::types::VotingId;
-use odra::types::{Address, BlockTime, Type, Typed, U512};
+use odra::types::{Address, BlockTime,  U512};
 use odra::OdraType;
 
 /// Serializable voting state with a state machine capabilities.
@@ -411,12 +411,6 @@ pub enum VotingType {
     Formal,
 }
 
-impl Typed for VotingType {
-    fn ty() -> Type {
-        Type::Any
-    }
-}
-
 /// The Voting process progression.
 #[derive(OdraType)]
 pub enum VotingStateInTime {
@@ -485,10 +479,4 @@ pub enum VotingResult {
     QuorumNotReached,
     /// Voting canceled.
     Canceled,
-}
-
-impl Typed for VotingResult {
-    fn ty() -> Type {
-        Type::Any
-    }
 }

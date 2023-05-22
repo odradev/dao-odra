@@ -1,6 +1,6 @@
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
-use odra::types::{Address, Type, Typed, U512};
+use odra::types::{Address,  U512};
 use odra::OdraType;
 
 /// Represents user's vote.
@@ -51,12 +51,6 @@ pub enum Choice {
     Against,
     /// `Yes` vote.
     InFavor,
-}
-
-impl Typed for Choice {
-    fn ty() -> Type {
-        Type::Any
-    }
 }
 
 impl Choice {

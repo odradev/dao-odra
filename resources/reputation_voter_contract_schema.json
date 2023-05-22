@@ -1,5 +1,5 @@
 {
-  "name": "AdminContract",
+  "name": "ReputationVoterContract",
   "entrypoints": [
     {
       "name": "init",
@@ -25,7 +25,7 @@
       "is_mutable": true,
       "args": [
         {
-          "name": "contract_to_update",
+          "name": "account",
           "ty": "Key"
         },
         {
@@ -33,8 +33,12 @@
           "ty": "U32"
         },
         {
-          "name": "address",
-          "ty": "Key"
+          "name": "amount",
+          "ty": "U512"
+        },
+        {
+          "name": "document_hash",
+          "ty": "String"
         },
         {
           "name": "stake",
@@ -62,21 +66,6 @@
         {
           "name": "stake",
           "ty": "U512"
-        }
-      ],
-      "return_ty": "Unit"
-    },
-    {
-      "name": "finish_voting",
-      "is_mutable": true,
-      "args": [
-        {
-          "name": "voting_id",
-          "ty": "U32"
-        },
-        {
-          "name": "voting_type",
-          "ty": "U32"
         }
       ],
       "return_ty": "Unit"
@@ -165,6 +154,21 @@
       "return_ty": {
         "Option": "Key"
       }
+    },
+    {
+      "name": "finish_voting",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "voting_type",
+          "ty": "U32"
+        }
+      ],
+      "return_ty": "Any"
     },
     {
       "name": "change_ownership",

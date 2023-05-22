@@ -5,7 +5,7 @@ use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{
     Stats, VotingResult, VotingStateMachine, VotingType,
 };
-use odra::types::{Address, BlockTime, Type, Typed, U512};
+use odra::types::{Address, BlockTime,  U512};
 use odra::{Event, OdraType};
 use std::collections::BTreeMap;
 
@@ -21,12 +21,6 @@ pub enum Reason {
     FormalWon = 3,
     /// Voting process finished, voters voted against.
     FormalLost = 4,
-}
-
-impl Typed for Reason {
-    fn ty() -> Type {
-        Type::U32
-    }
 }
 
 /// Event thrown after ballot is cast.
