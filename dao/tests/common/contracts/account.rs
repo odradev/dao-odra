@@ -33,7 +33,7 @@ impl DaoWorld {
             Contract::VariableRepository => self.variable_repository.address(),
             Contract::KycVoter => self.kyc_voter.address(),
             Contract::RepoVoter => self.repo_voter.address(),
-            Contract::SlashingVoter => todo!(),
+            Contract::SlashingVoter => self.slashing_voter.address(),
             Contract::SimpleVoter => self.simple_voter.address(),
             Contract::ReputationVoter => self.reputation_voter.address(),
             Contract::BidEscrow => todo!(),

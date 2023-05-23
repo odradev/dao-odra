@@ -37,7 +37,7 @@ Feature: Ownership management
         | ReputationToken    |
         | ReputationVoter    |
         | SimpleVoter        |
-        # | SlashingVoter      |
+        | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
 
@@ -57,7 +57,7 @@ Feature: Ownership management
         | ReputationToken    |
         | ReputationVoter    |
         | SimpleVoter        |
-        # | SlashingVoter      |
+        | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
     
@@ -78,7 +78,7 @@ Feature: Ownership management
         | ReputationToken    |
         | ReputationVoter    |
         | SimpleVoter        |
-        # | SlashingVoter      |
+        | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
     
@@ -101,7 +101,7 @@ Feature: Ownership management
         | ReputationToken    |
         | ReputationVoter    |
         | SimpleVoter        |
-        # | SlashingVoter      |
+        | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
 
@@ -123,7 +123,7 @@ Feature: Ownership management
         | ReputationToken    |
         | ReputationVoter    |
         | SimpleVoter        |
-        # | SlashingVoter      |
+        | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
 
@@ -145,7 +145,7 @@ Feature: Ownership management
         | ReputationToken    |
         | ReputationVoter    |
         | SimpleVoter        |
-        # | SlashingVoter      |
+        | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
 
@@ -167,7 +167,7 @@ Feature: Ownership management
         | ReputationToken    |
         | ReputationVoter    |
         | SimpleVoter        |
-        # | SlashingVoter      |
+        | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
   
