@@ -1,20 +1,20 @@
 use cucumber::{gherkin::Step, given};
 
 use crate::common::{
-    params::Account,
+    params::{Account, Contract},
     DaoWorld, config::UserConfiguration,
 };
 
-// macro_rules! transfer_ownership_to_admin {
-//     ($world:ident, $contract:expr) => {
-//         $world
-//             .change_ownership(
-//                 &$contract,
-//                 &Account::Owner,
-//                 &Account::Contract(Contract::Admin),
-//             );
-//     };
-// }
+macro_rules! transfer_ownership_to_admin {
+    ($world:ident, $contract:expr) => {
+        $world
+            .change_ownership(
+                &Account::Contract($contract),
+                &Account::Owner,
+                &Account::Contract(Contract::Admin),
+            );
+    };
+}
 
 #[given(expr = "users")]
 #[given(expr = "accounts")]
@@ -34,8 +34,8 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
 
         let account = config.account();
         let owner = Account::Owner;
-        // let reputation_balance = config.reputation_balance();
-        // let cspr_balance = config.cspr_balance();
+        let reputation_balance = config.reputation_balance();
+        let cspr_balance = config.cspr_balance();
 
         for contract in config.get_contracts_to_be_whitelisted_in() {
             world.whitelist_account(contract, &owner, account);
@@ -49,11 +49,11 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
             world.mint_va_token(&owner, account);
         }
 
-        // if !reputation_balance.is_zero() {
-        //     world.mint_reputation(&Account::Owner, account, reputation_balance);
-        // }
+        if !reputation_balance.is_zero() {
+            world.mint_reputation(&Account::Owner, account, reputation_balance);
+        }
 
-        // world.set_cspr_balance(account, cspr_balance);
+        world.set_cspr_balance(account, cspr_balance);
     }
 
     // A hack - the owner/deployer should be removed from the whitelist but if we do so,
@@ -61,14 +61,14 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
     // TestEnv does not allow to set a contract as the call executor, so we need leave the owner/deployer
     // on the whitelist.
     // transfer_ownership_to_admin!(world, Contract::BidEscrow);
-    // transfer_ownership_to_admin!(world, Account::Contract(Contract::KycToken));
+    transfer_ownership_to_admin!(world, Contract::KycToken);
     // transfer_ownership_to_admin!(world, Contract::KycVoter);
     // transfer_ownership_to_admin!(world, Contract::Onboarding);
     // transfer_ownership_to_admin!(world, Contract::RepoVoter);
-    // transfer_ownership_to_admin!(world, Contract::ReputationToken);
+    transfer_ownership_to_admin!(world, Contract::ReputationToken);
     // transfer_ownership_to_admin!(world, Contract::ReputationVoter);
     // transfer_ownership_to_admin!(world, Contract::SimpleVoter);
     // transfer_ownership_to_admin!(world, Contract::SlashingVoter);
-    // transfer_ownership_to_admin!(world, Account::Contract(Contract::VaToken));
-    // transfer_ownership_to_admin!(world, Account::Contract(Contract::VariableRepository));
+    transfer_ownership_to_admin!(world, Contract::VaToken);
+    transfer_ownership_to_admin!(world, Contract::VariableRepository);
 }

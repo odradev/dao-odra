@@ -28,7 +28,6 @@ impl DaoWorld {
     }
 
     pub fn get_contract_address(&self, contract: &Contract) -> Address {
-
         match contract {
             Contract::Admin => todo!(),
             Contract::KycToken => self.kyc_token.address(),
@@ -42,7 +41,7 @@ impl DaoWorld {
             Contract::ReputationVoter => todo!(),
             Contract::BidEscrow => todo!(),
             Contract::Onboarding => todo!(),
-            Contract::CSPRRateProvider => todo!(),
+            Contract::CSPRRateProvider => self.rate_provider.address(),
         }
     }
 }

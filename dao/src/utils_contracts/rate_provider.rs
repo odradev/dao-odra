@@ -22,6 +22,7 @@ impl CSPRRateProviderContract {
     ///  * sets the deployer as the owner.
     ///
     ///  [Read more](Owner::init())
+    #[odra(init)]
     pub fn init(&mut self, rate: U512) {
         let deployer = contract_env::caller();
         self.owner.init(deployer);

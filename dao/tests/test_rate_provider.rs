@@ -5,6 +5,6 @@ use common::DaoWorld;
 use cucumber::World as _;
 
 fn main() {
-    let runner = DaoWorld::cucumber().run_and_exit("tests/features/flipper/");
+    let runner = DaoWorld::cucumber().run_and_exit("tests/features/rate_provider/");
     futures::executor::block_on(runner);
 }

@@ -26,14 +26,12 @@ impl VirtualBalances {
         self.initial.insert(account, test_env::token_balance(account).into());
     }
 
-    pub fn get(&self, _address: Address) -> Balance {
-        // let balance =
-        //     self.current.get(&address).unwrap().clone() + test_env::token_balance(address).into();
-        // let result = balance
-        //     .checked_sub(*self.initial.get(&address).unwrap())
-        //     .unwrap();
-        // result.into()
-        todo!()
+    pub fn get(&self, address: Address) -> Balance {
+        let balance = self.current.get(&address).unwrap() + test_env::token_balance(address);
+        let result = balance
+            .checked_sub(self.initial.get(&address).unwrap().0)
+            .unwrap();
+        result.into()
     }
 }
 

@@ -8,6 +8,7 @@ mod ownership;
 mod reputation;
 mod va;
 pub mod tokens;
+mod rate_provider;
 // mod voting;
 
 // #[macro_export]

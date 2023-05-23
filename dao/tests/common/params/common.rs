@@ -38,6 +38,51 @@ impl Add<Balance> for Balance {
     }
 }
 
+impl Add<Balance> for &Balance {
+    type Output = Balance;
+
+    fn add(self, rhs: Balance) -> Self::Output {
+        let result = self.0 + rhs.0;
+        Balance(result)
+    }
+}
+
+impl Add<U512> for Balance {
+    type Output = Balance;
+
+    fn add(self, rhs: U512) -> Self::Output {
+        let result = self.0 + rhs;
+        Balance(result)
+    }
+}
+
+impl Add<U512> for &Balance {
+    type Output = Balance;
+
+    fn add(self, rhs: U512) -> Self::Output {
+        let result = self.0 + rhs;
+        Balance(result)
+    }
+}
+
+impl Add<U256> for Balance {
+    type Output = Balance;
+
+    fn add(self, rhs: U256) -> Self::Output {
+        let rhs: Balance = rhs.into();
+        self + rhs
+    }
+}
+
+impl Add<U256> for &Balance {
+    type Output = Balance;
+
+    fn add(self, rhs: U256) -> Self::Output {
+        let rhs: Balance = rhs.into();
+        self + rhs
+    }
+}
+
 #[allow(dead_code)]
 impl Balance {
     pub fn zero() -> Balance {
