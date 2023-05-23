@@ -25,3 +25,7 @@ fqn = "dao::core_contracts::KycNftContract"
 [[contracts]]
 name = "cspr_rate_provider_contract"
 fqn = "dao::utils_contracts::CSPRRateProviderContract"
+
+[[contracts]]
+name = "dao_ids_contract"
+fqn = "dao::utils_contracts::DaoIdsContract"
