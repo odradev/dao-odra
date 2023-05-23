@@ -1,5 +1,5 @@
 use dao::{core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer, ReputationContractRef, ReputationContractDeployer}, utils_contracts::{CSPRRateProviderContractRef, CSPRRateProviderContractDeployer, DaoIdsContractDeployer}, voting_contracts::{AdminContractRef, admin::AdminContractDeployer, reputation_voter::{ReputationVoterContractDeployer}, ReputationVoterContractRef}};
-use odra::{test_env, types::{OdraType}};
+use odra::{test_env, types::{OdraType, Bytes}};
 use std::fmt::{Debug, Formatter};
 
 use super::{contracts::cspr::VirtualBalances, params::Account};
@@ -20,8 +20,18 @@ pub struct DaoWorld {
 }
 
 impl DaoWorld {
+    pub fn advance_time(&mut self, seconds: u64) {
+        test_env::advance_block_time_by(seconds);
+    }
+
     pub fn set_caller(&mut self, caller: &Account) {
         test_env::set_caller(self.get_address(caller));
+    }
+
+    // sets variable value
+    pub fn set_variable(&mut self, name: String, value: Bytes) {
+        self.variable_repository
+            .update_at(name, value, None);
     }
 
     // gets variable value

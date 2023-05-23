@@ -42,11 +42,11 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
         }
 
         if config.is_kyced() {
-            world.mint_kyc_token(&owner, account);
+            world.mint_nft_token(Contract::KycToken, &owner, account);
         }
 
         if config.is_va() {
-            world.mint_va_token(&owner, account);
+            world.mint_nft_token(Contract::VaToken, &owner, account);
         }
 
         if !reputation_balance.is_zero() {

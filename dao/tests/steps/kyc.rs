@@ -7,19 +7,19 @@ use crate::common::{
 
 #[given(expr = "{account} that owns a KYC Token")]
 fn setup_user_with_token(world: &mut DaoWorld, user: Account) {
-    world.mint_kyc_token(&Account::Owner, &user);
+    world.mint_nft_token(Contract::KycToken, &Account::Owner, &user);
 
     assert_eq!(world.nft_balance_of(Contract::KycToken, &user), 1);
 }
 
 #[when(expr = "{account} mints a KYC Token to {account}")]
 fn mint(world: &mut DaoWorld, minter: Account, recipient: Account) {
-    world.mint_kyc_token(&minter, &recipient);
+    world.mint_nft_token(Contract::KycToken, &minter, &recipient);
 }
 
 #[when(expr = "{account} burns {account}'s KYC token")]
 fn burn(world: &mut DaoWorld, burner: Account, holder: Account) {
-    world.burn_kyc_token(&burner, &holder);
+    world.burn_nft_token(Contract::KycToken, &burner, &holder);
 }
 
 #[then(expr = "the {account}'s balance of KYC Token is {int}")]
@@ -29,11 +29,11 @@ fn assert_balance(world: &mut DaoWorld, user: Account, expected_balance: u32) {
 
 #[then(expr = "KYC Token with id {token_id} belongs to {account}")]
 fn assert_token_ownership(world: &mut DaoWorld, token_id: TokenId, user: Account) {
-    let token_owner = world.nft_owner_of(Contract::KycToken, *token_id);
+    let token_owner = world.nft_owner_of(Contract::KycToken, token_id);
     let user_address = world.get_address(&user);
 
     assert_eq!(token_owner, user_address);
-    assert_eq!(world.get_kyc_token_id(&user), token_id);
+    assert_eq!(world.get_nft_token_id(Contract::KycToken, &user), token_id);
 }
 
 #[then(expr = "total supply of KYC Token is {int} token(s)")]
@@ -44,10 +44,10 @@ fn assert_total_supply(world: &mut DaoWorld, expected_total_supply: u32) {
 
 #[then(expr = "{account} is kyced")]
 fn assert_kyced(world: &mut DaoWorld, account: Account) {
-    assert!(world.is_account_kyced(&account));
+    assert!(world.has_nft_token(Contract::KycToken, &account));
 }
 
 #[then(expr = "{account} is not kyced")]
 fn assert_not_kyced(world: &mut DaoWorld, account: Account) {
-    assert!(!world.is_account_kyced(&account));
+    assert!(!world.has_nft_token(Contract::KycToken, &account));
 }

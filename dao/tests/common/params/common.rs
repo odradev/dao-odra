@@ -94,7 +94,7 @@ impl Balance {
     }
 }
 
-#[derive(Debug, Default, derive_more::Deref, Parameter, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, derive_more::Deref, Parameter, PartialEq)]
 #[param(name = "token_id", regex = r"\d+")]
 pub struct TokenId(pub dao::core_contracts::TokenId);
 
