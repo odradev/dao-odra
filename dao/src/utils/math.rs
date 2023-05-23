@@ -1,12 +1,12 @@
 //! Calculation utility functions.
 use crate::utils::Error;
-use odra::types::U512;
+use odra::types::{Balance, U512};
 
 const RATIO_DIVISOR: u32 = 1000;
 
 /// Returns the number divided by 1000.
-pub fn to_per_mils<T: Into<U512>>(value: T) -> U512 {
-    value.into() / U512::from(RATIO_DIVISOR)
+pub fn to_per_mils<T: Into<Balance>>(value: T) -> Balance {
+    value.into() / Balance::from(RATIO_DIVISOR)
 }
 
 /// Multiplies two number and return per mile of their product.

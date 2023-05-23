@@ -1,14 +1,14 @@
 use crate::rules::validation::Validation;
 use crate::utils::Error;
 use macros::Rule;
-use odra::types::U512;
+use odra::types::{Balance, U512};
 
 /// Verifies if the proposed payment does not exceeds the budget.
 /// May return [Error::PaymentExceedsMaxBudget].
 #[derive(Rule)]
 pub struct DoesProposedPaymentExceedBudget {
-    proposed_payment: U512,
-    max_budget: U512,
+    proposed_payment: Balance,
+    max_budget: Balance,
 }
 
 impl Validation for DoesProposedPaymentExceedBudget {

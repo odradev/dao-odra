@@ -8,11 +8,11 @@ use crate::rules::validation::bid_escrow::{
 };
 use crate::rules::validation::IsUserKyced;
 use crate::rules::RulesBuilder;
-use odra::types::{Address, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime, U512};
 use odra::OdraType;
 
 /// Bid status representation
-#[derive(OdraType)]
+#[derive(OdraType, PartialEq)]
 pub enum BidStatus {
     /// Placed, awaiting to be picked.
     Created,
@@ -37,11 +37,11 @@ pub struct SubmitBidRequest {
     /// Time to complete the Job.
     pub proposed_timeframe: BlockTime,
     /// Proposed payment for completing the Job.
-    pub proposed_payment: U512,
+    pub proposed_payment: Balance,
     /// Bid reputation stake.
     pub reputation_stake: U512,
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
-    pub cspr_stake: Option<U512>,
+    pub cspr_stake: Option<Balance>,
     /// Should be onborded when the Job is done.
     pub onboard: bool,
     /// [Worker](crate::bid_escrow#definitions) address.
@@ -53,7 +53,7 @@ pub struct SubmitBidRequest {
     /// [JobPoster](crate::bid_escrow#definitions) address.
     pub job_poster: Address,
     /// The Job max budget
-    pub max_budget: U512,
+    pub max_budget: Balance,
     /// Auction state
     pub auction_state: AuctionState,
     /// Is allowed a VA bid on public auction (not an External Worker only).
@@ -79,7 +79,7 @@ pub struct ReclaimBidRequest {
     /// The [`Address`] that reclaims the Bid.
     pub caller: Address,
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
-    pub cspr_stake: Option<U512>,
+    pub cspr_stake: Option<Balance>,
     /// Bid reputation stake.
     pub reputation_stake: U512,
     /// New [Worker](crate::bid_escrow#definitions) address.
@@ -114,11 +114,11 @@ pub struct Bid {
     /// Proposed Job completion time.
     pub proposed_timeframe: BlockTime,
     /// Proposed payment for the Job.
-    pub proposed_payment: U512,
+    pub proposed_payment: Balance,
     /// Bid reputation stake.
     pub reputation_stake: U512,
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
-    pub cspr_stake: Option<U512>,
+    pub cspr_stake: Option<Balance>,
     /// Should be onborded when the Job is done.
     pub onboard: bool,
     /// [Worker](crate::bid_escrow#definitions) address.

@@ -7,7 +7,7 @@ use crate::rules::validation::bid_escrow::{
 };
 use crate::rules::validation::IsUserKyced;
 use crate::rules::RulesBuilder;
-use odra::types::{Address, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime};
 use odra::OdraType;
 use std::rc::Rc;
 
@@ -42,11 +42,11 @@ pub struct PostJobOfferRequest {
     /// Is the creator passed the KYC process.
     pub job_poster_kyced: bool,
     /// Max amount the Job Poster can pay for the Job.
-    pub max_budget: U512,
+    pub max_budget: Balance,
     /// The time the Job should be completed.
     pub expected_timeframe: BlockTime,
     /// CSPR amount attached to Post Job query.
-    pub dos_fee: U512,
+    pub dos_fee: Balance,
     /// The time since the offer is available for Bidders.
     pub start_time: BlockTime,
     /// Job configuration.
@@ -69,11 +69,11 @@ pub struct JobOffer {
     /// The offer creator.
     pub job_poster: Address,
     /// Max amount the Job Poster can pay for the Job.
-    pub max_budget: U512,
+    pub max_budget: Balance,
     /// The time the Job should be completed.
     pub expected_timeframe: BlockTime,
     /// CSPR amount attached to the offer.
-    pub dos_fee: U512,
+    pub dos_fee: Balance,
     /// The current job offer status.
     pub status: JobOfferStatus,
     /// The time since the offer is available for Bidders.

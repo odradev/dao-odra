@@ -1,15 +1,20 @@
-use std::{borrow::Borrow, rc::Rc};
-use odra::contract_env::{caller, get_block_time};
-use odra::types::{Address, BlockTime, U512};
 use crate::bid_escrow::bid::{Bid, BidStatus, CancelBidRequest, ShortenedBid, SubmitBidRequest};
-use crate::bid_escrow::events::{BidCancelled, BidSubmitted, JobCreated, JobOfferCreated, TransferReason};
+use crate::bid_escrow::events::{
+    BidCancelled, BidSubmitted, JobCreated, JobOfferCreated, TransferReason,
+};
 use crate::bid_escrow::job::{Job, PickBidRequest};
 use crate::bid_escrow::job_offer::{CancelJobOfferRequest, JobOffer, PostJobOfferRequest};
 use crate::bid_escrow::storage::{BidStorage, JobStorage};
 use crate::bid_escrow::types::{BidId, JobOfferId};
 use crate::configuration::{Configuration, ConfigurationBuilder};
 use crate::modules::kyc_info::KycInfo;
+use crate::modules::onboarding_info::OnboardingInfo;
 use crate::modules::refs::ContractRefsWithKycStorage;
+use crate::utils::withdraw;
+use odra::contract_env::{caller, get_block_time};
+use odra::types::{event::OdraEvent, Address, Balance, BlockTime, U512};
+use std::borrow::Borrow;
+use std::rc::Rc;
 
 /// Manages the Bidding process.
 #[odra::module]
@@ -73,7 +78,12 @@ impl BidEngine {
         self.bid_storage.get_job_offer_configuration(job)
     }
 
-    pub fn post_job_offer(&mut self, expected_timeframe: BlockTime, max_budget: U512, purse: URef) {
+    pub fn post_job_offer(
+        &mut self,
+        expected_timeframe: BlockTime,
+        budget: Balance,
+        dos_fee: Balance,
+    ) {
         let caller = caller();
         let configuration = self.configuration();
 
@@ -81,16 +91,16 @@ impl BidEngine {
             job_offer_id: self.bid_storage.next_job_offer_id(),
             job_poster_kyced: self.kyc.is_kycd(&caller),
             job_poster: caller,
-            max_budget,
-            expected_timeframe: expected_timeframe,
-            dos_fee: cspr::deposit(purse),
+            max_budget: budget,
+            expected_timeframe,
+            dos_fee,
             start_time: get_block_time(),
             configuration,
         };
 
         let job_offer = JobOffer::new(request);
 
-        emit(JobOfferCreated::new(&job_offer));
+        JobOfferCreated::new(&job_offer).emit();
         self.bid_storage.store_job_offer(job_offer);
     }
 
@@ -98,10 +108,10 @@ impl BidEngine {
         &mut self,
         job_offer_id: JobOfferId,
         time: BlockTime,
-        payment: U512,
+        payment: Balance,
         reputation_stake: U512,
         onboard: bool,
-        purse: Option<URef>,
+        cspr_stake: Option<Balance>,
     ) {
         let worker = caller();
         let job_offer: JobOffer = self.bid_storage.get_job_offer_or_revert(&job_offer_id);
@@ -109,7 +119,7 @@ impl BidEngine {
         let block_time = get_block_time();
 
         let cspr_stake =
-            self.stake_cspr_or_reputation_for_bid(reputation_stake, purse, worker, bid_id);
+            self.stake_cspr_or_reputation_for_bid(reputation_stake, cspr_stake, worker, bid_id);
 
         let submit_bid_request = SubmitBidRequest {
             bid_id,
@@ -140,7 +150,7 @@ impl BidEngine {
             Some(reputation_stake)
         };
 
-        emit(BidSubmitted::new(
+        BidSubmitted::new(
             bid_id,
             job_offer_id,
             worker,
@@ -149,7 +159,8 @@ impl BidEngine {
             payment,
             reputation_stake,
             cspr_stake,
-        ));
+        )
+        .emit();
     }
 
     pub fn cancel_bid(&mut self, bid_id: &BidId) {
@@ -196,7 +207,7 @@ impl BidEngine {
         self.bid_storage.update_job_offer(job_offer_id, job_offer);
     }
 
-    pub fn pick_bid(&mut self, job_offer_id: &JobOfferId, bid_id: &BidId, purse: URef) {
+    pub fn pick_bid(&mut self, job_offer_id: &JobOfferId, bid_id: &BidId, cspr_amount: Balance) {
         let mut job_offer = self.bid_storage.get_job_offer_or_revert(job_offer_id);
         let mut bid = self.bid_storage.get_bid_or_revert(bid_id);
         let job_id = self.job_storage.next_job_id();
@@ -215,7 +226,7 @@ impl BidEngine {
             block_time: get_block_time(),
             timeframe: bid.proposed_timeframe,
             payment: bid.proposed_payment,
-            transferred_cspr: cspr::deposit(purse),
+            transferred_cspr: cspr_amount,
             stake: bid.reputation_stake,
             external_worker_cspr_stake: bid.cspr_stake.unwrap_or_default(),
         };
@@ -226,7 +237,7 @@ impl BidEngine {
 
         job_offer.in_progress(&pick_bid_request);
 
-        emit(JobCreated::new(&job));
+        JobCreated::new(&job).emit();
 
         self.job_storage.store_job(job);
         self.bid_storage.store_bid(bid);
@@ -240,20 +251,17 @@ impl BidEngine {
     fn stake_cspr_or_reputation_for_bid(
         &mut self,
         reputation_stake: U512,
-        purse: Option<URef>,
+        cspr_stake: Option<Balance>,
         worker: Address,
         bid_id: BidId,
-    ) -> Option<U512> {
-        match purse {
+    ) -> Option<Balance> {
+        match cspr_stake {
             None => {
                 let bid = ShortenedBid::new(bid_id, reputation_stake, worker);
                 self.refs.reputation_token().stake_bid(bid);
                 None
             }
-            Some(purse) => {
-                let cspr_stake = cspr::deposit(purse);
-                Some(cspr_stake)
-            }
+            Some(cspr_stake) => Some(cspr_stake),
         }
     }
 
@@ -300,7 +308,7 @@ impl BidEngine {
         for i in 0..bids_amount {
             let mut bid = self.bid_storage.get_nth_bid(job_offer_id, i);
 
-            if bid.bid_id != bid_id && bid.status == BidStatus::Created {
+            if bid.bid_id != *bid_id && bid.status == BidStatus::Created {
                 if let Some(cspr) = bid.cspr_stake {
                     withdraw(bid.worker, cspr, TransferReason::BidStakeReturn);
                 }
@@ -317,9 +325,9 @@ impl BidEngine {
         Rc::new(
             ConfigurationBuilder::new(
                 self.refs.reputation_token().total_supply(),
-                &self.refs.variable_repository().all_variables()
+                &self.refs.variable_repository().all_variables(),
             )
-            .is_bid_escrow(true)
+            .set_is_bid_escrow(true)
             .only_va_can_create(false)
             .build(),
         )

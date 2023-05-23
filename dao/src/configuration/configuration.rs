@@ -1,6 +1,6 @@
 use crate::configuration::{DaoConfiguration, VotingConfiguration};
 use crate::utils::{per_mil_of, per_mil_of_as_u32, to_per_mils, ContractCall, Error};
-use odra::types::{Address, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime, U512};
 use odra::{OdraType, UnwrapOrRevert};
 
 /// Represents the current system configuration.
@@ -9,7 +9,7 @@ pub struct Configuration {
     dao_configuration: DaoConfiguration,
     voting_configuration: VotingConfiguration,
     total_onboarded: U512,
-    fiat_rate: Option<U512>,
+    fiat_rate: Option<Balance>,
 }
 
 impl Configuration {
@@ -63,7 +63,7 @@ impl Configuration {
         }
     }
 
-    pub fn set_fiat_rate(&mut self, fiat_rate: Option<U512>) {
+    pub fn set_fiat_rate(&mut self, fiat_rate: Option<Balance>) {
         self.fiat_rate = fiat_rate;
     }
 
@@ -210,7 +210,7 @@ impl Configuration {
     ///
     /// See [Variable Repository](crate::variable_repository) PostJobDOSFee
     /// ([available keys](crate::variable_repository#available-keys)).
-    pub fn is_post_job_dos_fee_too_low(&self, fiat_value: U512) -> bool {
+    pub fn is_post_job_dos_fee_too_low(&self, fiat_value: Balance) -> bool {
         to_per_mils(self.dao_configuration.post_job_dos_fee) > fiat_value
     }
 
@@ -303,12 +303,12 @@ impl Configuration {
     }
 
     /// Gets the current CSPR:Fiat rate.
-    pub fn fiat_rate(&self) -> Option<U512> {
+    pub fn fiat_rate(&self) -> Option<Balance> {
         self.fiat_rate
     }
 
     /// Calculates the value CSPRs in Fiat currency.
-    pub fn convert_to_fiat(&self, cspr_amount: U512) -> Result<U512, Error> {
+    pub fn convert_to_fiat(&self, cspr_amount: Balance) -> Result<Balance, Error> {
         if let Some(fiat_rate) = self.fiat_rate {
             if let Some(fiat_amount) = cspr_amount.checked_div(fiat_rate) {
                 Ok(fiat_amount)

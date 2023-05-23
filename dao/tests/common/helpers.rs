@@ -1,5 +1,6 @@
+use crate::common::params::ReputationBalance;
 use dao::utils::consts::*;
-use odra::types::{BlockTime, Bytes, OdraType};
+use odra::types::{BlockTime, Bytes, OdraType, U512};
 use std::{fmt::Debug, str::FromStr};
 
 use super::params::{Balance, TimeUnit};
@@ -45,12 +46,23 @@ pub fn value_to_bytes(value: &str, key: &str) -> Bytes {
     }
 }
 
-pub fn is_balance_close_enough<A: Into<Balance>, B: Into<Balance>>(a: A, b: B) -> bool {
+pub fn is_cspr_balance_close_enough<A: Into<Balance>, B: Into<Balance>>(a: A, b: B) -> bool {
     let a: Balance = a.into();
     let b: Balance = b.into();
     let (a, b) = (a.0, b.0);
     let diff = if a > b { a - b } else { b - a };
-    diff < odra::types::U512::from(10_000_000)
+    diff < odra::types::Balance::from(10_000_000)
+}
+
+pub fn is_reputation_close_enough<A: Into<ReputationBalance>, B: Into<ReputationBalance>>(
+    a: A,
+    b: B,
+) -> bool {
+    let a: ReputationBalance = a.into();
+    let b: ReputationBalance = b.into();
+    let (a, b) = (a.0, b.0);
+    let diff = if a > b { a - b } else { b - a };
+    diff < U512::from(10_000_000)
 }
 
 #[allow(dead_code)]

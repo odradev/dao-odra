@@ -1,23 +1,32 @@
 use cucumber::{gherkin::Step, then};
 
+use crate::common::params::ReputationBalance;
 use crate::common::{
     helpers,
     params::{Account, Balance},
     DaoWorld,
 };
 
-#[then(expr = "total reputation is {balance}")]
-fn total_reputation(world: &mut DaoWorld, total_reputation_expected: Balance) {
+#[then(expr = "total reputation is {reputation}")]
+fn total_reputation(world: &mut DaoWorld, total_reputation_expected: ReputationBalance) {
     world.assert_total_supply(total_reputation_expected);
 }
 
-#[then(expr = "passive REP of {account} is {balance}")]
-fn assert_passive_reputation(world: &mut DaoWorld, account: Account, expected_balance: Balance) {
+#[then(expr = "passive REP of {account} is {reputation}")]
+fn assert_passive_reputation(
+    world: &mut DaoWorld,
+    account: Account,
+    expected_balance: ReputationBalance,
+) {
     world.assert_passive_reputation(&account, expected_balance);
 }
 
-#[then(expr = "balance of {account} is {balance}")]
-fn assert_reputation_balance(world: &mut DaoWorld, account: Account, expected_balance: Balance) {
+#[then(expr = "balance of {account} is {reputation}")]
+fn assert_reputation_balance(
+    world: &mut DaoWorld,
+    account: Account,
+    expected_balance: ReputationBalance,
+) {
     world.assert_reputation(&account, expected_balance);
 }
 
@@ -39,12 +48,12 @@ fn assert_balances(world: &mut DaoWorld, step: &Step) {
             match label.as_str() {
                 "REP balance" => {
                     let expected_reputation_balance =
-                        helpers::parse_or_default::<Balance>(row.get(idx));
+                        helpers::parse_or_default::<ReputationBalance>(row.get(idx));
                     world.assert_reputation(&account, expected_reputation_balance);
                 }
                 "REP stake" => {
                     let expected_reputation_stake =
-                        helpers::parse_or_default::<Balance>(row.get(idx));
+                        helpers::parse_or_default::<ReputationBalance>(row.get(idx));
                     world.assert_staked_reputation(&account, expected_reputation_stake)
                 }
                 "CSPR balance" => {

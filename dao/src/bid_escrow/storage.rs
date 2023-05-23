@@ -11,7 +11,7 @@ use odra::types::Address;
 use odra::{List, Mapping, Sequence, UnwrapOrRevert};
 
 /// Stores [Bid]-related variables and mappings.
-#[derive()]
+#[odra::module]
 pub struct BidStorage {
     pub job_offers: Mapping<JobOfferId, JobOffer>,
     active_job_offers_ids: Mapping<Address, Vec<JobOfferId>>,
@@ -132,6 +132,7 @@ impl BidStorage {
 }
 
 /// Stores [Job]-related variables and mappings.
+#[odra::module]
 pub struct JobStorage {
     jobs: Mapping<JobId, Job>,
     jobs_for_voting: Mapping<VotingId, JobId>,

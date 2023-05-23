@@ -1,4 +1,5 @@
 use cucumber::Parameter;
+use odra::types::Balance as OdraBalance;
 use odra::types::{U256, U512};
 use std::{
     ops::{Add, Deref},
@@ -9,27 +10,27 @@ use std::{
     Copy, Clone, Debug, Default, derive_more::Deref, PartialEq, Eq, PartialOrd, Ord, Parameter,
 )]
 #[param(name = "balance", regex = r"\d+")]
-pub struct Balance(pub U512);
+pub struct Balance(pub OdraBalance);
 
 impl FromStr for Balance {
     type Err = String;
 
     fn from_str(s: &str) -> core::result::Result<Self, Self::Err> {
-        let value =
-            U512::from((s.parse::<f32>().unwrap() * 1_000f32) as u32) * U512::from(1_000_000);
+        let value = OdraBalance::from((s.parse::<f32>().unwrap() * 1_000f32) as u32)
+            * OdraBalance::from(1_000_000);
         Ok(Balance(value))
     }
 }
 
 impl From<U512> for Balance {
     fn from(value: U512) -> Self {
-        Balance(value)
+        Balance(OdraBalance::from(value.as_u128()))
     }
 }
 
 impl From<U256> for Balance {
     fn from(value: U256) -> Self {
-        Balance(value.to_u512().unwrap())
+        Balance(OdraBalance::from(value.as_u128()))
     }
 }
 
@@ -55,7 +56,7 @@ impl Add<U512> for Balance {
     type Output = Balance;
 
     fn add(self, rhs: U512) -> Self::Output {
-        let result = self.0 + rhs;
+        let result = self.0 + OdraBalance::from(rhs.as_u128());
         Balance(result)
     }
 }
@@ -64,7 +65,7 @@ impl Add<U512> for &Balance {
     type Output = Balance;
 
     fn add(self, rhs: U512) -> Self::Output {
-        let result = self.0 + rhs;
+        let result = self.0 + OdraBalance::from(rhs.as_u128());
         Balance(result)
     }
 }
@@ -73,8 +74,8 @@ impl Add<U256> for Balance {
     type Output = Balance;
 
     fn add(self, rhs: U256) -> Self::Output {
-        let rhs: Balance = rhs.into();
-        self + rhs
+        let result = self.0 + OdraBalance::from(rhs.as_u128());
+        Balance(result)
     }
 }
 
@@ -82,8 +83,101 @@ impl Add<U256> for &Balance {
     type Output = Balance;
 
     fn add(self, rhs: U256) -> Self::Output {
-        let rhs: Balance = rhs.into();
-        self + rhs
+        let result = self.0 + OdraBalance::from(rhs.as_u128());
+        Balance(result)
+    }
+}
+
+#[derive(
+    Copy, Clone, Debug, Default, derive_more::Deref, PartialEq, Eq, PartialOrd, Ord, Parameter,
+)]
+#[param(name = "reputation", regex = r"\d+")]
+pub struct ReputationBalance(pub U512);
+
+impl FromStr for ReputationBalance {
+    type Err = String;
+
+    fn from_str(s: &str) -> core::result::Result<Self, Self::Err> {
+        let value =
+            U512::from((s.parse::<f32>().unwrap() * 1_000f32) as u32) * U512::from(1_000_000);
+        Ok(ReputationBalance(value))
+    }
+}
+
+impl From<U512> for ReputationBalance {
+    fn from(value: U512) -> Self {
+        ReputationBalance(U512::from(value.as_u128()))
+    }
+}
+
+impl From<U256> for ReputationBalance {
+    fn from(value: U256) -> Self {
+        ReputationBalance(U512::from(value.as_u128()))
+    }
+}
+
+impl Add<ReputationBalance> for ReputationBalance {
+    type Output = ReputationBalance;
+
+    fn add(self, rhs: ReputationBalance) -> Self::Output {
+        let result = self.0 + rhs.0;
+        ReputationBalance(result)
+    }
+}
+
+impl Add<ReputationBalance> for &ReputationBalance {
+    type Output = ReputationBalance;
+
+    fn add(self, rhs: ReputationBalance) -> Self::Output {
+        let result = self.0 + rhs.0;
+        ReputationBalance(result)
+    }
+}
+
+impl Add<U512> for ReputationBalance {
+    type Output = ReputationBalance;
+
+    fn add(self, rhs: U512) -> Self::Output {
+        let result = self.0 + U512::from(rhs.as_u128());
+        ReputationBalance(result)
+    }
+}
+
+impl Add<U512> for &ReputationBalance {
+    type Output = ReputationBalance;
+
+    fn add(self, rhs: U512) -> Self::Output {
+        let result = self.0 + U512::from(rhs.as_u128());
+        ReputationBalance(result)
+    }
+}
+
+impl Add<U256> for ReputationBalance {
+    type Output = ReputationBalance;
+
+    fn add(self, rhs: U256) -> Self::Output {
+        let result = self.0 + U512::from(rhs.as_u128());
+        ReputationBalance(result)
+    }
+}
+
+impl Add<U256> for &ReputationBalance {
+    type Output = ReputationBalance;
+
+    fn add(self, rhs: U256) -> Self::Output {
+        let result = self.0 + U512::from(rhs.as_u128());
+        ReputationBalance(result)
+    }
+}
+
+#[allow(dead_code)]
+impl ReputationBalance {
+    pub fn zero() -> ReputationBalance {
+        U512::zero().into()
+    }
+
+    pub fn one() -> ReputationBalance {
+        U512::from(1_000_000_000).into()
     }
 }
 

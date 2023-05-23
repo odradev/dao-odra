@@ -1,13 +1,13 @@
 use crate::rules::validation::Validation;
 use crate::utils::Error;
 use macros::Rule;
-use odra::types::U512;
+use odra::types::{Balance, U512};
 
 /// Makes sure the stake is non-zero. May return [Error::ZeroStake].
 #[derive(Rule)]
 pub struct IsStakeNonZero {
     reputation_stake: U512,
-    cspr_stake: Option<U512>,
+    cspr_stake: Option<Balance>,
 }
 
 impl Validation for IsStakeNonZero {

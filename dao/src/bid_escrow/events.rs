@@ -6,7 +6,7 @@ use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
 use crate::configuration::Configuration;
 use crate::utils::types::DocumentHash;
 use crate::voting::types::VotingId;
-use odra::types::{Address, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime, U512};
 use odra::Event;
 
 /// Informs a new [Job Offer](JobOffer) has been created.
@@ -17,7 +17,7 @@ pub struct JobOfferCreated {
     /// The address of an account that created the offer.
     job_poster: Address,
     /// Max CSPR amount to be paid to the `Worker`.
-    max_budget: U512,
+    max_budget: Balance,
     /// Offer validity time.
     expected_timeframe: BlockTime,
 }
@@ -42,9 +42,9 @@ pub struct BidSubmitted {
     worker: Address,
     onboard: bool,
     proposed_timeframe: BlockTime,
-    proposed_payment: U512,
+    proposed_payment: Balance,
     reputation_stake: Option<U512>,
-    cspr_stake: Option<U512>,
+    cspr_stake: Option<Balance>,
 }
 
 impl BidSubmitted {
@@ -56,9 +56,9 @@ impl BidSubmitted {
         worker: Address,
         onboard: bool,
         proposed_timeframe: BlockTime,
-        proposed_payment: U512,
+        proposed_payment: Balance,
         reputation_stake: Option<U512>,
-        cspr_stake: Option<U512>,
+        cspr_stake: Option<Balance>,
     ) -> Self {
         BidSubmitted {
             bid_id,
@@ -99,7 +99,7 @@ pub struct JobCreated {
     job_poster: Address,
     worker: Address,
     finish_time: BlockTime,
-    payment: U512,
+    payment: Balance,
 }
 
 impl JobCreated {
@@ -171,7 +171,7 @@ pub struct JobDone {
     caller: Address,
     job_poster: Address,
     worker: Address,
-    cspr_amount: U512,
+    cspr_amount: Balance,
 }
 
 impl JobDone {
@@ -194,7 +194,7 @@ pub struct JobRejected {
     caller: Address,
     job_poster: Address,
     worker: Address,
-    cspr_amount: U512,
+    cspr_amount: Balance,
 }
 
 impl JobRejected {
@@ -287,6 +287,6 @@ impl ToString for TransferReason {
 pub struct CSPRTransfer {
     pub from: Address,
     pub to: Address,
-    pub amount: U512,
+    pub amount: Balance,
     pub reason: String,
 }

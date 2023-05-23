@@ -2,6 +2,7 @@ use super::{
     helpers,
     params::{Account, Balance},
 };
+use crate::common::params::ReputationBalance;
 
 #[allow(dead_code)]
 pub struct UserConfiguration {
@@ -9,8 +10,8 @@ pub struct UserConfiguration {
     whitelisted_in: Vec<Account>,
     is_kyced: bool,
     is_va: bool,
-    reputation_balance: Balance,
-    reputation_staked: Balance,
+    reputation_balance: ReputationBalance,
+    reputation_staked: ReputationBalance,
     cspr_balance: Balance,
 }
 
@@ -20,8 +21,8 @@ impl UserConfiguration {
         let mut whitelisted_in = vec![];
         let mut is_kyced = false;
         let mut is_va = false;
-        let mut reputation_balance = Balance::zero();
-        let mut reputation_staked = Balance::zero();
+        let mut reputation_balance = ReputationBalance::zero();
+        let mut reputation_staked = ReputationBalance::zero();
         let mut cspr_balance = Balance::zero();
         let mut account = None::<Account>;
 
@@ -94,7 +95,7 @@ impl UserConfiguration {
         self.is_va
     }
 
-    pub fn reputation_balance(&self) -> Balance {
+    pub fn reputation_balance(&self) -> ReputationBalance {
         self.reputation_balance
     }
 

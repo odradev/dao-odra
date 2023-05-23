@@ -1,13 +1,13 @@
 use crate::rules::validation::Validation;
 use crate::utils::Error;
 use macros::Rule;
-use odra::types::U512;
+use odra::types::{Balance, U512};
 
 /// Verifies if the actual payment matches the proposed payment. May return [Error::PurseBalanceMismatch].
 #[derive(Rule)]
 pub struct DoesProposedPaymentMatchTransferred {
-    proposed_payment: U512,
-    transferred: U512,
+    proposed_payment: Balance,
+    transferred: Balance,
 }
 
 impl Validation for DoesProposedPaymentMatchTransferred {

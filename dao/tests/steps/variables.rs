@@ -38,5 +38,5 @@ fn set_cspr_rate_by(world: &mut DaoWorld, account: Account, rate: Balance) {
 
 #[then(expr = "the price of USDT is {balance} CSPR")]
 fn assert_cspr_rate(world: &mut DaoWorld, expected_rate: Balance) {
-    assert_eq!(*expected_rate, world.get_cspr_rate());
+    assert_eq!(expected_rate, world.get_cspr_rate());
 }

@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use odra::{test_env, types::Address};
 
+use crate::common::helpers::is_cspr_balance_close_enough;
 use crate::common::{
-    helpers::is_balance_close_enough,
     params::{Account, Balance},
     DaoWorld,
 };
@@ -24,7 +24,7 @@ impl VirtualBalances {
         self.current.insert(account, amount.into());
 
         self.initial
-            .insert(account, test_env::token_balance(account).into());
+            .insert(account, Balance(test_env::token_balance(account)));
     }
 
     pub fn get(&self, address: Address) -> Balance {
@@ -32,7 +32,7 @@ impl VirtualBalances {
         let result = balance
             .checked_sub(self.initial.get(&address).unwrap().0)
             .unwrap();
-        result.into()
+        Balance(result)
     }
 }
 
@@ -55,7 +55,7 @@ impl DaoWorld {
         let real_cspr_balance = self.get_cspr_balance(account);
 
         assert!(
-            is_balance_close_enough(expected_balance, real_cspr_balance),
+            is_cspr_balance_close_enough(expected_balance, real_cspr_balance),
             "For account {:?} CSPR balance should be {:?} but is {:?}",
             account,
             expected_balance,

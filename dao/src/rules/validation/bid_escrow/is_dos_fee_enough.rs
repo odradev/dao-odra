@@ -2,14 +2,14 @@ use crate::configuration::Configuration;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
 use macros::Rule;
-use odra::types::U512;
+use odra::types::{Balance, U512};
 use std::rc::Rc;
 
 /// Makes sure the `Job DOS Fee` is high enough. May return [Error::DosFeeTooLow].
 #[derive(Rule)]
 pub struct IsDosFeeEnough {
     configuration: Rc<Configuration>,
-    dos_fee: U512,
+    dos_fee: Balance,
 }
 
 impl Validation for IsDosFeeEnough {

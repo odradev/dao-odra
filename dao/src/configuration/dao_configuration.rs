@@ -1,9 +1,9 @@
-use odra::types::{Address, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime, U512};
 use odra::OdraType;
 
 #[derive(OdraType)]
 pub struct DaoConfiguration {
-    pub post_job_dos_fee: U512,
+    pub post_job_dos_fee: Balance,
     pub internal_auction_time: BlockTime,
     pub public_auction_time: BlockTime,
     pub default_policing_rate: U512,

@@ -6,7 +6,7 @@ use crate::utils::ContractCall;
 use crate::utils::Error;
 use odra::call_contract;
 use odra::contract_env::revert;
-use odra::types::{Address, Bytes, CallArgs, OdraType, U512};
+use odra::types::{Address, Balance, Bytes, CallArgs, OdraType, U512};
 use std::collections::BTreeMap;
 
 /// Utility to crate a [Configuration] instance.
@@ -126,7 +126,7 @@ impl ConfigurationBuilder {
 
     /// Sets the `is_bid_escrow` field and inits the fiat rate.
     pub fn set_is_bid_escrow(mut self, is_bid_escrow: bool) -> ConfigurationBuilder {
-        let rate: U512 = call_contract(
+        let rate: Balance = call_contract(
             self.configuration.fiat_conversion_rate_address(),
             "get_rate",
             &CallArgs::new(),
