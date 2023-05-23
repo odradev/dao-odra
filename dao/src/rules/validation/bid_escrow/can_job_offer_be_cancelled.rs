@@ -1,4 +1,5 @@
 use macros::Rule;
+use crate::bid_escrow::job_offer::AuctionState;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
 

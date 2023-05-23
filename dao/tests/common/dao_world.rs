@@ -1,6 +1,8 @@
-use dao::{core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer, ReputationContractRef, ReputationContractDeployer}, utils_contracts::{CSPRRateProviderContractRef, CSPRRateProviderContractDeployer, DaoIdsContractDeployer}, voting_contracts::{AdminContractRef, admin::AdminContractDeployer, reputation_voter::{ReputationVoterContractDeployer}, ReputationVoterContractRef, KycVoterContractRef, kyc_voter::KycVoterContractDeployer, repo_voter::{RepoVoterContractRef, RepoVoterContractDeployer}}};
+use dao::{core_contracts::{VariableRepositoryContractDeployer, VariableRepositoryContractRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer, ReputationContractRef, ReputationContractDeployer}, utils_contracts::{CSPRRateProviderContractRef, CSPRRateProviderContractDeployer, DaoIdsContractDeployer}, voting_contracts::{AdminContractRef, admin::AdminContractDeployer, reputation_voter::{ReputationVoterContractDeployer}, ReputationVoterContractRef, KycVoterContractRef, kyc_voter::KycVoterContractDeployer}};
 use odra::{test_env, types::{OdraType, Bytes}};
 use std::fmt::{Debug, Formatter};
+use dao::voting_contracts::repo_voter::RepoVoterContractDeployer;
+use dao::voting_contracts::RepoVoterContractRef;
 
 use super::{contracts::cspr::VirtualBalances, params::Account};
 
@@ -11,7 +13,7 @@ const DEFAULT_CSPR_USD_RATE: u64 = 34_000_000_000;
 pub struct DaoWorld {
     pub virtual_balances: VirtualBalances,
     pub admin: AdminContractRef,
-    pub variable_repository: VariableRepositoryRef,
+    pub variable_repository: VariableRepositoryContractRef,
     pub kyc_token: KycNftContractRef,
     pub va_token: VaNftContractRef,
     pub reputation_token: ReputationContractRef,
@@ -52,7 +54,7 @@ impl Default for DaoWorld {
         let multisig_wallet = test_env::get_account(8);
         let rate_provider = CSPRRateProviderContractDeployer::init(DEFAULT_CSPR_USD_RATE.into());
         let ids = DaoIdsContractDeployer::init();        
-        let variable_repository = VariableRepositoryDeployer::init(
+        let variable_repository = VariableRepositoryContractDeployer::init(
             rate_provider.address(),
             multisig_wallet,
             ids.address()

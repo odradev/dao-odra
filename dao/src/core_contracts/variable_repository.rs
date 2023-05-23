@@ -43,13 +43,13 @@ use odra::UnwrapOrRevert;
 use std::collections::BTreeMap;
 
 #[odra::module]
-pub struct VariableRepository {
+pub struct VariableRepositoryContract {
     pub access_control: AccessControl,
     pub repository: Repository,
 }
 
 #[odra::module]
-impl VariableRepository {
+impl VariableRepositoryContract {
     delegate! {
         to self.access_control {
             /// Checks whether the given address is added to the whitelist.

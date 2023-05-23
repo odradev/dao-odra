@@ -2,10 +2,6 @@
 //!
 //! New reputation is minted as a result of engagement in the DAO - voting or doing jobs.
 
-use odra::{
-    types::{Address, U512},
-    OdraType,
-};
 mod agg;
 mod balances;
 mod stakes;
@@ -26,14 +22,3 @@ pub mod token;
 // pub mod submodules {
 //     pub use super::{agg::*, balances::BalanceStorage, stakes::StakesStorage};
 // }
-
-// TODO: remove once BidEscrow module is done.
-pub type BidId = u32;
-
-// TODO: remove once BidEscrow module is done.
-#[derive(OdraType)]
-pub struct ShortenedBid {
-    pub bid_id: BidId,
-    pub reputation_stake: U512,
-    pub worker: Address,
-}

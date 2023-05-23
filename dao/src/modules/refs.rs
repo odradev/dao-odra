@@ -2,7 +2,7 @@
 use odra::types::Address;
 use odra::{UnwrapOrRevert, Variable};
 
-use crate::core_contracts::{ReputationContractRef, VaNftContractRef, VariableRepositoryRef, KycNftContractRef};
+use crate::core_contracts::{ReputationContractRef, VaNftContractRef, KycNftContractRef, VariableRepositoryContractRef};
 use crate::utils::Error;
 
 /// A module that stores addresses to common voting_contracts that are used by most of the voting voting_contracts.
@@ -33,7 +33,7 @@ impl ContractRefsStorage {
             .unwrap_or_revert_with(Error::VariableValueNotSet)
     }
 
-    /// Returns the address of [Variable Repository](crate::core_contracts::VariableRepository) contract.
+    /// Returns the address of [Variable Repository](crate::core_contracts::VariableRepositoryContract) contract.
     pub fn variable_repository_address(&self) -> Address {
         self.variable_repository
             .get()
@@ -54,9 +54,13 @@ impl ContractRefsStorage {
         ReputationContractRef::at(self.reputation_token_address())
     }
 
-    /// Returns the Ref of [Variable Repository](crate::core_contracts::VariableRepository) contract.
-    pub fn variable_repository(&self) -> VariableRepositoryRef {
-        VariableRepositoryRef::at(self.variable_repository_address())
+    /// Returns the Ref of [Variable Repository](crate::core_contracts::VariableRepositoryContract) contract.
+    pub fn variable_repository(&self) -> VariableRepositoryContractRef {
+        VariableRepositoryContractRef::at(
+            self.variable_repository
+                .get()
+                .unwrap_or_revert_with(Error::VariableValueNotSet),
+        )
     }
 
     /// Returns the Ref of [VA Token](crate::core_contracts::VaNftContract) contract.
@@ -111,7 +115,7 @@ impl ContractRefsWithKycStorage {
     }
 
     /// Returns the Ref of [Variable Repository](crate::core_contracts::VariableRepository) contract.
-    pub fn variable_repository(&self) -> VariableRepositoryRef {
+    pub fn variable_repository(&self) -> VariableRepositoryContractRef {
         self.refs.variable_repository()
     }
 

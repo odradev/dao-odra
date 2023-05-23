@@ -1,6 +1,6 @@
 [[contracts]]
 name = "variable_repository_contract"
-fqn = "dao::core_contracts::VariableRepository"
+fqn = "dao::core_contracts::VariableRepositoryContract"
 
 [[contracts]]
 name = "admin_contract"

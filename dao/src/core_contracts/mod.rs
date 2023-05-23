@@ -14,6 +14,6 @@ pub use reputation::token::{
 };
 pub use va_nft::{VaNftContract, VaNftContractComposer, VaNftContractDeployer, VaNftContractRef};
 pub use variable_repository::{
-    VariableRepository, VariableRepositoryComposer, VariableRepositoryDeployer,
-    VariableRepositoryRef,
+    VariableRepositoryContract, VariableRepositoryContractComposer, VariableRepositoryContractDeployer,
+    VariableRepositoryContractRef,
 };

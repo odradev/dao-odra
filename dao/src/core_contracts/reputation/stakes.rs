@@ -9,12 +9,14 @@ use odra::{
     types::{event::OdraEvent, Address, OdraType, U512},
     Mapping, UnwrapOrRevert,
 };
+use crate::bid_escrow::bid::ShortenedBid;
 
 use super::{
     balances::BalanceStorage,
     token::events::{Stake, Unstake},
-    BidId, ShortenedBid,
 };
+
+use crate::bid_escrow::types::BidId;
 
 /// A module that stores information about stakes.
 #[odra::module(events = [Stake, Unstake])]

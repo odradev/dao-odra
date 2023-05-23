@@ -5,8 +5,10 @@ use odra::{
     types::{Address, U512},
     OdraType,
 };
+use crate::bid_escrow::types::BidId;
 
-use super::{balances::BalanceStorage, stakes::StakesStorage, BidId};
+use super::balances::BalanceStorage;
+use super::stakes::StakesStorage;
 
 /// A module that provides aggregated data about reputation tokens.
 #[odra::module]

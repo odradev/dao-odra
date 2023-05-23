@@ -1,7 +1,7 @@
 //! Groups validations.
 mod is_user_kyced;
 
-// pub mod bid_escrow;
+pub mod bid_escrow;
 pub mod voting;
 
 use crate::utils::Error;

@@ -1,5 +1,5 @@
 {
-  "name": "VariableRepository",
+  "name": "VariableRepositoryContract",
   "entrypoints": [
     {
       "name": "init",

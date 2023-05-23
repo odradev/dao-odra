@@ -1,5 +1,6 @@
 use odra::types::BlockTime;
 use macros::Rule;
+use crate::bid_escrow::job_offer::JobOfferStatus;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
 
