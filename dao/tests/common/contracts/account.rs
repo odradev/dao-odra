@@ -35,7 +35,7 @@ impl DaoWorld {
             Contract::ReputationToken => self.reputation_token.address(),
             Contract::VariableRepository => self.variable_repository.address(),
             Contract::KycVoter => self.kyc_voter.address(),
-            Contract::RepoVoter => todo!(),
+            Contract::RepoVoter => self.repo_voter.address(),
             Contract::SlashingVoter => todo!(),
             Contract::SimpleVoter => todo!(),
             Contract::ReputationVoter => self.reputation_voter.address(),

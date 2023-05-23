@@ -33,3 +33,7 @@ fqn = "dao::voting_contracts::ReputationVoterContract"
 [[contracts]]
 name = "kyc_voter_contract"
 fqn = "dao::voting_contracts::KycVoterContract"
+
+[[contracts]]
+name = "repo_voter_contract"
+fqn = "dao::voting_contracts::RepoVoterContract"

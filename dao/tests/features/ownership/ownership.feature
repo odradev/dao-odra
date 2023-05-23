@@ -10,7 +10,7 @@ Feature: Ownership management
       | KycToken           |
       | KycVoter           |
       # | Onboarding         |
-      # | RepoVoter          |
+      | RepoVoter          |
       | ReputationToken    |
       # | ReputationVoter    |
       # | SimpleVoter        |
@@ -33,7 +33,7 @@ Feature: Ownership management
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
-        # | RepoVoter          |
+        | RepoVoter          |
         | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
@@ -53,7 +53,7 @@ Feature: Ownership management
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
-        # | RepoVoter          |
+        | RepoVoter          |
         | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
@@ -74,7 +74,7 @@ Feature: Ownership management
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
-        # | RepoVoter          |
+        | RepoVoter          |
         | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
@@ -97,7 +97,7 @@ Feature: Ownership management
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
-        # | RepoVoter          |
+        | RepoVoter          |
         | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
@@ -119,7 +119,7 @@ Feature: Ownership management
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
-        # | RepoVoter          |
+        | RepoVoter          |
         | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
@@ -141,7 +141,7 @@ Feature: Ownership management
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
-        # | RepoVoter          |
+        | RepoVoter          |
         | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
@@ -163,7 +163,7 @@ Feature: Ownership management
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
-        # | RepoVoter          |
+        | RepoVoter          |
         | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |

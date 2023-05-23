@@ -1,0 +1,163 @@
+use odra::{types::{Address, CallArgs, event::OdraEvent, U512, Bytes, BlockTime}, contract_env::caller, Event};
+
+use crate::{modules::{refs::ContractRefsStorage, AccessControl}, voting::{voting_engine::{VotingEngine, voting_state_machine::{VotingType, VotingStateMachine, VotingSummary}, events::VotingCreatedInfo}, types::VotingId, ballot::{Ballot, Choice}}, configuration::ConfigurationBuilder, utils::{ContractCall, consts}};
+
+/// RepoVoterContract
+///
+/// It is responsible for managing variables held in [Variable Repo](crate::variable_repository::VariableRepositoryContract).
+///
+/// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
+#[odra::module]
+pub struct RepoVoterContract {
+    refs: ContractRefsStorage,
+    voting_engine: VotingEngine,
+    access_control: AccessControl,
+}
+
+#[odra::module]
+impl RepoVoterContract {
+    delegate! {
+        to self.voting_engine {
+            pub fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
+            pub fn get_voting(
+            &self,
+                voting_id: VotingId,
+            ) -> Option<VotingStateMachine>;
+            pub fn get_ballot(
+                &self,
+                voting_id: VotingId,
+                voting_type: VotingType,
+                address: Address,
+            ) -> Option<Ballot>;
+            pub fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
+            pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary;
+        }
+
+        to self.access_control {
+            pub fn change_ownership(&mut self, owner: Address);
+            pub fn add_to_whitelist(&mut self, address: Address);
+            pub fn remove_from_whitelist(&mut self, address: Address);
+            pub fn is_whitelisted(&self, address: Address) -> bool;
+            pub fn get_owner(&self) -> Option<Address>;
+        }
+
+        to self.refs {
+            pub fn variable_repository_address(&self) -> Address;
+            pub fn reputation_token_address(&self) -> Address;
+        }
+    }
+
+    #[odra(init)]
+    pub fn init(&mut self, variable_repository: Address, reputation_token: Address, va_token: Address) {
+        self.refs
+            .init(variable_repository, reputation_token, va_token);
+        self.access_control.init(caller());
+    }
+
+    pub fn create_voting(
+        &mut self,
+        variable_repo_to_edit: Address,
+        key: String,
+        value: Bytes,
+        activation_time: Option<u64>,
+        stake: U512,
+    ) {
+        let voting_configuration = ConfigurationBuilder::new(
+            self.refs.reputation_token().total_supply(),
+            &self.refs.variable_repository().all_variables(),
+        )
+        .contract_call(ContractCall {
+            address: variable_repo_to_edit,
+            entry_point: consts::EP_UPDATE_AT.to_string(),
+            call_args: {
+                let mut args = CallArgs::new();
+                args.insert(
+                    consts::ARG_KEY.to_string(),
+                    key.clone(),
+                );
+                args.insert(
+                    consts::ARG_VALUE.to_string(),
+                    value.clone()
+                );
+                args.insert(
+                    consts::ARG_ACTIVATION_TIME.to_string(),
+                    activation_time
+                );
+                args
+            },
+            amount: None
+        })
+        .build();
+
+        let (info, _) = self
+            .voting_engine
+            .create_voting(caller(), stake, voting_configuration);
+
+        RepoVotingCreated::new(
+            variable_repo_to_edit,
+            key,
+            value,
+            activation_time,
+            info,
+        ).emit();
+    }
+
+    pub fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: U512) {
+        self.voting_engine
+            .vote(caller(), voting_id, voting_type, choice, stake);
+    }
+
+    pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
+        self.access_control.ensure_whitelisted();
+        self.voting_engine.slash_voter(voter, voting_id);
+    }
+}
+
+/// Informs repo voting has been created.
+#[derive(Debug, PartialEq, Eq, Event)]
+pub struct RepoVotingCreated {
+    variable_repo_to_edit: Address,
+    key: String,
+    value: Bytes,
+    activation_time: Option<u64>,
+    creator: Address,
+    stake: Option<U512>,
+    voting_id: VotingId,
+    config_informal_quorum: u32,
+    config_informal_voting_time: u64,
+    config_formal_quorum: u32,
+    config_formal_voting_time: u64,
+    config_total_onboarded: U512,
+    config_double_time_between_votings: bool,
+    config_voting_clearness_delta: U512,
+    config_time_between_informal_and_formal_voting: BlockTime,
+}
+
+impl RepoVotingCreated {
+    pub fn new(
+        variable_repo_to_edit: Address,
+        key: String,
+        value: Bytes,
+        activation_time: Option<u64>,
+        info: VotingCreatedInfo,
+    ) -> Self {
+        Self {
+            variable_repo_to_edit,
+            key,
+            value,
+            activation_time,
+            creator: info.creator,
+            stake: info.stake,
+            voting_id: info.voting_id,
+            config_informal_quorum: info.config_informal_quorum,
+            config_informal_voting_time: info.config_informal_voting_time,
+            config_formal_quorum: info.config_formal_quorum,
+            config_formal_voting_time: info.config_formal_voting_time,
+            config_total_onboarded: info.config_total_onboarded,
+            config_double_time_between_votings: info.config_double_time_between_votings,
+            config_voting_clearness_delta: info.config_voting_clearness_delta,
+            config_time_between_informal_and_formal_voting: info
+                .config_time_between_informal_and_formal_voting,
+        }
+    }
+}

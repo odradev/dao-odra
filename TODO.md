@@ -1,2 +1,3 @@
 - Unify ContractRefsStorage and ContractRefsWithKycStorage.
 - VotingEngine should have KycInfo features.
+- finish_voting returns VotingSummary, but when used via delegate as an entrypoint it should not return anything. Allow Odra to supress return value?

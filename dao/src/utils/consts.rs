@@ -21,6 +21,8 @@ pub const EP_CHANGE_OWNERSHIP: &str = "change_ownership";
 pub const EP_SET_OR_UPDATE: &str = "set_or_update";
 /// The name of `get` entry point.
 pub const EP_GET: &str = "get";
+/// The name of `update_at` entry point.
+pub const EP_UPDATE_AT: &str = "update_at";
 
 /// The name of `recipient` entry point argument.
 pub const ARG_RECIPIENT: &str = "recipient";
@@ -38,6 +40,8 @@ pub const ARG_VALUE: &str = "value";
 pub const ARG_TO: &str = "to";
 /// The name of `token_id` entry point argument.
 pub const ARG_TOKEN_ID: &str = "token_id";
+/// The name of `activation_time` entry point argument.
+pub const ARG_ACTIVATION_TIME: &str = "activation_time";
 
 /// The key the collection length is stored under.
 pub const LENGTH_SUFFIX: &str = "_length";
