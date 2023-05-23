@@ -1,7 +1,5 @@
 //! Submodules storing Job and Bid data.
 
-use odra::{List, Mapping, Sequence, UnwrapOrRevert};
-use odra::types::Address;
 use crate::bid_escrow::bid::Bid;
 use crate::bid_escrow::job::Job;
 use crate::bid_escrow::job_offer::JobOffer;
@@ -9,6 +7,8 @@ use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
 use crate::configuration::Configuration;
 use crate::utils::Error;
 use crate::voting::types::VotingId;
+use odra::types::Address;
+use odra::{List, Mapping, Sequence, UnwrapOrRevert};
 
 /// Stores [Bid]-related variables and mappings.
 #[derive()]
@@ -92,12 +92,9 @@ impl BidStorage {
 
     /// Gets the nth [Bid] for the [JobOffer] with a given id or reverts with [Error::BidNotFound].
     pub fn get_nth_bid(&self, offer_id: &JobOfferId, n: u32) -> Bid {
-        let bid_ids = self
-            .job_offers_bids
-            .get_instance(offer_id);
+        let bid_ids = self.job_offers_bids.get_instance(offer_id);
 
-        let bid_id = bid_ids.get(n)
-            .unwrap_or_revert_with(Error::BidNotFound);
+        let bid_id = bid_ids.get(n).unwrap_or_revert_with(Error::BidNotFound);
 
         self.get_bid_or_revert(&bid_id)
     }
@@ -164,7 +161,9 @@ impl JobStorage {
 
     /// Gets the [Job] with a given id or reverts with [MappingItemNotAvailable](casper_dao_utils::Error::MappingItemNotAvailable).
     pub fn get_job_or_revert(&self, job_id: JobId) -> Job {
-        self.jobs.get(&job_id).unwrap_or_revert_with(Error::JobNotFound)
+        self.jobs
+            .get(&job_id)
+            .unwrap_or_revert_with(Error::JobNotFound)
     }
 
     /// Writes a [Job] to the storage.

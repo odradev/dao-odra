@@ -1,7 +1,7 @@
-use odra::types::U512;
-use macros::Rule;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
+use odra::types::U512;
 
 /// Verifies if the proposed payment does not exceeds the budget.
 /// May return [Error::PaymentExceedsMaxBudget].

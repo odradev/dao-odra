@@ -5,7 +5,7 @@ use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{
     Stats, VotingResult, VotingStateMachine, VotingType,
 };
-use odra::types::{Address, BlockTime,  U512};
+use odra::types::{Address, BlockTime, U512};
 use odra::{Event, OdraType};
 use std::collections::BTreeMap;
 

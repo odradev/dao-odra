@@ -1,6 +1,6 @@
-use macros::Rule;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
 
 /// Verifies if exists conflicting ongoing voting. May return [Error::VotingNotCompleted].
 #[derive(Rule)]

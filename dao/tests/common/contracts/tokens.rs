@@ -1,7 +1,13 @@
 use dao::core_contracts::TokenId as DaoTokenId;
-use odra::{types::{U512, Address, U256}, test_env};
+use odra::{
+    test_env,
+    types::{Address, U256, U512},
+};
 
-use crate::common::{DaoWorld, params::{Account, Contract, TokenId}};
+use crate::common::{
+    params::{Account, Contract, TokenId},
+    DaoWorld,
+};
 
 #[odra::external_contract]
 pub trait TotalSupply {
@@ -34,16 +40,10 @@ impl DaoWorld {
     pub fn nft_owner_of(&self, contract: Contract, token_id: TokenId) -> Address {
         let contract = self.contract_address(contract);
 
-        NftTokenRef::at(contract)
-            .owner_of(*token_id)
+        NftTokenRef::at(contract).owner_of(*token_id)
     }
 
-    pub fn mint_nft_token(
-        &mut self,
-        contract: Contract,
-        minter: &Account,
-        recipient: &Account,
-    ) {
+    pub fn mint_nft_token(&mut self, contract: Contract, minter: &Account, recipient: &Account) {
         let contract = self.contract_address(contract);
         let minter = self.get_address(minter);
         let recipient = self.get_address(recipient);
@@ -52,12 +52,7 @@ impl DaoWorld {
         NftTokenRef::at(contract).mint(recipient);
     }
 
-    pub fn burn_nft_token(
-        &mut self,
-        contract: Contract,
-        burner: &Account,
-        holder: &Account,
-    ) {
+    pub fn burn_nft_token(&mut self, contract: Contract, burner: &Account, holder: &Account) {
         let contract = self.contract_address(contract);
         let burner = self.get_address(burner);
         let holder = self.get_address(holder);

@@ -181,11 +181,11 @@ impl ReputationContract {
 }
 
 pub mod events {
+    use crate::bid_escrow::types::BidId;
     use odra::{
         types::{Address, U512},
         Event,
     };
-    use crate::bid_escrow::types::BidId;
 
     /// Informs tokens have been burnt.
     #[derive(Debug, PartialEq, Eq, Event)]

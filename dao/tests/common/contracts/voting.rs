@@ -15,7 +15,6 @@
 
 // mod builder;
 
-
 // #[odra::external_contract]
 // trait Voter {
 //     fn vote(&mut self, voting_id: VotingId, voting_type: DaoVotingType, choice: Choice, stake: U512);
@@ -29,7 +28,6 @@
 //         let stake = voting.get_stake();
 
 //         self.set_caller(&creator);
-
 
 //         match builder::build(self, voting) {
 //             builder::VotingSetup::Admin(contract_to_update, action, subject) => self

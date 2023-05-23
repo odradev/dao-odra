@@ -24,7 +24,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingSummary};
 use crate::voting::voting_engine::VotingEngine;
 use odra::contract_env::{caller, emit_event};
-use odra::types::{Address, BlockTime, CallArgs,  U512};
+use odra::types::{Address, BlockTime, CallArgs, U512};
 use odra::{Event, OdraType};
 
 /// ReputationVoterContract

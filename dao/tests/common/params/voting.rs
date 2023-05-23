@@ -72,9 +72,7 @@ impl FromStr for VotingType {
 impl From<VotingType> for voting::voting_engine::voting_state_machine::VotingType {
     fn from(value: VotingType) -> Self {
         match value {
-            VotingType::Formal => {
-                voting::voting_engine::voting_state_machine::VotingType::Formal
-            }
+            VotingType::Formal => voting::voting_engine::voting_state_machine::VotingType::Formal,
             VotingType::Informal => {
                 voting::voting_engine::voting_state_machine::VotingType::Informal
             }

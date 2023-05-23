@@ -1,6 +1,9 @@
-use std::{ops::{Deref, Add}, str::FromStr};
 use cucumber::Parameter;
-use odra::types::{U512, U256};
+use odra::types::{U256, U512};
+use std::{
+    ops::{Add, Deref},
+    str::FromStr,
+};
 
 #[derive(
     Copy, Clone, Debug, Default, derive_more::Deref, PartialEq, Eq, PartialOrd, Ord, Parameter,
@@ -12,7 +15,8 @@ impl FromStr for Balance {
     type Err = String;
 
     fn from_str(s: &str) -> core::result::Result<Self, Self::Err> {
-        let value = U512::from((s.parse::<f32>().unwrap() * 1_000f32) as u32) * U512::from(1_000_000);
+        let value =
+            U512::from((s.parse::<f32>().unwrap() * 1_000f32) as u32) * U512::from(1_000_000);
         Ok(Balance(value))
     }
 }

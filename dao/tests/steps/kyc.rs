@@ -1,7 +1,7 @@
 use cucumber::{given, then, when};
 
 use crate::common::{
-    params::{Account, TokenId, Contract},
+    params::{Account, Contract, TokenId},
     DaoWorld,
 };
 
@@ -24,7 +24,10 @@ fn burn(world: &mut DaoWorld, burner: Account, holder: Account) {
 
 #[then(expr = "the {account}'s balance of KYC Token is {int}")]
 fn assert_balance(world: &mut DaoWorld, user: Account, expected_balance: u32) {
-    assert_eq!(world.nft_balance_of(Contract::KycToken, &user), expected_balance);
+    assert_eq!(
+        world.nft_balance_of(Contract::KycToken, &user),
+        expected_balance
+    );
 }
 
 #[then(expr = "KYC Token with id {token_id} belongs to {account}")]

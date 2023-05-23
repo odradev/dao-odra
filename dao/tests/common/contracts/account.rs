@@ -1,11 +1,8 @@
+use odra::{test_env, types::Address};
 
-use odra::{types::Address, test_env};
-
-use crate::{
-    common::{
-        params::{Account, Contract},
-        DaoWorld,
-    },
+use crate::common::{
+    params::{Account, Contract},
+    DaoWorld,
 };
 
 #[allow(dead_code)]

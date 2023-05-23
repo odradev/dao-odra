@@ -1,8 +1,8 @@
-use std::{fmt::Debug, str::FromStr};
 use dao::utils::consts::*;
 use odra::types::{BlockTime, Bytes, OdraType};
+use std::{fmt::Debug, str::FromStr};
 
-use super::params::{TimeUnit, Balance};
+use super::params::{Balance, TimeUnit};
 
 #[allow(dead_code)]
 pub fn parse_bool(value: String) -> bool {

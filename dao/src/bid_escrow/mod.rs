@@ -1,7 +1,7 @@
 pub mod bid;
-pub mod types;
-pub mod job_offer;
-pub mod job;
-pub mod storage;
 pub mod events;
+pub mod job;
+pub mod job_offer;
+pub mod storage;
+pub mod types;
 // pub mod bid_engine;

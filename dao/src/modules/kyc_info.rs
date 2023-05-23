@@ -1,6 +1,6 @@
-use odra::{Mapping, types::Address, UnwrapOrRevert};
+use odra::{types::Address, Mapping, UnwrapOrRevert};
 
-use crate::{voting::types::VotingId, utils::Error};
+use crate::{utils::Error, voting::types::VotingId};
 
 use super::refs::ContractRefsWithKycStorage;
 

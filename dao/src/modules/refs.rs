@@ -2,7 +2,9 @@
 use odra::types::Address;
 use odra::{UnwrapOrRevert, Variable};
 
-use crate::core_contracts::{ReputationContractRef, VaNftContractRef, KycNftContractRef, VariableRepositoryContractRef};
+use crate::core_contracts::{
+    KycNftContractRef, ReputationContractRef, VaNftContractRef, VariableRepositoryContractRef,
+};
 use crate::utils::Error;
 
 /// A module that stores addresses to common voting_contracts that are used by most of the voting voting_contracts.

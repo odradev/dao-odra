@@ -1,14 +1,14 @@
 //! Bid-related structs.
 
-use odra::contract_env::revert;
-use odra::OdraType;
-use odra::types::{Address, BlockTime, U512};
 use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
-use crate::rules::RulesBuilder;
 use crate::rules::validation::bid_escrow::{CanPickBid, DoesProposedPaymentMatchTransferred};
-use crate::utils::Error;
+use crate::rules::RulesBuilder;
 use crate::utils::types::DocumentHash;
+use crate::utils::Error;
 use crate::voting::types::VotingId;
+use odra::contract_env::revert;
+use odra::types::{Address, BlockTime, U512};
+use odra::OdraType;
 
 /// Serializable Job status.
 #[derive(OdraType, Copy, PartialEq, Eq)]

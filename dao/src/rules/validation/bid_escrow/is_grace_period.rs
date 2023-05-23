@@ -1,8 +1,8 @@
-use odra::types::BlockTime;
-use macros::Rule;
 use crate::bid_escrow::job::JobStatus;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
+use odra::types::BlockTime;
 
 /// Makes sure the [`Job`](crate::bid_escrow::job::Job) is in grace period state.
 /// May return [Error::CannotSubmitJobProof] or [Error::GracePeriodNotStarted].

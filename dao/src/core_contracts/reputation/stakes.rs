@@ -1,5 +1,6 @@
 use std::hash::Hash;
 
+use crate::bid_escrow::bid::ShortenedBid;
 use crate::modules::AccessControl;
 use crate::utils::Error;
 use crate::voting::ballot::ShortenedBallot;
@@ -9,7 +10,6 @@ use odra::{
     types::{event::OdraEvent, Address, OdraType, U512},
     Mapping, UnwrapOrRevert,
 };
-use crate::bid_escrow::bid::ShortenedBid;
 
 use super::{
     balances::BalanceStorage,

@@ -1,7 +1,7 @@
-use odra::types::Address;
-use macros::Rule;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
+use odra::types::Address;
 
 /// Makes sure the job poster is the one who picks the [`Job Offer`](crate::bid_escrow::job_offer::JobOffer).
 /// May return [Error::OnlyJobPosterCanPickABid].

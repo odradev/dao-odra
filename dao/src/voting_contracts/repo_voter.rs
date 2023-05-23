@@ -1,6 +1,23 @@
-use odra::{types::{Address, CallArgs, event::OdraEvent, U512, Bytes, BlockTime}, contract_env::caller, Event};
+use odra::{
+    contract_env::caller,
+    types::{event::OdraEvent, Address, BlockTime, Bytes, CallArgs, U512},
+    Event,
+};
 
-use crate::{modules::{refs::ContractRefsStorage, AccessControl}, voting::{voting_engine::{VotingEngine, voting_state_machine::{VotingType, VotingStateMachine, VotingSummary}, events::VotingCreatedInfo}, types::VotingId, ballot::{Ballot, Choice}}, configuration::ConfigurationBuilder, utils::{ContractCall, consts}};
+use crate::{
+    configuration::ConfigurationBuilder,
+    modules::{refs::ContractRefsStorage, AccessControl},
+    utils::{consts, ContractCall},
+    voting::{
+        ballot::{Ballot, Choice},
+        types::VotingId,
+        voting_engine::{
+            events::VotingCreatedInfo,
+            voting_state_machine::{VotingStateMachine, VotingSummary, VotingType},
+            VotingEngine,
+        },
+    },
+};
 
 /// RepoVoterContract
 ///
@@ -48,7 +65,12 @@ impl RepoVoterContract {
     }
 
     #[odra(init)]
-    pub fn init(&mut self, variable_repository: Address, reputation_token: Address, va_token: Address) {
+    pub fn init(
+        &mut self,
+        variable_repository: Address,
+        reputation_token: Address,
+        va_token: Address,
+    ) {
         self.refs
             .init(variable_repository, reputation_token, va_token);
         self.access_control.init(caller());
@@ -71,21 +93,12 @@ impl RepoVoterContract {
             entry_point: consts::EP_UPDATE_AT.to_string(),
             call_args: {
                 let mut args = CallArgs::new();
-                args.insert(
-                    consts::ARG_KEY.to_string(),
-                    key.clone(),
-                );
-                args.insert(
-                    consts::ARG_VALUE.to_string(),
-                    value.clone()
-                );
-                args.insert(
-                    consts::ARG_ACTIVATION_TIME.to_string(),
-                    activation_time
-                );
+                args.insert(consts::ARG_KEY.to_string(), key.clone());
+                args.insert(consts::ARG_VALUE.to_string(), value.clone());
+                args.insert(consts::ARG_ACTIVATION_TIME.to_string(), activation_time);
                 args
             },
-            amount: None
+            amount: None,
         })
         .build();
 
@@ -93,16 +106,16 @@ impl RepoVoterContract {
             .voting_engine
             .create_voting(caller(), stake, voting_configuration);
 
-        RepoVotingCreated::new(
-            variable_repo_to_edit,
-            key,
-            value,
-            activation_time,
-            info,
-        ).emit();
+        RepoVotingCreated::new(variable_repo_to_edit, key, value, activation_time, info).emit();
     }
 
-    pub fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: U512) {
+    pub fn vote(
+        &mut self,
+        voting_id: VotingId,
+        voting_type: VotingType,
+        choice: Choice,
+        stake: U512,
+    ) {
         self.voting_engine
             .vote(caller(), voting_id, voting_type, choice, stake);
     }

@@ -1,7 +1,7 @@
-use odra::types::U512;
-use macros::Rule;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
+use odra::types::U512;
 
 /// Makes sure the stake is non-zero. May return [Error::ZeroStake].
 #[derive(Rule)]

@@ -1,7 +1,7 @@
-use odra::types::Address;
-use macros::Rule;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
+use odra::types::Address;
 
 /// Verifies if the worker attempts to bid on his own [`Job`](crate::bid_escrow::job::Job).
 /// May return [Error::CannotBidOnOwnJob],

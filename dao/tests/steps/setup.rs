@@ -1,18 +1,18 @@
 use cucumber::{gherkin::Step, given};
 
 use crate::common::{
+    config::UserConfiguration,
     params::{Account, Contract},
-    DaoWorld, config::UserConfiguration,
+    DaoWorld,
 };
 
 macro_rules! transfer_ownership_to_admin {
     ($world:ident, $contract:expr) => {
-        $world
-            .change_ownership(
-                &Account::Contract($contract),
-                &Account::Owner,
-                &Account::Contract(Contract::Admin),
-            );
+        $world.change_ownership(
+            &Account::Contract($contract),
+            &Account::Owner,
+            &Account::Contract(Contract::Admin),
+        );
     };
 }
 

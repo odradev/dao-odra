@@ -1,13 +1,13 @@
 //! BidEscrow-related events.
 
-use odra::Event;
-use odra::types::{Address, BlockTime, U512};
 use crate::bid_escrow::job::Job;
 use crate::bid_escrow::job_offer::JobOffer;
 use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
 use crate::configuration::Configuration;
 use crate::utils::types::DocumentHash;
 use crate::voting::types::VotingId;
+use odra::types::{Address, BlockTime, U512};
+use odra::Event;
 
 /// Informs a new [Job Offer](JobOffer) has been created.
 #[derive(Debug, PartialEq, Eq, Event)]

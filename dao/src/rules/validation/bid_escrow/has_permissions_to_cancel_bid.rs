@@ -1,7 +1,7 @@
-use odra::types::Address;
-use macros::Rule;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
+use odra::types::Address;
 
 /// Makes sure the bidder is the one who cancels the [`Bid`](crate::bid_escrow::bid::Bid).
 /// May return [Error::CannotCancelNotOwnedBid].

@@ -28,8 +28,7 @@ impl DaoWorld {
         let recipient = self.get_address(recipient);
 
         self.set_caller(minter);
-        self.reputation_token
-            .mint(recipient, amount.0);
+        self.reputation_token.mint(recipient, amount.0);
     }
 
     pub fn assert_staked_reputation(&self, account: &Account, expected_balance: Balance) {

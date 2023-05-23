@@ -11,7 +11,7 @@ use crate::common::{
 #[derive(Default)]
 pub struct VirtualBalances {
     current: HashMap<Address, Balance>,
-    initial: HashMap<Address, Balance>
+    initial: HashMap<Address, Balance>,
 }
 
 impl VirtualBalances {
@@ -23,7 +23,8 @@ impl VirtualBalances {
 
         self.current.insert(account, amount.into());
 
-        self.initial.insert(account, test_env::token_balance(account).into());
+        self.initial
+            .insert(account, test_env::token_balance(account).into());
     }
 
     pub fn get(&self, address: Address) -> Balance {

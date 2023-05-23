@@ -1,10 +1,6 @@
 use cucumber::{given, then, when};
 
-use crate::common::{
-    params::Account,
-    DaoWorld,
-};
-
+use crate::common::{params::Account, DaoWorld};
 
 #[when(expr = "{account} sets {account} as a new owner of {account} contract")]
 fn change_ownership(world: &mut DaoWorld, caller: Account, new_owner: Account, contract: Account) {
@@ -35,7 +31,7 @@ fn assert_whitelisted(world: &mut DaoWorld, account: Account, contract: Account)
 #[then(expr = "{account} is the owner of {account} contract")]
 fn assert_ownership(world: &mut DaoWorld, user: Account, contract: Account) {
     let user_address = world.get_address(&user);
-    
+
     let owner = world.get_owner(&contract);
     assert_eq!(owner, Some(user_address));
 }

@@ -1,12 +1,6 @@
 // impl KycVoterContractInterface for KycVoterContract {
 
-
-
-
-
-
 // }
-
 
 //! Contains Reputation Voter Contract definition and related abstractions.
 //!
@@ -27,16 +21,16 @@ use crate::modules::kyc_info::KycInfo;
 use crate::modules::refs::ContractRefsWithKycStorage;
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
-use crate::utils::{ContractCall, Error, consts};
+use crate::utils::{consts, ContractCall, Error};
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::events::VotingCreatedInfo;
+use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
-use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine};
 use crate::voting::voting_engine::VotingEngine;
-use odra::contract_env::{caller, self};
+use odra::contract_env::{self, caller};
 use odra::types::event::OdraEvent;
-use odra::types::{Address, BlockTime, CallArgs,  U512};
+use odra::types::{Address, BlockTime, CallArgs, U512};
 use odra::{Event, UnwrapOrRevert};
 
 /// KycVoterContract
@@ -117,13 +111,10 @@ impl KycVoterContract {
             entry_point: consts::EP_MINT.to_string(),
             call_args: {
                 let mut args = CallArgs::new();
-                args.insert(
-                    consts::ARG_TO.to_string(),
-                    subject_address,
-                );
+                args.insert(consts::ARG_TO.to_string(), subject_address);
                 args
             },
-            amount: None
+            amount: None,
         })
         .build();
 

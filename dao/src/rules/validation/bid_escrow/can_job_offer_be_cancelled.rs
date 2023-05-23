@@ -1,7 +1,7 @@
-use macros::Rule;
 use crate::bid_escrow::job_offer::AuctionState;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
 
 /// Verifies if the [`Job Offer`](crate::bid_escrow::job_offer::JobOffer) can be canceled
 /// in the given state. May return [Error::JobOfferCannotBeYetCanceled].

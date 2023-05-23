@@ -1,12 +1,15 @@
 //! Bid-related structs.
-use odra::OdraType;
-use odra::types::{Address, BlockTime, U512};
 use crate::bid_escrow::job::{JobStatus, PickBidRequest};
 use crate::bid_escrow::job_offer::{AuctionState, JobOfferStatus};
 use crate::bid_escrow::types::{BidId, JobOfferId};
-use crate::rules::RulesBuilder;
-use crate::rules::validation::bid_escrow::{CanBeOnboarded, CanBidBeCancelled, CanBidOnAuctionState, CanBidOnOwnJob, CanPickBid, DoesProposedPaymentExceedBudget, HasPermissionsToCancelBid, IsGracePeriod, IsStakeNonZero};
+use crate::rules::validation::bid_escrow::{
+    CanBeOnboarded, CanBidBeCancelled, CanBidOnAuctionState, CanBidOnOwnJob, CanPickBid,
+    DoesProposedPaymentExceedBudget, HasPermissionsToCancelBid, IsGracePeriod, IsStakeNonZero,
+};
 use crate::rules::validation::IsUserKyced;
+use crate::rules::RulesBuilder;
+use odra::types::{Address, BlockTime, U512};
+use odra::OdraType;
 
 /// Bid status representation
 #[derive(OdraType)]

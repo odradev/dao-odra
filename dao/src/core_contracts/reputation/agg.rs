@@ -1,11 +1,11 @@
 use std::{collections::BTreeMap, slice::Iter};
 
+use crate::bid_escrow::types::BidId;
 use crate::voting::types::VotingId;
 use odra::{
     types::{Address, U512},
     OdraType,
 };
-use crate::bid_escrow::types::BidId;
 
 use super::balances::BalanceStorage;
 use super::stakes::StakesStorage;

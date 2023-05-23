@@ -1,8 +1,8 @@
-use odra::types::BlockTime;
-use macros::Rule;
 use crate::bid_escrow::job_offer::JobOfferStatus;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
+use odra::types::BlockTime;
 
 /// Verifies if the [`Bid`](crate::bid_escrow::bid::Bid) can be canceled.
 /// May return [Error::CannotCancelBidOnCompletedJobOffer] or [Error::CannotCancelBidBeforeAcceptanceTimeout].

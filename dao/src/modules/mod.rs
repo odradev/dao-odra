@@ -6,5 +6,5 @@ pub mod whitelist;
 pub use whitelist::{Whitelist, WhitelistRef};
 pub mod repository;
 pub use repository::{Record, Repository, RepositoryRef};
-pub mod refs;
 pub mod kyc_info;
+pub mod refs;

@@ -1,8 +1,25 @@
-use dao::{core_contracts::{VariableRepositoryContractDeployer, VariableRepositoryContractRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer, ReputationContractRef, ReputationContractDeployer}, utils_contracts::{CSPRRateProviderContractRef, CSPRRateProviderContractDeployer, DaoIdsContractDeployer}, voting_contracts::{AdminContractRef, admin::AdminContractDeployer, reputation_voter::{ReputationVoterContractDeployer}, ReputationVoterContractRef, KycVoterContractRef, kyc_voter::KycVoterContractDeployer}};
-use odra::{test_env, types::{OdraType, Bytes}};
-use std::fmt::{Debug, Formatter};
 use dao::voting_contracts::repo_voter::RepoVoterContractDeployer;
 use dao::voting_contracts::RepoVoterContractRef;
+use dao::{
+    core_contracts::{
+        KycNftContractDeployer, KycNftContractRef, ReputationContractDeployer,
+        ReputationContractRef, VaNftContractDeployer, VaNftContractRef,
+        VariableRepositoryContractDeployer, VariableRepositoryContractRef,
+    },
+    utils_contracts::{
+        CSPRRateProviderContractDeployer, CSPRRateProviderContractRef, DaoIdsContractDeployer,
+    },
+    voting_contracts::{
+        admin::AdminContractDeployer, kyc_voter::KycVoterContractDeployer,
+        reputation_voter::ReputationVoterContractDeployer, AdminContractRef, KycVoterContractRef,
+        ReputationVoterContractRef,
+    },
+};
+use odra::{
+    test_env,
+    types::{Bytes, OdraType},
+};
+use std::fmt::{Debug, Formatter};
 
 use super::{contracts::cspr::VirtualBalances, params::Account};
 
@@ -34,8 +51,7 @@ impl DaoWorld {
 
     // sets variable value
     pub fn set_variable(&mut self, name: String, value: Bytes) {
-        self.variable_repository
-            .update_at(name, value, None);
+        self.variable_repository.update_at(name, value, None);
     }
 
     // gets variable value
@@ -53,37 +69,42 @@ impl Default for DaoWorld {
         // TODO: extract it using DAOWorld get_account.
         let multisig_wallet = test_env::get_account(8);
         let rate_provider = CSPRRateProviderContractDeployer::init(DEFAULT_CSPR_USD_RATE.into());
-        let ids = DaoIdsContractDeployer::init();        
+        let ids = DaoIdsContractDeployer::init();
         let variable_repository = VariableRepositoryContractDeployer::init(
             rate_provider.address(),
             multisig_wallet,
-            ids.address()
+            ids.address(),
         );
         let reputation_token = ReputationContractDeployer::init();
-        let kyc_token = KycNftContractDeployer::init("kyc_token".to_string(), "KYC".to_string(), "".to_string());
-        let va_token = VaNftContractDeployer::init("va_token".to_string(), "VAT".to_string(), "".to_string());
+        let kyc_token = KycNftContractDeployer::init(
+            "kyc_token".to_string(),
+            "KYC".to_string(),
+            "".to_string(),
+        );
+        let va_token =
+            VaNftContractDeployer::init("va_token".to_string(), "VAT".to_string(), "".to_string());
         let admin = AdminContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
-            va_token.address()
+            va_token.address(),
         );
 
         // Voters
         let reputation_voter = ReputationVoterContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
-            va_token.address()
+            va_token.address(),
         );
         let kyc_voter = KycVoterContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
             va_token.address(),
-            kyc_token.address()
+            kyc_token.address(),
         );
         let repo_voter = RepoVoterContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
-            va_token.address()
+            va_token.address(),
         );
 
         Self {
@@ -96,7 +117,7 @@ impl Default for DaoWorld {
             rate_provider,
             reputation_voter,
             kyc_voter,
-            repo_voter
+            repo_voter,
         }
     }
 }
@@ -106,4 +127,3 @@ impl Debug for DaoWorld {
         f.debug_struct("DaoWorld").finish()
     }
 }
-

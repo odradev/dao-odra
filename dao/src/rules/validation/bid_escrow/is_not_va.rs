@@ -1,6 +1,6 @@
-use macros::Rule;
 use crate::rules::validation::Validation;
 use crate::utils::Error;
+use macros::Rule;
 
 /// Verifies if the user is not onboarded. May return [Error::VaOnboardedAlready].
 #[derive(Rule)]

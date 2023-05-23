@@ -1,11 +1,6 @@
 use odra::types::Address;
 
-use crate::{
-    common::{
-        params::Account,
-        DaoWorld,
-    },
-};
+use crate::common::{params::Account, DaoWorld};
 
 #[odra::external_contract]
 trait AccessControl {
@@ -22,12 +17,7 @@ trait Ownable {
 
 #[allow(dead_code)]
 impl DaoWorld {
-    pub fn whitelist_account(
-        &mut self,
-        contract: &Account,
-        caller: &Account,
-        user: &Account,
-    ) {
+    pub fn whitelist_account(&mut self, contract: &Account, caller: &Account, user: &Account) {
         let user = self.get_address(user);
         let contract = self.get_address(contract);
 
@@ -35,12 +25,7 @@ impl DaoWorld {
         AccessControlRef::at(contract).add_to_whitelist(user);
     }
 
-    pub fn remove_from_whitelist(
-        &mut self,
-        contract: &Account,
-        caller: &Account,
-        user: &Account,
-    ) {
+    pub fn remove_from_whitelist(&mut self, contract: &Account, caller: &Account, user: &Account) {
         let user = self.get_address(user);
         let contract = self.get_address(contract);
 
@@ -53,12 +38,7 @@ impl DaoWorld {
         OwnableRef::at(contract).get_owner()
     }
 
-    pub fn change_ownership(
-        &mut self,
-        contract: &Account,
-        caller: &Account,
-        new_owner: &Account,
-    ) {
+    pub fn change_ownership(&mut self, contract: &Account, caller: &Account, new_owner: &Account) {
         let new_owner = self.get_address(new_owner);
         let contract = self.get_address(contract);
 

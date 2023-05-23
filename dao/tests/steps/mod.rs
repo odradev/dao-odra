@@ -1,7 +1,7 @@
-mod common;
-mod ownership;
-mod kyc;
-mod va;
-mod setup;
 mod balances;
+mod common;
+mod kyc;
+mod ownership;
+mod setup;
+mod va;
 mod variables;

@@ -9,7 +9,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{caller, emit_event};
-use odra::types::{Address, BlockTime, CallArgs,  U512};
+use odra::types::{Address, BlockTime, CallArgs, U512};
 use odra::{Event, Instance, OdraType};
 
 /// Admin contract uses [VotingEngine](VotingEngine) to vote on changes of ownership and managing whitelists of other contracts.
