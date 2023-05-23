@@ -72,6 +72,7 @@ impl ReputationVoterContract {
         }
     }
 
+    #[odra(init)]
     pub fn init(
         &mut self,
         variable_repository: Address,

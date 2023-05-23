@@ -1,21 +1,21 @@
-Feature: KYC Token ownership management
+Feature: Ownership management
   Scenario Outline: Deploy a new instance
     Then Deployer is the owner of <contract> contract
     And Deployer is whitelisted in <contract> contract
 
     Examples: 
       | contract           |
-      # | Admin              |
+      | Admin              |
       # | BidEscrow          |
-      # | KycToken           |
+      | KycToken           |
       # | KycVoter           |
       # | Onboarding         |
       # | RepoVoter          |
-      # | ReputationToken    |
+      | ReputationToken    |
       # | ReputationVoter    |
       # | SimpleVoter        |
       # | SlashingVoter      |
-      # | VaToken            |
+      | VaToken            |
       | VariableRepository |
   
   Rule: Only the current owner can change ownership
@@ -28,17 +28,17 @@ Feature: KYC Token ownership management
 
       Examples: 
         | contract           |
-        # | Admin              |
+        | Admin              |
         # | BidEscrow          |
-        # | KycToken           |
+        | KycToken           |
         # | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
-        # | ReputationToken    |
+        | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
         # | SlashingVoter      |
-        # | VaToken            |
+        | VaToken            |
         | VariableRepository |
 
 
@@ -48,17 +48,17 @@ Feature: KYC Token ownership management
 
       Examples: 
         | contract           |
-        # | Admin              |
+        | Admin              |
         # | BidEscrow          |
-        # | KycToken           |
+        | KycToken           |
         # | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
-        # | ReputationToken    |
+        | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
         # | SlashingVoter      |
-        # | VaToken            |
+        | VaToken            |
         | VariableRepository |
     
 
@@ -69,17 +69,17 @@ Feature: KYC Token ownership management
 
       Examples: 
         | contract           |
-        # | Admin              |
+        | Admin              |
         # | BidEscrow          |
-        # | KycToken           |
+        | KycToken           |
         # | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
-        # | ReputationToken    |
+        | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
         # | SlashingVoter      |
-        # | VaToken            |
+        | VaToken            |
         | VariableRepository |
     
   Rule: Only the current owner can remove a user from the whitelist
@@ -92,17 +92,17 @@ Feature: KYC Token ownership management
       
       Examples: 
         | contract           |
-        # | Admin              |
+        | Admin              |
         # | BidEscrow          |
-        # | KycToken           |
+        | KycToken           |
         # | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
-        # | ReputationToken    |
+        | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
         # | SlashingVoter      |
-        # | VaToken            |
+        | VaToken            |
         | VariableRepository |
 
 
@@ -114,17 +114,17 @@ Feature: KYC Token ownership management
 
       Examples: 
         | contract           |
-        # | Admin              |
+        | Admin              |
         # | BidEscrow          |
-        # | KycToken           |
+        | KycToken           |
         # | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
-        # | ReputationToken    |
+        | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
         # | SlashingVoter      |
-        # | VaToken            |
+        | VaToken            |
         | VariableRepository |
 
   Rule: Only the current owner can remove a user from the whitelist
@@ -136,17 +136,17 @@ Feature: KYC Token ownership management
 
       Examples: 
         | contract           |
-        # | Admin              |
+        | Admin              |
         # | BidEscrow          |
-        # | KycToken           |
+        | KycToken           |
         # | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
-        # | ReputationToken    |
+        | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
         # | SlashingVoter      |
-        # | VaToken            |
+        | VaToken            |
         | VariableRepository |
 
 
@@ -158,16 +158,16 @@ Feature: KYC Token ownership management
 
       Examples: 
         | contract           |
-        # | Admin              |
+        | Admin              |
         # | BidEscrow          |
-        # | KycToken           |
+        | KycToken           |
         # | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
-        # | ReputationToken    |
+        | ReputationToken    |
         # | ReputationVoter    |
         # | SimpleVoter        |
         # | SlashingVoter      |
-        # | VaToken            |
+        | VaToken            |
         | VariableRepository |
   

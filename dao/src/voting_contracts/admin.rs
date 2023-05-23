@@ -56,6 +56,7 @@ impl AdminContract {
         }
     }
 
+    #[odra(init)]
     pub fn init(
         &mut self,
         variable_repository: Address,
