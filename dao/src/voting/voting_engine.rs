@@ -1,5 +1,5 @@
 use crate::configuration::Configuration;
-use crate::core_contracts::ContractRefsStorage;
+use crate::modules::refs::ContractRefsStorage;
 use crate::rules::validation::voting::CanCreateVoting;
 use crate::rules::RulesBuilder;
 use crate::utils::Error;

@@ -1,6 +1,5 @@
 mod dao_nft;
 mod kyc_ntf;
-pub mod refs;
 mod reputation;
 mod va_nft;
 mod variable_repository;
@@ -9,7 +8,6 @@ pub use dao_nft::{DaoNft, DaoNftComposer, DaoNftDeployer, DaoNftRef, TokenId, To
 pub use kyc_ntf::{
     KycNftContract, KycNftContractComposer, KycNftContractDeployer, KycNftContractRef,
 };
-pub use refs::ContractRefsStorage;
 pub use reputation::token::{
     events::*, ReputationContract, ReputationContractComposer, ReputationContractDeployer,
     ReputationContractRef,

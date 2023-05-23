@@ -1,3 +1,13 @@
+// impl KycVoterContractInterface for KycVoterContract {
+
+
+
+
+
+
+// }
+
+
 //! Contains Reputation Voter Contract definition and related abstractions.
 //!
 //! # General
@@ -13,34 +23,37 @@
 //! [`Reputation Token Contract`]: crate::core_contracts::ReputationContract
 //! [`VotingEngine`]: VotingEngine
 use crate::configuration::ConfigurationBuilder;
-use crate::modules::refs::ContractRefsStorage;
+use crate::modules::kyc_info::KycInfo;
+use crate::modules::refs::ContractRefsWithKycStorage;
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
-use crate::utils::ContractCall;
+use crate::utils::{ContractCall, Error, consts};
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::events::VotingCreatedInfo;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
-use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingSummary};
+use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine};
 use crate::voting::voting_engine::VotingEngine;
-use odra::contract_env::{caller, emit_event};
+use odra::contract_env::{caller, self};
+use odra::types::event::OdraEvent;
 use odra::types::{Address, BlockTime, CallArgs,  U512};
-use odra::{Event, OdraType};
+use odra::{Event, UnwrapOrRevert};
 
-/// ReputationVoterContract
+/// KycVoterContract
 ///
 /// It is responsible for managing variables held in [Variable Repo](crate::variable_repository::VariableRepositoryContract).
 ///
 /// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
 #[odra::module]
-pub struct ReputationVoterContract {
-    refs: ContractRefsStorage,
+pub struct KycVoterContract {
+    refs: ContractRefsWithKycStorage,
     voting_engine: VotingEngine,
     access_control: AccessControl,
+    kyc: KycInfo,
 }
 
 #[odra::module]
-impl ReputationVoterContract {
+impl KycVoterContract {
     delegate! {
         to self.voting_engine {
             pub fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
@@ -55,7 +68,6 @@ impl ReputationVoterContract {
                 address: Address,
             ) -> Option<Ballot>;
             pub fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
-            pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary;
         }
 
         to self.access_control {
@@ -78,43 +90,50 @@ impl ReputationVoterContract {
         variable_repository: Address,
         reputation_token: Address,
         va_token: Address,
+        kyc_token: Address,
     ) {
         self.refs
-            .init(variable_repository, reputation_token, va_token);
+            .init(variable_repository, reputation_token, va_token, kyc_token);
         self.access_control.init(caller());
     }
 
     pub fn create_voting(
         &mut self,
-        account: Address,
-        action: Action,
-        amount: U512,
+        subject_address: Address,
         document_hash: DocumentHash,
         stake: U512,
     ) {
+        self.assert_no_ongoing_voting(&subject_address);
+        self.assert_not_kyced(&subject_address);
+
+        let creator = caller();
+
         let voting_configuration = ConfigurationBuilder::new(
             self.refs.reputation_token().total_supply(),
             &self.refs.variable_repository().all_variables(),
         )
         .contract_call(ContractCall {
-            address: self.refs.reputation_token_address(),
-            entry_point: action.entrypoint(),
-            call_args: action.call_args(account, amount),
-            amount: None,
+            address: self.refs.kyc_token_address(),
+            entry_point: consts::EP_MINT.to_string(),
+            call_args: {
+                let mut args = CallArgs::new();
+                args.insert(
+                    consts::ARG_TO.to_string(),
+                    subject_address,
+                );
+                args
+            },
+            amount: None
         })
         .build();
 
         let (info, _) = self
             .voting_engine
-            .create_voting(caller(), stake, voting_configuration);
+            .create_voting(creator, stake, voting_configuration);
 
-        emit_event(ReputationVotingCreated::new(
-            account,
-            action,
-            amount,
-            document_hash,
-            info,
-        ));
+        self.kyc.set_voting(subject_address, info.voting_id);
+
+        KycVotingCreated::new(subject_address, document_hash, info).emit();
     }
 
     pub fn vote(
@@ -132,14 +151,39 @@ impl ReputationVoterContract {
         self.access_control.ensure_whitelisted();
         self.voting_engine.slash_voter(voter, voting_id);
     }
+
+    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
+        let summary = self.voting_engine.finish_voting(voting_id, voting_type);
+        // The voting is ended when:
+        // 1. Informal voting has been rejected.
+        // 2. Formal voting has been finish (regardless of the final result).
+        if summary.is_voting_process_finished() {
+            let voting = self
+                .voting_engine
+                .get_voting(voting_id)
+                .unwrap_or_revert_with(Error::VotingDoesNotExist);
+            let address = self.kyc.get_voting_subject(voting.voting_id());
+            self.kyc.clear_voting(&address);
+        }
+    }
+
+    fn assert_not_kyced(&self, address: &Address) {
+        if self.kyc.is_kycd(address) {
+            contract_env::revert(Error::UserKycedAlready);
+        }
+    }
+
+    fn assert_no_ongoing_voting(&self, address: &Address) {
+        if self.kyc.exists_ongoing_voting(address) {
+            contract_env::revert(Error::KycAlreadyInProgress);
+        }
+    }
 }
 
-/// Event emitted once voting is created.
+/// Informs kyc voting has been created.
 #[derive(Debug, PartialEq, Eq, Event)]
-pub struct ReputationVotingCreated {
-    account: Address,
-    action: Action,
-    amount: U512,
+pub struct KycVotingCreated {
+    subject_address: Address,
     document_hash: DocumentHash,
     creator: Address,
     stake: Option<U512>,
@@ -154,18 +198,14 @@ pub struct ReputationVotingCreated {
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 
-impl ReputationVotingCreated {
+impl KycVotingCreated {
     pub fn new(
-        account: Address,
-        action: Action,
-        amount: U512,
+        subject_address: Address,
         document_hash: DocumentHash,
         info: VotingCreatedInfo,
     ) -> Self {
         Self {
-            account,
-            action,
-            amount,
+            subject_address,
             document_hash,
             creator: info.creator,
             stake: info.stake,
@@ -179,39 +219,6 @@ impl ReputationVotingCreated {
             config_voting_clearness_delta: info.config_voting_clearness_delta,
             config_time_between_informal_and_formal_voting: info
                 .config_time_between_informal_and_formal_voting,
-        }
-    }
-}
-
-/// Action to perform against reputation
-#[derive(OdraType, Debug, PartialEq, Eq, Copy)]
-pub enum Action {
-    Burn,
-    Mint,
-}
-
-impl Action {
-    pub fn entrypoint(&self) -> String {
-        match self {
-            Action::Burn => "burn".to_string(),
-            Action::Mint => "mint".to_string(),
-        }
-    }
-
-    pub fn call_args(&self, account: Address, amount: U512) -> CallArgs {
-        match self {
-            Action::Burn => {
-                let mut call_args = CallArgs::new();
-                call_args.insert("owner", account);
-                call_args.insert("amount", amount);
-                call_args
-            }
-            Action::Mint => {
-                let mut call_args = CallArgs::new();
-                call_args.insert("recipient", account);
-                call_args.insert("amount", amount);
-                call_args
-            }
         }
     }
 }

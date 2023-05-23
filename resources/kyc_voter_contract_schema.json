@@ -1,0 +1,235 @@
+{
+  "name": "KycVoterContract",
+  "entrypoints": [
+    {
+      "name": "init",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "variable_repository",
+          "ty": "Key"
+        },
+        {
+          "name": "reputation_token",
+          "ty": "Key"
+        },
+        {
+          "name": "va_token",
+          "ty": "Key"
+        },
+        {
+          "name": "kyc_token",
+          "ty": "Key"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "create_voting",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "subject_address",
+          "ty": "Key"
+        },
+        {
+          "name": "document_hash",
+          "ty": "String"
+        },
+        {
+          "name": "stake",
+          "ty": "U512"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "vote",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "voting_type",
+          "ty": "U32"
+        },
+        {
+          "name": "choice",
+          "ty": "U32"
+        },
+        {
+          "name": "stake",
+          "ty": "U512"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "slash_voter",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "voter",
+          "ty": "Key"
+        },
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "finish_voting",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "voting_type",
+          "ty": "U32"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "voting_exists",
+      "is_mutable": false,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "voting_type",
+          "ty": "U32"
+        }
+      ],
+      "return_ty": "Bool"
+    },
+    {
+      "name": "get_voting",
+      "is_mutable": false,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        }
+      ],
+      "return_ty": {
+        "Option": "Any"
+      }
+    },
+    {
+      "name": "get_ballot",
+      "is_mutable": false,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "voting_type",
+          "ty": "U32"
+        },
+        {
+          "name": "address",
+          "ty": "Key"
+        }
+      ],
+      "return_ty": {
+        "Option": "Any"
+      }
+    },
+    {
+      "name": "get_voter",
+      "is_mutable": false,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "voting_type",
+          "ty": "U32"
+        },
+        {
+          "name": "at",
+          "ty": "U32"
+        }
+      ],
+      "return_ty": {
+        "Option": "Key"
+      }
+    },
+    {
+      "name": "change_ownership",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "owner",
+          "ty": "Key"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "add_to_whitelist",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "address",
+          "ty": "Key"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "remove_from_whitelist",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "address",
+          "ty": "Key"
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
+      "name": "is_whitelisted",
+      "is_mutable": false,
+      "args": [
+        {
+          "name": "address",
+          "ty": "Key"
+        }
+      ],
+      "return_ty": "Bool"
+    },
+    {
+      "name": "get_owner",
+      "is_mutable": false,
+      "args": [],
+      "return_ty": {
+        "Option": "Key"
+      }
+    },
+    {
+      "name": "variable_repository_address",
+      "is_mutable": false,
+      "args": [],
+      "return_ty": "Key"
+    },
+    {
+      "name": "reputation_token_address",
+      "is_mutable": false,
+      "args": [],
+      "return_ty": "Key"
+    }
+  ],
+  "events": []
+}

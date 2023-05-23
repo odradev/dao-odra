@@ -8,7 +8,7 @@ Feature: Ownership management
       | Admin              |
       # | BidEscrow          |
       | KycToken           |
-      # | KycVoter           |
+      | KycVoter           |
       # | Onboarding         |
       # | RepoVoter          |
       | ReputationToken    |
@@ -31,7 +31,7 @@ Feature: Ownership management
         | Admin              |
         # | BidEscrow          |
         | KycToken           |
-        # | KycVoter           |
+        | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
         | ReputationToken    |
@@ -51,7 +51,7 @@ Feature: Ownership management
         | Admin              |
         # | BidEscrow          |
         | KycToken           |
-        # | KycVoter           |
+        | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
         | ReputationToken    |
@@ -72,7 +72,7 @@ Feature: Ownership management
         | Admin              |
         # | BidEscrow          |
         | KycToken           |
-        # | KycVoter           |
+        | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
         | ReputationToken    |
@@ -95,7 +95,7 @@ Feature: Ownership management
         | Admin              |
         # | BidEscrow          |
         | KycToken           |
-        # | KycVoter           |
+        | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
         | ReputationToken    |
@@ -117,7 +117,7 @@ Feature: Ownership management
         | Admin              |
         # | BidEscrow          |
         | KycToken           |
-        # | KycVoter           |
+        | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
         | ReputationToken    |
@@ -139,7 +139,7 @@ Feature: Ownership management
         | Admin              |
         # | BidEscrow          |
         | KycToken           |
-        # | KycVoter           |
+        | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
         | ReputationToken    |
@@ -161,7 +161,7 @@ Feature: Ownership management
         | Admin              |
         # | BidEscrow          |
         | KycToken           |
-        # | KycVoter           |
+        | KycVoter           |
         # | Onboarding         |
         # | RepoVoter          |
         | ReputationToken    |

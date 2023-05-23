@@ -2,7 +2,7 @@
 use odra::types::Address;
 use odra::{UnwrapOrRevert, Variable};
 
-use crate::core_contracts::{ReputationContractRef, VaNftContractRef, VariableRepositoryRef};
+use crate::core_contracts::{ReputationContractRef, VaNftContractRef, VariableRepositoryRef, KycNftContractRef};
 use crate::utils::Error;
 
 /// A module that stores addresses to common voting_contracts that are used by most of the voting voting_contracts.
@@ -51,28 +51,72 @@ impl ContractRefsStorage {
 impl ContractRefsStorage {
     /// Returns the Ref of [Reputation Token](crate::core_contracts::ReputationContract) contract.
     pub fn reputation_token(&self) -> ReputationContractRef {
-        ReputationContractRef::at(
-            self.reputation_token
-                .get()
-                .unwrap_or_revert_with(Error::VariableValueNotSet),
-        )
+        ReputationContractRef::at(self.reputation_token_address())
     }
 
     /// Returns the Ref of [Variable Repository](crate::core_contracts::VariableRepository) contract.
     pub fn variable_repository(&self) -> VariableRepositoryRef {
-        VariableRepositoryRef::at(
-            self.variable_repository
-                .get()
-                .unwrap_or_revert_with(Error::VariableValueNotSet),
-        )
+        VariableRepositoryRef::at(self.variable_repository_address())
     }
 
     /// Returns the Ref of [VA Token](crate::core_contracts::VaNftContract) contract.
     pub fn va_token(&self) -> VaNftContractRef {
-        VaNftContractRef::at(
-            self.va_token
-                .get()
-                .unwrap_or_revert_with(Error::VariableValueNotSet),
-        )
+        VaNftContractRef::at(self.va_token_address())
+    }
+}
+
+#[odra::module]
+pub struct ContractRefsWithKycStorage {
+    refs: ContractRefsStorage,
+    kyc_token: Variable<Address>,
+}
+
+#[odra::module]
+impl ContractRefsWithKycStorage {
+    delegate! {
+        to self.refs {
+            pub fn reputation_token_address(&self) -> Address;
+            pub fn variable_repository_address(&self) -> Address;
+            pub fn va_token_address(&self) -> Address;
+        }
+    }
+
+    pub fn init(
+        &mut self,
+        variable_repository: Address,
+        reputation_token: Address,
+        va_token: Address,
+        kyc_token: Address,
+    ) {
+        self.refs
+            .init(variable_repository, reputation_token, va_token);
+        self.kyc_token.set(kyc_token);
+    }
+
+    pub fn kyc_token_address(&self) -> Address {
+        self.kyc_token
+            .get()
+            .unwrap_or_revert_with(Error::VariableValueNotSet)
+    }
+}
+
+impl ContractRefsWithKycStorage {
+    pub fn kyc_token(&self) -> KycNftContractRef {
+        KycNftContractRef::at(self.kyc_token_address())
+    }
+
+    /// Returns the Ref of [Reputation Token](crate::core_contracts::ReputationContract) contract.
+    pub fn reputation_token(&self) -> ReputationContractRef {
+        self.refs.reputation_token()
+    }
+
+    /// Returns the Ref of [Variable Repository](crate::core_contracts::VariableRepository) contract.
+    pub fn variable_repository(&self) -> VariableRepositoryRef {
+        self.refs.variable_repository()
+    }
+
+    /// Returns the Ref of [VA Token](crate::core_contracts::VaNftContract) contract.
+    pub fn va_token(&self) -> VaNftContractRef {
+        self.refs.va_token()
     }
 }

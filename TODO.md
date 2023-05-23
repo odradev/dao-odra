@@ -1,0 +1,2 @@
+- Unify ContractRefsStorage and ContractRefsWithKycStorage.
+- VotingEngine should have KycInfo features.

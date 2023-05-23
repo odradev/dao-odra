@@ -1,4 +1,4 @@
-use dao::{core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer, ReputationContractRef, ReputationContractDeployer}, utils_contracts::{CSPRRateProviderContractRef, CSPRRateProviderContractDeployer, DaoIdsContractDeployer}, voting_contracts::{AdminContractRef, admin::AdminContractDeployer, reputation_voter::{ReputationVoterContractDeployer}, ReputationVoterContractRef}};
+use dao::{core_contracts::{VariableRepositoryDeployer, VariableRepositoryRef, KycNftContractRef, VaNftContractRef, KycNftContractDeployer, VaNftContractDeployer, ReputationContractRef, ReputationContractDeployer}, utils_contracts::{CSPRRateProviderContractRef, CSPRRateProviderContractDeployer, DaoIdsContractDeployer}, voting_contracts::{AdminContractRef, admin::AdminContractDeployer, reputation_voter::{ReputationVoterContractDeployer}, ReputationVoterContractRef, KycVoterContractRef, kyc_voter::KycVoterContractDeployer}};
 use odra::{test_env, types::{OdraType, Bytes}};
 use std::fmt::{Debug, Formatter};
 
@@ -17,6 +17,7 @@ pub struct DaoWorld {
     pub reputation_token: ReputationContractRef,
     pub rate_provider: CSPRRateProviderContractRef,
     pub reputation_voter: ReputationVoterContractRef,
+    pub kyc_voter: KycVoterContractRef,
 }
 
 impl DaoWorld {
@@ -70,6 +71,12 @@ impl Default for DaoWorld {
             reputation_token.address(),
             va_token.address()
         );
+        let kyc_voter = KycVoterContractDeployer::init(
+            variable_repository.address(),
+            reputation_token.address(),
+            va_token.address(),
+            kyc_token.address()
+        );
 
         Self {
             virtual_balances: Default::default(),
@@ -79,7 +86,8 @@ impl Default for DaoWorld {
             va_token,
             reputation_token,
             rate_provider,
-            reputation_voter
+            reputation_voter,
+            kyc_voter,
         }
     }
 }

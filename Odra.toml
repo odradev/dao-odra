@@ -11,10 +11,6 @@ name = "reputation_contract"
 fqn = "dao::core_contracts::ReputationContract"
 
 [[contracts]]
-name = "reputation_voter_contract"
-fqn = "dao::voting_contracts::ReputationVoterContract"
-
-[[contracts]]
 name = "va_nft_contract"
 fqn = "dao::core_contracts::VaNftContract"
 
@@ -29,3 +25,11 @@ fqn = "dao::utils_contracts::CSPRRateProviderContract"
 [[contracts]]
 name = "dao_ids_contract"
 fqn = "dao::utils_contracts::DaoIdsContract"
+
+[[contracts]]
+name = "reputation_voter_contract"
+fqn = "dao::voting_contracts::ReputationVoterContract"
+
+[[contracts]]
+name = "kyc_voter_contract"
+fqn = "dao::voting_contracts::KycVoterContract"
