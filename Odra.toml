@@ -1,9 +1,9 @@
 [[contracts]]
-name = "variable_repository"
+name = "variable_repository_contract"
 fqn = "dao::core_contracts::VariableRepository"
 
 [[contracts]]
-name = "admin"
+name = "admin_contract"
 fqn = "dao::voting_contracts::AdminContract"
 
 [[contracts]]
@@ -17,3 +17,11 @@ fqn = "dao::voting_contracts::ReputationVoterContract"
 [[contracts]]
 name = "va_nft_contract"
 fqn = "dao::core_contracts::VaNftContract"
+
+[[contracts]]
+name = "kyc_nft_contract"
+fqn = "dao::core_contracts::KycNftContract"
+
+[[contracts]]
+name = "cspr_rate_provider_contract"
+fqn = "dao::utils_contracts::CSPRRateProviderContract"
