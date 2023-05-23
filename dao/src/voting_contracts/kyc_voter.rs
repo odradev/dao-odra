@@ -214,4 +214,4 @@ impl KycVotingCreated {
     }
 }
 
-// TODO: Setup Composer
+// TODO: Setup Composer, events

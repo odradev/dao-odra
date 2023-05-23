@@ -1,43 +1,44 @@
 use odra::{
     contract_env::caller,
-    types::{event::OdraEvent, Address, BlockTime, Bytes, CallArgs, U512},
-    Event,
+    types::{event::OdraEvent, Address, BlockTime, U512},
+    Event, Mapping, UnwrapOrRevert,
 };
 
 use crate::{
     configuration::ConfigurationBuilder,
     modules::{refs::ContractRefsStorage, AccessControl},
-    utils::{consts, ContractCall},
+    utils::{types::DocumentHash, Error},
     voting::{
         ballot::{Ballot, Choice},
         types::VotingId,
         voting_engine::{
             events::VotingCreatedInfo,
-            voting_state_machine::{VotingStateMachine, VotingSummary, VotingType},
+            voting_state_machine::{VotingStateMachine, VotingType},
             VotingEngine,
         },
     },
 };
 
-/// RepoVoterContract
+/// SimpleVoterContract
 ///
-/// It is responsible for managing variables held in [Variable Repo](crate::variable_repository::VariableRepositoryContract).
+/// It is responsible for votings that do not perform any actions on the blockchain.
 ///
-/// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
+/// The topic of the voting is handled by `document_hash` which is a hash of a document being voted on.
 #[odra::module]
-pub struct RepoVoterContract {
+pub struct SimpleVoterContract {
     refs: ContractRefsStorage,
     voting_engine: VotingEngine,
+    simple_votings: Mapping<VotingId, DocumentHash>,
     access_control: AccessControl,
 }
 
 #[odra::module]
-impl RepoVoterContract {
+impl SimpleVoterContract {
     delegate! {
         to self.voting_engine {
             pub fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
             pub fn get_voting(
-            &self,
+                &self,
                 voting_id: VotingId,
             ) -> Option<VotingStateMachine>;
             pub fn get_ballot(
@@ -47,7 +48,6 @@ impl RepoVoterContract {
                 address: Address,
             ) -> Option<Ballot>;
             pub fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
-            pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary;
         }
 
         to self.access_control {
@@ -73,40 +73,47 @@ impl RepoVoterContract {
     ) {
         self.refs
             .init(variable_repository, reputation_token, va_token);
-        self.access_control.init(caller());
+        self.access_control.init(caller())
     }
 
-    pub fn create_voting(
-        &mut self,
-        variable_repo_to_edit: Address,
-        key: String,
-        value: Bytes,
-        activation_time: Option<u64>,
-        stake: U512,
-    ) {
+    pub fn create_voting(&mut self, document_hash: DocumentHash, stake: U512) {
         let voting_configuration = ConfigurationBuilder::new(
             self.refs.reputation_token().total_supply(),
             &self.refs.variable_repository().all_variables(),
         )
-        .contract_call(ContractCall {
-            address: variable_repo_to_edit,
-            entry_point: consts::EP_UPDATE_AT.to_string(),
-            call_args: {
-                let mut args = CallArgs::new();
-                args.insert(consts::ARG_KEY.to_string(), key.clone());
-                args.insert(consts::ARG_VALUE.to_string(), value.clone());
-                args.insert(consts::ARG_ACTIVATION_TIME.to_string(), activation_time);
-                args
-            },
-            amount: None,
-        })
         .build();
 
         let (info, _) = self
             .voting_engine
             .create_voting(caller(), stake, voting_configuration);
 
-        RepoVotingCreated::new(variable_repo_to_edit, key, value, activation_time, info).emit();
+        self.simple_votings
+            .set(&info.voting_id, document_hash.clone());
+
+        SimpleVotingCreated::new(document_hash, info).emit();
+    }
+
+    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
+        let voting_summary = self.voting_engine.finish_voting(voting_id, voting_type);
+
+        if let VotingType::Informal = voting_summary.voting_type() {
+            match voting_summary.voting_type() {
+                VotingType::Informal => {}
+                // Informal voting ended in favor, creating a new formal voting
+                VotingType::Formal => {
+                    self.simple_votings.set(
+                        &voting_id,
+                        self.simple_votings
+                            .get(&voting_id)
+                            .unwrap_or_revert_with(Error::VariableValueNotSet),
+                    );
+                }
+            }
+        }
+    }
+
+    pub fn get_document_hash(&self, voting_id: VotingId) -> Option<DocumentHash> {
+        self.simple_votings.get(&voting_id)
     }
 
     pub fn vote(
@@ -126,13 +133,10 @@ impl RepoVoterContract {
     }
 }
 
-/// Informs repo voting has been created.
+/// Informs simple voting has been created.
 #[derive(Debug, PartialEq, Eq, Event)]
-pub struct RepoVotingCreated {
-    variable_repo_to_edit: Address,
-    key: String,
-    value: Bytes,
-    activation_time: Option<u64>,
+pub struct SimpleVotingCreated {
+    document_hash: DocumentHash,
     creator: Address,
     stake: Option<U512>,
     voting_id: VotingId,
@@ -146,19 +150,10 @@ pub struct RepoVotingCreated {
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 
-impl RepoVotingCreated {
-    pub fn new(
-        variable_repo_to_edit: Address,
-        key: String,
-        value: Bytes,
-        activation_time: Option<u64>,
-        info: VotingCreatedInfo,
-    ) -> Self {
+impl SimpleVotingCreated {
+    pub fn new(document_hash: DocumentHash, info: VotingCreatedInfo) -> Self {
         Self {
-            variable_repo_to_edit,
-            key,
-            value,
-            activation_time,
+            document_hash,
             creator: info.creator,
             stake: info.stake,
             voting_id: info.voting_id,

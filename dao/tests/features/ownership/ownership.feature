@@ -13,7 +13,7 @@ Feature: Ownership management
       | RepoVoter          |
       | ReputationToken    |
       # | ReputationVoter    |
-      # | SimpleVoter        |
+      | SimpleVoter        |
       # | SlashingVoter      |
       | VaToken            |
       | VariableRepository |
@@ -35,8 +35,8 @@ Feature: Ownership management
         # | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
-        # | ReputationVoter    |
-        # | SimpleVoter        |
+        | ReputationVoter    |
+        | SimpleVoter        |
         # | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
@@ -55,8 +55,8 @@ Feature: Ownership management
         # | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
-        # | ReputationVoter    |
-        # | SimpleVoter        |
+        | ReputationVoter    |
+        | SimpleVoter        |
         # | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
@@ -76,8 +76,8 @@ Feature: Ownership management
         # | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
-        # | ReputationVoter    |
-        # | SimpleVoter        |
+        | ReputationVoter    |
+        | SimpleVoter        |
         # | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
@@ -99,8 +99,8 @@ Feature: Ownership management
         # | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
-        # | ReputationVoter    |
-        # | SimpleVoter        |
+        | ReputationVoter    |
+        | SimpleVoter        |
         # | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
@@ -121,8 +121,8 @@ Feature: Ownership management
         # | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
-        # | ReputationVoter    |
-        # | SimpleVoter        |
+        | ReputationVoter    |
+        | SimpleVoter        |
         # | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
@@ -143,8 +143,8 @@ Feature: Ownership management
         # | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
-        # | ReputationVoter    |
-        # | SimpleVoter        |
+        | ReputationVoter    |
+        | SimpleVoter        |
         # | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
@@ -165,8 +165,8 @@ Feature: Ownership management
         # | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
-        # | ReputationVoter    |
-        # | SimpleVoter        |
+        | ReputationVoter    |
+        | SimpleVoter        |
         # | SlashingVoter      |
         | VaToken            |
         | VariableRepository |

@@ -1,5 +1,6 @@
 use dao::voting_contracts::repo_voter::RepoVoterContractDeployer;
-use dao::voting_contracts::RepoVoterContractRef;
+use dao::voting_contracts::simple_voter::SimpleVoterContractDeployer;
+use dao::voting_contracts::{RepoVoterContractRef, SimpleVoterContractRef};
 use dao::{
     core_contracts::{
         KycNftContractDeployer, KycNftContractRef, ReputationContractDeployer,
@@ -38,6 +39,7 @@ pub struct DaoWorld {
     pub reputation_voter: ReputationVoterContractRef,
     pub kyc_voter: KycVoterContractRef,
     pub repo_voter: RepoVoterContractRef,
+    pub simple_voter: SimpleVoterContractRef,
 }
 
 impl DaoWorld {
@@ -106,6 +108,11 @@ impl Default for DaoWorld {
             reputation_token.address(),
             va_token.address(),
         );
+        let simple_voter = SimpleVoterContractDeployer::init(
+            variable_repository.address(),
+            reputation_token.address(),
+            va_token.address(),
+        );
 
         Self {
             virtual_balances: Default::default(),
@@ -118,6 +125,7 @@ impl Default for DaoWorld {
             reputation_voter,
             kyc_voter,
             repo_voter,
+            simple_voter,
         }
     }
 }
