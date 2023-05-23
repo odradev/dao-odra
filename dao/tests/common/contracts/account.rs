@@ -29,10 +29,10 @@ impl DaoWorld {
 
     pub fn get_contract_address(&self, contract: &Contract) -> Address {
         match contract {
-            Contract::Admin => todo!(),
+            Contract::Admin => self.admin.address(),
             Contract::KycToken => self.kyc_token.address(),
             Contract::VaToken => self.va_token.address(),
-            Contract::ReputationToken => todo!(),
+            Contract::ReputationToken => self.reputation_token.address(),
             Contract::VariableRepository => self.variable_repository.address(),
             Contract::KycVoter => todo!(),
             Contract::RepoVoter => todo!(),
