@@ -3,13 +3,13 @@ use std::{fmt::Debug, str::FromStr};
 use cucumber::Parameter;
 use dao::voting;
 
-use super::{Account, Balance, Contract};
+use super::{Account, Contract, ReputationBalance};
 use crate::common::helpers;
 
 #[derive(Debug, Clone)]
 pub struct Voting {
     pub contract: Contract,
-    stake: Balance,
+    stake: ReputationBalance,
     raw_args: Vec<String>,
 }
 
@@ -30,7 +30,7 @@ impl Voting {
         helpers::parse_or_none::<T>(self.raw_args.get(n))
     }
 
-    pub fn get_stake(&self) -> Balance {
+    pub fn get_stake(&self) -> ReputationBalance {
         self.stake
     }
 }
@@ -80,7 +80,7 @@ impl From<VotingType> for voting::voting_engine::voting_state_machine::VotingTyp
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, Parameter)]
+#[derive(Debug, Default, Clone, Copy, Parameter, PartialEq, Eq)]
 #[param(name = "choice", regex = "in favor|against|yes|no|Yes|No")]
 pub enum Choice {
     InFavor,
@@ -114,7 +114,7 @@ impl From<Choice> for voting::ballot::Choice {
 #[derive(Clone, Debug)]
 pub struct Ballot {
     pub voter: Account,
-    pub stake: Balance,
+    pub stake: ReputationBalance,
     pub choice: Choice,
     pub voting_id: u32,
     pub voting_type: VotingType,

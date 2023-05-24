@@ -1,9 +1,6 @@
 use crate::common::helpers::{is_cspr_balance_close_enough, is_reputation_close_enough};
 use crate::common::params::ReputationBalance;
-use crate::common::{
-    params::{Account, Balance},
-    DaoWorld,
-};
+use crate::common::{params::Account, DaoWorld};
 
 #[allow(dead_code)]
 impl DaoWorld {

@@ -5,4 +5,4 @@ mod ownership;
 mod rate_provider;
 mod reputation;
 pub mod tokens;
-mod voting;
+pub mod voting;

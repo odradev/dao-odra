@@ -1,13 +1,18 @@
-pub mod admin;
-pub mod kyc_voter;
-pub mod repo_voter;
-pub mod reputation_voter;
-pub mod simple_voter;
-pub mod slashing_voter;
+mod admin;
+mod kyc_voter;
+mod repo_voter;
+mod reputation_voter;
+mod simple_voter;
+mod slashing_voter;
 
-pub use admin::{AdminContract, AdminContractRef};
-pub use kyc_voter::{KycVoterContract, KycVoterContractRef};
-pub use repo_voter::{RepoVoterContract, RepoVoterContractRef};
-pub use reputation_voter::{ReputationVoterContract, ReputationVoterContractRef};
-pub use simple_voter::{SimpleVoterContract, SimpleVoterContractRef};
-pub use slashing_voter::{SlashingVoterContract, SlashingVoterContractRef};
+pub use admin::{Action as AdminAction, AdminContract, AdminContractDeployer, AdminContractRef};
+pub use kyc_voter::{KycVoterContract, KycVoterContractDeployer, KycVoterContractRef};
+pub use repo_voter::{RepoVoterContract, RepoVoterContractDeployer, RepoVoterContractRef};
+pub use reputation_voter::{
+    Action as ReputationAction, ReputationVoterContract, ReputationVoterContractDeployer,
+    ReputationVoterContractRef,
+};
+pub use simple_voter::{SimpleVoterContract, SimpleVoterContractDeployer, SimpleVoterContractRef};
+pub use slashing_voter::{
+    SlashingVoterContract, SlashingVoterContractDeployer, SlashingVoterContractRef,
+};

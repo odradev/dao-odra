@@ -78,7 +78,7 @@ impl SimpleVoterContract {
 
     pub fn create_voting(&mut self, document_hash: DocumentHash, stake: U512) {
         let voting_configuration = ConfigurationBuilder::new(
-            self.refs.reputation_token().total_supply(),
+            self.refs.va_token().total_supply(),
             &self.refs.variable_repository().all_variables(),
         )
         .build();

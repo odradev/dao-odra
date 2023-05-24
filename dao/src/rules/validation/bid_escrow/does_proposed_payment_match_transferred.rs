@@ -1,7 +1,7 @@
 use crate::rules::validation::Validation;
 use crate::utils::Error;
 use macros::Rule;
-use odra::types::{Balance, U512};
+use odra::types::Balance;
 
 /// Verifies if the actual payment matches the proposed payment. May return [Error::PurseBalanceMismatch].
 #[derive(Rule)]

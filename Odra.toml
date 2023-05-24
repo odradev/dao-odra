@@ -41,3 +41,7 @@ fqn = "dao::voting_contracts::RepoVoterContract"
 [[contracts]]
 name = "simple_voter_contract"
 fqn = "dao::voting_contracts::SimpleVoterContract"
+
+[[contracts]]
+name = "slashing_voter_contract"
+fqn = "dao::voting_contracts::SlashingVoterContract"

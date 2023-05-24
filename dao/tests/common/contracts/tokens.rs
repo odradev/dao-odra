@@ -47,7 +47,6 @@ impl DaoWorld {
         let contract = self.contract_address(contract);
         let minter = self.get_address(minter);
         let recipient = self.get_address(recipient);
-
         test_env::set_caller(minter);
         NftTokenRef::at(contract).mint(recipient);
     }

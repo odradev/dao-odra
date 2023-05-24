@@ -1,9 +1,3 @@
-use dao::voting_contracts::repo_voter::RepoVoterContractDeployer;
-use dao::voting_contracts::simple_voter::SimpleVoterContractDeployer;
-use dao::voting_contracts::slashing_voter::SlashingVoterContractDeployer;
-use dao::voting_contracts::{
-    RepoVoterContractRef, SimpleVoterContractRef, SlashingVoterContractRef,
-};
 use dao::{
     core_contracts::{
         KycNftContractDeployer, KycNftContractRef, ReputationContractDeployer,
@@ -14,9 +8,10 @@ use dao::{
         CSPRRateProviderContractDeployer, CSPRRateProviderContractRef, DaoIdsContractDeployer,
     },
     voting_contracts::{
-        admin::AdminContractDeployer, kyc_voter::KycVoterContractDeployer,
-        reputation_voter::ReputationVoterContractDeployer, AdminContractRef, KycVoterContractRef,
-        ReputationVoterContractRef,
+        AdminContractDeployer, AdminContractRef, KycVoterContractDeployer, KycVoterContractRef,
+        RepoVoterContractDeployer, RepoVoterContractRef, ReputationVoterContractDeployer,
+        ReputationVoterContractRef, SimpleVoterContractDeployer, SimpleVoterContractRef,
+        SlashingVoterContractDeployer, SlashingVoterContractRef,
     },
 };
 use odra::{
@@ -47,8 +42,8 @@ pub struct DaoWorld {
 }
 
 impl DaoWorld {
-    pub fn advance_time(&mut self, seconds: u64) {
-        test_env::advance_block_time_by(seconds);
+    pub fn advance_time(&mut self, milliseconds: u64) {
+        test_env::advance_block_time_by(milliseconds);
     }
 
     pub fn set_caller(&mut self, caller: &Account) {
@@ -75,13 +70,13 @@ impl Default for DaoWorld {
         // TODO: extract it using DAOWorld get_account.
         let multisig_wallet = test_env::get_account(8);
         let rate_provider = CSPRRateProviderContractDeployer::init(DEFAULT_CSPR_USD_RATE.into());
-        let ids = DaoIdsContractDeployer::init();
+        let mut ids = DaoIdsContractDeployer::init();
         let variable_repository = VariableRepositoryContractDeployer::init(
             rate_provider.address(),
             multisig_wallet,
             ids.address(),
         );
-        let reputation_token = ReputationContractDeployer::init();
+        let mut reputation_token = ReputationContractDeployer::init();
         let kyc_token = KycNftContractDeployer::init(
             "kyc_token".to_string(),
             "KYC".to_string(),
@@ -107,7 +102,7 @@ impl Default for DaoWorld {
             va_token.address(),
             kyc_token.address(),
         );
-        let repo_voter = RepoVoterContractDeployer::init(
+        let mut repo_voter = RepoVoterContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
             va_token.address(),
@@ -122,6 +117,21 @@ impl Default for DaoWorld {
             reputation_token.address(),
             va_token.address(),
         );
+
+        // Setup DaoIds.
+        ids.add_to_whitelist(kyc_voter.address());
+        // TODO: uncomment once available
+        // ids.add_to_whitelist(bid_escrow.address());
+        // ids.add_to_whitelist(onboarding.address());
+        ids.add_to_whitelist(slashing_voter.address());
+        ids.add_to_whitelist(repo_voter.address());
+        ids.add_to_whitelist(reputation_voter.address());
+        ids.add_to_whitelist(simple_voter.address());
+        ids.add_to_whitelist(admin.address());
+
+        // Setup SimpleVoter.
+        repo_voter.add_to_whitelist(simple_voter.address());
+        reputation_token.add_to_whitelist(simple_voter.address());
 
         Self {
             virtual_balances: Default::default(),

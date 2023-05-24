@@ -1,18 +1,12 @@
-use dao::{voting_contracts::admin::Action as AdminAction, utils::types::DocumentHash};
-use dao::voting_contracts::reputation_voter::Action as ReputationAction;
-use odra::types::{Address, Bytes, BlockTime};
+use dao::voting_contracts::ReputationAction;
+use dao::{utils::types::DocumentHash, voting_contracts::AdminAction};
+use odra::types::{Address, BlockTime, Bytes};
 
-use crate::{
-    common::{
-        helpers::{to_milliseconds, value_to_bytes},
-        params::{
-            voting::Voting,
-            Account,
-            Balance,
-            Contract,
-        },
-        DaoWorld,
-    },
+use crate::common::params::ReputationBalance;
+use crate::common::{
+    helpers::{to_milliseconds, value_to_bytes},
+    params::{voting::Voting, Account, Contract},
+    DaoWorld,
 };
 
 pub fn build(world: &DaoWorld, voting: Voting) -> VotingSetup {
@@ -78,7 +72,7 @@ pub fn build(world: &DaoWorld, voting: Voting) -> VotingSetup {
                 unknown => panic!("{:?} is not a valid action", unknown),
             };
 
-            let amount = voting.get_parsed_arg::<Balance>(2);
+            let amount = voting.get_parsed_arg::<ReputationBalance>(2);
 
             VotingSetup::Reputation(recipient_address, action, amount, Default::default())
         }
@@ -93,5 +87,5 @@ pub enum VotingSetup {
     Slasher(Address, u32),
     Repository(Address, String, Bytes, Option<BlockTime>),
     Simple(DocumentHash),
-    Reputation(Address, ReputationAction, Balance, DocumentHash),
+    Reputation(Address, ReputationAction, ReputationBalance, DocumentHash),
 }

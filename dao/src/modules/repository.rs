@@ -3,7 +3,7 @@ use crate::utils::consts;
 use crate::utils::Error::{ActivationTimeInPast, KeyValueStorageError};
 use odra::contract_env::{get_block_time, revert};
 use odra::types::event::OdraEvent;
-use odra::types::{Address, Bytes, OdraType as OdraTyped, U512};
+use odra::types::{Address, Balance, Bytes, OdraType as OdraTyped, U512};
 use odra::{List, Mapping, OdraType, UnwrapOrRevert};
 
 /// A data struct stored in the repository.
@@ -141,7 +141,7 @@ impl RepositoryDefaults {
 impl Default for RepositoryDefaults {
     fn default() -> Self {
         let mut items = RepositoryDefaults { items: vec![] };
-        items.push(consts::POST_JOB_DOS_FEE, U512::from(10000));
+        items.push(consts::POST_JOB_DOS_FEE, Balance::from(10000));
         items.push(consts::INTERNAL_AUCTION_TIME, 604800000u64);
         items.push(consts::PUBLIC_AUCTION_TIME, 864000000u64);
         items.push(consts::DEFAULT_POLICING_RATE, U512::from(300));

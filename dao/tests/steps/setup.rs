@@ -31,7 +31,6 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
 
     for row in users_iter {
         let config = UserConfiguration::from_labeled_data(labels, row);
-
         let account = config.account();
         let owner = Account::Owner;
         let reputation_balance = config.reputation_balance();
@@ -62,13 +61,13 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
     // on the whitelist.
     // transfer_ownership_to_admin!(world, Contract::BidEscrow);
     transfer_ownership_to_admin!(world, Contract::KycToken);
-    // transfer_ownership_to_admin!(world, Contract::KycVoter);
+    transfer_ownership_to_admin!(world, Contract::KycVoter);
     // transfer_ownership_to_admin!(world, Contract::Onboarding);
-    // transfer_ownership_to_admin!(world, Contract::RepoVoter);
+    transfer_ownership_to_admin!(world, Contract::RepoVoter);
     transfer_ownership_to_admin!(world, Contract::ReputationToken);
-    // transfer_ownership_to_admin!(world, Contract::ReputationVoter);
-    // transfer_ownership_to_admin!(world, Contract::SimpleVoter);
-    // transfer_ownership_to_admin!(world, Contract::SlashingVoter);
+    transfer_ownership_to_admin!(world, Contract::ReputationVoter);
+    transfer_ownership_to_admin!(world, Contract::SimpleVoter);
+    transfer_ownership_to_admin!(world, Contract::SlashingVoter);
     transfer_ownership_to_admin!(world, Contract::VaToken);
     transfer_ownership_to_admin!(world, Contract::VariableRepository);
 }
