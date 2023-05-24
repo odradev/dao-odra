@@ -72,7 +72,7 @@ pub fn to_milliseconds(value: BlockTime, unit: TimeUnit) -> BlockTime {
         TimeUnit::Minutes => value * 60,
         TimeUnit::Hours => value * 60 * 60,
         TimeUnit::Days => value * 60 * 60 * 24,
-    }) * 1_000
+    }) * 1_000u64
 }
 
 pub fn parse<T>(item: Option<&String>, err_msg: &str) -> T

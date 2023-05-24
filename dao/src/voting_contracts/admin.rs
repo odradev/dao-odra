@@ -10,7 +10,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{caller, emit_event};
 use odra::types::{Address, BlockTime, CallArgs, U512};
-use odra::{Event, Instance, OdraType};
+use odra::{Composer, Event, Instance, OdraType};
 
 /// Admin contract uses [VotingEngine](VotingEngine) to vote on changes of ownership and managing whitelists of other contracts.
 ///
@@ -24,7 +24,7 @@ pub struct AdminContract {
 
 impl Instance for AdminContract {
     fn instance(namespace: &str) -> Self {
-        let refs = ContractRefsStorage::instance(namespace);
+        let refs = Composer::new(namespace, "refs").compose();
         let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
             .with_refs(&refs)
             .compose();
@@ -32,7 +32,7 @@ impl Instance for AdminContract {
         Self {
             refs,
             voting_engine,
-            access_control: AccessControl::instance(namespace),
+            access_control: Composer::new(namespace, "access_control").compose(),
         }
     }
 }

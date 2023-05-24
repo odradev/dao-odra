@@ -18,9 +18,7 @@
 //! [`VotingEngine`]: VotingEngine
 use crate::configuration::ConfigurationBuilder;
 use crate::modules::kyc_info::{KycInfo, KycInfoComposer};
-use crate::modules::refs::{
-    ContractRefsStorage, ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer,
-};
+use crate::modules::refs::{ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer};
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
 use crate::utils::{consts, ContractCall, Error};
@@ -33,7 +31,7 @@ use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{self, caller};
 use odra::types::event::OdraEvent;
 use odra::types::{Address, BlockTime, CallArgs, U512};
-use odra::{Event, Instance, UnwrapOrRevert};
+use odra::{Composer, Event, Instance, UnwrapOrRevert};
 
 /// KycVoterContract
 ///
@@ -50,7 +48,7 @@ pub struct KycVoterContract {
 
 impl Instance for KycVoterContract {
     fn instance(namespace: &str) -> Self {
-        let refs = ContractRefsStorage::instance(namespace);
+        let refs = Composer::new(namespace, "refs").compose();
         let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
             .with_refs(&refs)
             .compose();
@@ -64,7 +62,7 @@ impl Instance for KycVoterContract {
         Self {
             refs: kyc_refs,
             voting_engine,
-            access_control: AccessControl::instance(namespace),
+            access_control: Composer::new(namespace, "access_control").compose(),
             kyc,
         }
     }
@@ -237,5 +235,3 @@ impl KycVotingCreated {
         }
     }
 }
-
-// TODO: Setup Composer, events

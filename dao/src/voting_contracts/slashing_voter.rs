@@ -1,7 +1,7 @@
 use odra::{
     contract_env::{caller, revert},
     types::{event::OdraEvent, Address, BlockTime, U512},
-    Event, Mapping, OdraType, UnwrapOrRevert, Variable,
+    Composer, Event, Instance, Mapping, OdraType, UnwrapOrRevert, Variable,
 };
 
 use crate::{
@@ -15,7 +15,7 @@ use crate::{
         voting_engine::{
             events::VotingCreatedInfo,
             voting_state_machine::{VotingResult, VotingStateMachine, VotingType},
-            VotingEngine,
+            VotingEngine, VotingEngineComposer,
         },
     },
 };
@@ -25,13 +25,30 @@ use crate::{
 /// Slashing Voter contract needs to have permissions to perform those actions.
 ///
 /// For details see [SlashingVoterContractInterface](SlashingVoterContractInterface)
-#[odra::module]
+#[odra::module(skip_instance, events = [SlashingVotingCreated])]
 pub struct SlashingVoterContract {
     refs: ContractRefsStorage,
     voting_engine: VotingEngine,
     tasks: Mapping<VotingId, SlashTask>,
     bid_escrows: Variable<Vec<Address>>,
     access_control: AccessControl,
+}
+
+impl Instance for SlashingVoterContract {
+    fn instance(namespace: &str) -> Self {
+        let refs = Composer::new(namespace, "refs").compose();
+        let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
+            .with_refs(&refs)
+            .compose();
+
+        Self {
+            refs,
+            voting_engine,
+            tasks: Composer::new(namespace, "tasks").compose(),
+            bid_escrows: Composer::new(namespace, "bid_escrows").compose(),
+            access_control: Composer::new(namespace, "access_control").compose(),
+        }
+    }
 }
 
 #[odra::module]
