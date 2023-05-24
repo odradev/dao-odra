@@ -17,8 +17,10 @@
 //! [`Reputation Token Contract`]: crate::core_contracts::ReputationContract
 //! [`VotingEngine`]: VotingEngine
 use crate::configuration::ConfigurationBuilder;
-use crate::modules::kyc_info::KycInfo;
-use crate::modules::refs::ContractRefsWithKycStorage;
+use crate::modules::kyc_info::{KycInfo, KycInfoComposer};
+use crate::modules::refs::{
+    ContractRefsStorage, ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer,
+};
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
 use crate::utils::{consts, ContractCall, Error};
@@ -27,23 +29,45 @@ use crate::voting::types::VotingId;
 use crate::voting::voting_engine::events::VotingCreatedInfo;
 use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
-use crate::voting::voting_engine::VotingEngine;
+use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{self, caller};
 use odra::types::event::OdraEvent;
 use odra::types::{Address, BlockTime, CallArgs, U512};
-use odra::{Event, UnwrapOrRevert};
+use odra::{Event, Instance, UnwrapOrRevert};
 
 /// KycVoterContract
 ///
 /// It is responsible for managing variables held in [Variable Repo](crate::variable_repository::VariableRepositoryContract).
 ///
 /// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
-#[odra::module]
+#[odra::module(skip_instance, events = [KycVotingCreated])]
 pub struct KycVoterContract {
     refs: ContractRefsWithKycStorage,
     voting_engine: VotingEngine,
     access_control: AccessControl,
     kyc: KycInfo,
+}
+
+impl Instance for KycVoterContract {
+    fn instance(namespace: &str) -> Self {
+        let refs = ContractRefsStorage::instance(namespace);
+        let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
+            .with_refs(&refs)
+            .compose();
+        let kyc_refs = ContractRefsWithKycStorageComposer::new(namespace, "refs")
+            .with_refs(&refs)
+            .compose();
+        let kyc = KycInfoComposer::new(namespace, "kyc_info")
+            .with_refs(&kyc_refs)
+            .compose();
+
+        Self {
+            refs: kyc_refs,
+            voting_engine,
+            access_control: AccessControl::instance(namespace),
+            kyc,
+        }
+    }
 }
 
 #[odra::module]

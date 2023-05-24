@@ -66,13 +66,14 @@ pub fn is_reputation_close_enough<A: Into<ReputationBalance>, B: Into<Reputation
 }
 
 #[allow(dead_code)]
-pub fn to_seconds(value: BlockTime, unit: TimeUnit) -> BlockTime {
+pub fn to_milliseconds(value: BlockTime, unit: TimeUnit) -> BlockTime {
     match unit {
         TimeUnit::Seconds => value,
         TimeUnit::Minutes => value * 60,
         TimeUnit::Hours => value * 60 * 60,
         TimeUnit::Days => value * 60 * 60 * 24,
     }
+    *1_000
 }
 
 pub fn parse<T>(item: Option<&String>, err_msg: &str) -> T

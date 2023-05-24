@@ -231,5 +231,65 @@
       "return_ty": "Key"
     }
   ],
-  "events": []
+  "events": [
+    {
+      "name": "KycVotingCreated",
+      "fields": [
+        {
+          "name": "subject_address",
+          "ty": "Key"
+        },
+        {
+          "name": "document_hash",
+          "ty": "String"
+        },
+        {
+          "name": "creator",
+          "ty": "Key"
+        },
+        {
+          "name": "stake",
+          "ty": {
+            "Option": "U512"
+          }
+        },
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "config_informal_quorum",
+          "ty": "U32"
+        },
+        {
+          "name": "config_informal_voting_time",
+          "ty": "U64"
+        },
+        {
+          "name": "config_formal_quorum",
+          "ty": "U32"
+        },
+        {
+          "name": "config_formal_voting_time",
+          "ty": "U64"
+        },
+        {
+          "name": "config_total_onboarded",
+          "ty": "U512"
+        },
+        {
+          "name": "config_double_time_between_votings",
+          "ty": "Bool"
+        },
+        {
+          "name": "config_voting_clearness_delta",
+          "ty": "U512"
+        },
+        {
+          "name": "config_time_between_informal_and_formal_voting",
+          "ty": "U64"
+        }
+      ]
+    }
+  ]
 }

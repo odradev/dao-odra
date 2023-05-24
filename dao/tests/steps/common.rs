@@ -2,14 +2,14 @@ use cucumber::{gherkin::Step, given, when};
 use odra::types::BlockTime;
 
 use crate::common::{
-    helpers::{to_seconds, value_to_bytes},
+    helpers::{to_milliseconds, value_to_bytes},
     params::TimeUnit,
     DaoWorld,
 };
 
 #[when(expr = "{int} {time_unit} passed")]
 fn advance_time(world: &mut DaoWorld, amount: BlockTime, unit: TimeUnit) {
-    world.advance_time(to_seconds(amount, unit));
+    world.advance_time(to_milliseconds(amount, unit));
 }
 
 #[given(expr = "following configuration")]

@@ -15,9 +15,7 @@ use odra::{Event, Instance, OdraType};
 /// Admin contract uses [VotingEngine](VotingEngine) to vote on changes of ownership and managing whitelists of other contracts.
 ///
 /// Admin contract needs to have permissions to perform those actions.
-///
-/// For details see [AdminContractInterface](AdminContractInterface).
-#[odra::module(skip_instance)]
+#[odra::module(skip_instance, events = [AdminVotingCreated])]
 pub struct AdminContract {
     refs: ContractRefsStorage,
     voting_engine: VotingEngine,
@@ -39,7 +37,7 @@ impl Instance for AdminContract {
     }
 }
 
-#[odra::module(events = [AdminVotingCreated])]
+#[odra::module]
 impl AdminContract {
     delegate! {
         to self.voting_engine {

@@ -147,7 +147,9 @@ impl SlashingVoterContract {
         let mut reputation = self.refs.reputation_token();
         // If partial slash only burn reputation.
         if slash_task.ratio != 1000 {
-            let slash_amount = slash_task.reputation_at_voting_creation * slash_task.ratio / 1000;
+            let slash_amount = (slash_task.reputation_at_voting_creation
+                * U512::from(slash_task.ratio))
+                / U512::from(1000);
             reputation.burn(slash_task.subject, slash_amount);
             return;
         }

@@ -4,7 +4,7 @@ use odra::types::{Address, Bytes, BlockTime};
 
 use crate::{
     common::{
-        helpers::{to_seconds, value_to_bytes},
+        helpers::{to_milliseconds, value_to_bytes},
         params::{
             voting::Voting,
             Account,
@@ -61,7 +61,7 @@ pub fn build(world: &DaoWorld, voting: Voting) -> VotingSetup {
                 let values = s.split(" ").collect::<Vec<_>>();
                 let value = values.get(0).and_then(|s| s.parse().ok()).unwrap();
                 let unit = values.get(1).and_then(|s| s.parse().ok()).unwrap();
-                to_seconds(value, unit) * 1_000
+                to_milliseconds(value, unit)
             });
 
             VotingSetup::Repository(variable_repository_address, key, value, activation_time)
