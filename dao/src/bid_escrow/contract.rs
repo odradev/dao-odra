@@ -189,27 +189,29 @@
 use std::borrow::Borrow;
 use odra::contract_env::{caller, revert, self_balance};
 use odra::types::{Address, Balance, BlockTime, U512};
-use odra::UnwrapOrRevert;
+use odra::{Composer, Instance, UnwrapOrRevert};
 use crate::bid_escrow::bid::Bid;
-use crate::bid_escrow::bid_engine::BidEngine;
+use crate::bid_escrow::bid_engine::{BidEngine, BidEngineComposer};
 use crate::bid_escrow::job::Job;
-use crate::bid_escrow::job_engine::JobEngine;
+use crate::bid_escrow::job_engine::{JobEngine, JobEngineComposer};
 use crate::bid_escrow::job_offer::{JobOffer, JobOfferStatus};
 use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
 use crate::modules::AccessControl;
-use crate::modules::refs::ContractRefsWithKycStorage;
+use crate::modules::kyc_info::KycInfoComposer;
+use crate::modules::onboarding_info::{OnboardingInfo, OnboardingInfoComposer};
+use crate::modules::refs::{ContractRefsStorageComposer, ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer};
 use crate::utils::Error;
 use crate::utils::types::DocumentHash;
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingType};
-use crate::voting::voting_engine::VotingEngine;
+use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 
 /// A contract that manages the full `Bid Escrow` process.
 /// Uses [`VotingEngine`](crate::voting::VotingEngine) to conduct the voting process.
 ///
 /// For details see [BidEscrowContractInterface](BidEscrowContractInterface).
-#[odra::module]
+#[odra::module(skip_instance)]
 pub struct BidEscrowContract {
     refs: ContractRefsWithKycStorage,
     access_control: AccessControl,
@@ -218,23 +220,59 @@ pub struct BidEscrowContract {
     voting_engine: VotingEngine,
 }
 
+impl Instance for BidEscrowContract {
+    fn instance(namespace: &str) -> Self {
+        let refs = ContractRefsStorageComposer::new(namespace, "refs").compose();
+        let refs_with_kyc = ContractRefsWithKycStorageComposer::new(namespace, "refs_with_kyc")
+            .with_refs(&refs)
+            .compose();
+        let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
+            .with_refs(&refs)
+            .compose();
+        let kyc = KycInfoComposer::new(namespace, "kyc_info")
+            .with_refs(&refs_with_kyc)
+            .compose();
+        let onboarding = OnboardingInfoComposer::new(namespace, "onboarding_info")
+            .with_refs(&refs_with_kyc)
+            .compose();
+        let job_engine = JobEngineComposer::new(namespace, "job_engine")
+            .with_refs(&refs_with_kyc)
+            .with_voting_engine(&voting_engine)
+            .with_kyc(&kyc)
+            .with_onboarding(&onboarding)
+            .compose();
+        let bid_engine = BidEngineComposer::new(namespace, "bid_engine")
+            .with_refs(&refs_with_kyc)
+            .with_kyc(&kyc)
+            .with_onboarding(&onboarding)
+            .compose();
+        Self {
+            refs: refs_with_kyc,
+            access_control: Composer::new(namespace, "access_control").compose(),
+            job_engine,
+            bid_engine,
+            voting_engine,
+        }
+    }
+}
+
 #[odra::module]
 impl BidEscrowContract {
     delegate! {
         to self.voting_engine {
     /// Checks if voting of a given type and id exists.
-            fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
+            pub fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
     /// Returns the Voter's [`Ballot`].
-            fn get_ballot(
+            pub fn get_ballot(
                 &self,
                 voting_id: VotingId,
                 voting_type: VotingType,
                 address: Address,
             ) -> Option<Ballot>;
     /// Returns the address of nth voter who voted on Voting with `voting_id`.
-            fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
+            pub fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
     /// Returns [Voting](VotingStateMachine) for given id.
-            fn get_voting(&self, voting_id: VotingId) -> Option<VotingStateMachine>;
+            pub fn get_voting(&self, voting_id: VotingId) -> Option<VotingStateMachine>;
         }
 
         to self.bid_engine {
@@ -247,7 +285,7 @@ impl BidEscrowContract {
             /// # Events
             /// * [`JobOfferCreated`](crate::bid_escrow::events::JobOfferCreated)
             #[odra::payable]
-            fn post_job_offer(&mut self, expected_timeframe: BlockTime, budget: Balance, dos_fee: Balance);
+            pub fn post_job_offer(&mut self, expected_timeframe: BlockTime, budget: Balance, dos_fee: Balance);
 
             /// Worker submits a [Bid] for a [Job].
             ///
@@ -271,7 +309,7 @@ impl BidEscrowContract {
             /// * [`Error::ZeroStake`] - if the Worker tries to stake 0 reputation
             /// * [`Error::NotWhitelisted`] - if the contract is not whitelisted for Reputation Staking
             #[odra::payable]
-            fn submit_bid(
+            pub fn submit_bid(
                 &mut self,
                 job_offer_id: JobOfferId,
                 time: BlockTime,
@@ -296,11 +334,11 @@ impl BidEscrowContract {
             /// trying to cancel a Bid on a Job Offer that is already completed
             /// * [`CannotCancelBidBeforeAcceptanceTimeout`](Error::CannotCancelBidBeforeAcceptanceTimeout)
             /// when trying to cancel a Bid before VABidAcceptanceTimeout time has passed
-            fn cancel_bid(&mut self, bid_id: &BidId);
+            pub fn cancel_bid(&mut self, bid_id: BidId);
 
     /// Invalidates the [`Job Offer`](JobOffer), returns `DOS Fee` to the `Job Poster`, returns funds to `Bidders`.
     /// [`Read more`](BidEngine::cancel_job_offer()).
-            fn cancel_job_offer(&mut self, job_offer_id: &JobOfferId);
+            pub fn cancel_job_offer(&mut self, job_offer_id: JobOfferId);
             /// Job poster picks a bid. This creates a new Job object and saves it in a storage.
             ///
             /// # Events
@@ -311,16 +349,16 @@ impl BidEscrowContract {
             /// * [`OnlyJobPosterCanPickABid`](Error::OnlyJobPosterCanPickABid) - if the caller is not the Job Poster
             /// * [`PurseBalanceMismatch`](Error::PurseBalanceMismatch) - if the purse balance does not match the bid amount
             #[odra::payable]
-            fn pick_bid(&mut self, job_offer_id: &JobOfferId, bid_id: &BidId, cspr_amount: Balance);
+            pub fn pick_bid(&mut self, job_offer_id: JobOfferId, bid_id: BidId, cspr_amount: Balance);
 
     /// Returns the total number of job offers.
-            fn job_offers_count(&self) -> u32;
+            pub fn job_offers_count(&self) -> u32;
     /// Returns the total number of bids.
-            fn bids_count(&self) -> u32;
+            pub fn bids_count(&self) -> u32;
             /// Returns a JobOffer with given [JobOfferId].
-            fn get_job_offer(&self, job_offer_id: &JobOfferId) -> Option<JobOffer>;
+            pub fn get_job_offer(&self, job_offer_id: JobOfferId) -> Option<JobOffer>;
             /// Returns a Bid with given [BidId].
-            fn get_bid(&self, bid_id: &BidId) -> Option<Bid>;
+            pub fn get_bid(&self, bid_id: BidId) -> Option<Bid>;
         }
 
         to self.job_engine {
@@ -336,13 +374,13 @@ impl BidEscrowContract {
             /// Throws [`JobAlreadySubmitted`](Error::JobAlreadySubmitted) if job was already submitted.
             /// Throws [`OnlyWorkerCanSubmitProof`](Error::OnlyWorkerCanSubmitProof) if the caller is not the Worker
             /// and the grace period is not ongoing.
-            fn submit_job_proof(&mut self, job_id: JobId, proof: DocumentHash);
+            pub fn submit_job_proof(&mut self, job_id: JobId, proof: DocumentHash);
 
             /// Updates the old [`Bid`] and [`Job`], the job is assigned to a new `Worker`. The rest goes the same
             /// as regular proof submission. See [submit_job_proof()][Self::submit_job_proof].
             /// The old `Worker` who didn't submit the proof in time, is getting slashed.
             #[odra::payable]
-            fn submit_job_proof_during_grace_period(
+            pub fn submit_job_proof_during_grace_period(
                 &mut self,
                 job_id: JobId,
                 proof: DocumentHash,
@@ -350,7 +388,7 @@ impl BidEscrowContract {
                 onboard: bool,
             );
 
-            fn cancel_job(&mut self, job_id: JobId);
+            pub fn cancel_job(&mut self, job_id: JobId);
 
             /// Casts a vote over a job.
             ///
@@ -360,7 +398,7 @@ impl BidEscrowContract {
             /// # Errors
             /// * [`CannotVoteOnOwnJob`](Error::CannotVoteOnOwnJob) if the voter is either of Job Poster or Worker
             /// * [`VotingNotStarted`](Error::VotingNotStarted) if the voting was not yet started for this job
-            fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: U512);
+            pub fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: U512);
 
             /// Finishes voting. Depending on type of voting, different actions are performed.
             /// [Read more](VotingEngine::finish_voting())
@@ -379,37 +417,37 @@ impl BidEscrowContract {
             /// is not in progress
             /// * [`FinishingCompletedVotingNotAllowed`](Error::FinishingCompletedVotingNotAllowed) if the
             /// voting is already completed
-            fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType);
+            pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType);
     /// Returns the total number of jobs.
-            fn jobs_count(&self) -> u32;
+            pub fn jobs_count(&self) -> u32;
             /// Returns a job with given [JobId].
-            fn get_job(&self, job_id: JobId) -> Option<Job>;
+            pub fn get_job(&self, job_id: JobId) -> Option<Job>;
         }
 
         to self.access_control {
     /// Changes the ownership of the contract. Transfers ownership to the `owner`.
     /// Only the current owner is permitted to call this method.
     /// [`Read more`](AccessControl::change_ownership())
-            fn change_ownership(&mut self, owner: Address);
+            pub fn change_ownership(&mut self, owner: Address);
     /// Adds a new address to the whitelist.
     /// [`Read more`](AccessControl::add_to_whitelist())
-            fn add_to_whitelist(&mut self, address: Address);
+            pub fn add_to_whitelist(&mut self, address: Address);
             /// Remove address from the whitelist.
     /// [`Read more`](AccessControl::remove_from_whitelist());
-            fn remove_from_whitelist(&mut self, address: Address);
+            pub fn remove_from_whitelist(&mut self, address: Address);
     /// Checks whether the given address is added to the whitelist.
     /// [`Read more`](AccessControl::is_whitelisted()).
-            fn is_whitelisted(&self, address: Address) -> bool;
+            pub fn is_whitelisted(&self, address: Address) -> bool;
     /// Returns the address of the current owner.
     /// [`Read more`](AccessControl::get_owner()).
-            fn get_owner(&self) -> Option<Address>;
+            pub fn get_owner(&self) -> Option<Address>;
         }
 
         to self.refs {
             /// Returns the address of [Variable Repository](crate::variable_repository::VariableRepositoryContract) contract.
-            fn variable_repository_address(&self) -> Address;
+            pub fn variable_repository_address(&self) -> Address;
     /// Returns the address of [Reputation Token](crate::reputation::ReputationContract) contract.
-            fn reputation_token_address(&self) -> Address;
+            pub fn reputation_token_address(&self) -> Address;
         }
     }
 
@@ -426,7 +464,8 @@ impl BidEscrowContract {
     /// Emits:
     /// * [`OwnerChanged`](casper_dao_modules::events::OwnerChanged),
     /// * [`AddedToWhitelist`](casper_dao_modules::events::AddedToWhitelist),
-    fn init(
+    #[odra(init)]
+    pub fn init(
         &mut self,
         variable_repository: Address,
         reputation_token: Address,
@@ -439,12 +478,12 @@ impl BidEscrowContract {
     }
 
     /// Returns the CSPR balance of the contract.
-    fn get_cspr_balance(&self) -> Balance {
+    pub fn get_cspr_balance(&self) -> Balance {
         self_balance()
     }
 
     /// Erases the voter from voting with the given id. [Read more](VotingEngine::slash_voter).
-    fn cancel_voter(&mut self, voter: Address, voting_id: VotingId) {
+    pub fn cancel_voter(&mut self, voter: Address, voting_id: VotingId) {
         self.access_control.ensure_whitelisted();
         self.voting_engine.slash_voter(voter, voting_id);
     }
@@ -458,7 +497,7 @@ impl BidEscrowContract {
     /// * [Error::BidNotFound]
     /// * [Error::JobOfferNotFound]
     /// * [Error::CannotCancelBidOnCompletedJobOffer]
-    fn slash_all_active_job_offers(&mut self, bidder: Address) {
+    pub fn slash_all_active_job_offers(&mut self, bidder: Address) {
         self.access_control.ensure_whitelisted();
         // Cancel job offers created by the bidder.
         let job_offer_ids = self.bid_engine.clear_active_job_offers_ids(&bidder);
@@ -478,15 +517,15 @@ impl BidEscrowContract {
     /// * [Error::BidNotFound]
     /// * [Error::JobOfferNotFound]
     /// * [Error::CannotCancelBidOnCompletedJobOffer]
-    fn slash_bid(&mut self, bid_id: BidId) {
+    pub fn slash_bid(&mut self, bid_id: BidId) {
         self.access_control.ensure_whitelisted();
 
         let mut bid = self
-            .get_bid(&bid_id)
+            .get_bid(bid_id)
             .unwrap_or_revert_with(Error::BidNotFound);
 
         let job_offer = self
-            .get_job_offer(&bid.job_offer_id)
+            .get_job_offer(bid.job_offer_id)
             .unwrap_or_revert_with(Error::JobOfferNotFound);
 
         if job_offer.status != JobOfferStatus::Created {
@@ -504,7 +543,7 @@ impl BidEscrowContract {
     }
 
     /// Erases the voter from the given voting. [`Read more`](VotingEngine::slash_voter()).
-    fn slash_voter(&mut self, _voter: Address, _voting_id: VotingId) {
+    pub fn slash_voter(&mut self, _voter: Address, _voting_id: VotingId) {
         self.access_control.ensure_whitelisted();
         unimplemented!()
     }

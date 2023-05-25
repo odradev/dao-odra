@@ -1,5 +1,5 @@
 mod account;
-// mod bid_escrow;
+mod bid_escrow;
 pub mod cspr;
 mod ownership;
 mod rate_provider;

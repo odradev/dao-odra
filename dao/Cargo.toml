@@ -41,3 +41,7 @@ harness = false  # allows Cucumber to print output instead of libtest
 [[test]]
 name = "test_voting"
 harness = false  # allows Cucumber to print output instead of libtest
+
+[[test]]
+name = "test_bid_escrow"
+harness = false  # allows Cucumber to print output instead of libtest

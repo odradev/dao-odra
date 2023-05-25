@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use dao::{
     core_contracts::{
         KycNftContractDeployer, KycNftContractRef, ReputationContractDeployer,
@@ -19,6 +20,9 @@ use odra::{
     types::{Bytes, OdraType},
 };
 use std::fmt::{Debug, Formatter};
+use odra::types::Address;
+use dao::bid_escrow::contract::{BidEscrowContractDeployer, BidEscrowContractRef};
+use dao::bid_escrow::types::{BidId, JobOfferId};
 
 use super::{contracts::cspr::VirtualBalances, params::Account};
 
@@ -39,6 +43,9 @@ pub struct DaoWorld {
     pub repo_voter: RepoVoterContractRef,
     pub simple_voter: SimpleVoterContractRef,
     pub slashing_voter: SlashingVoterContractRef,
+    pub bid_escrow: BidEscrowContractRef,
+    pub bids: HashMap<(u32, Address), BidId>, 
+    pub offers: HashMap<Address, JobOfferId>,
 }
 
 impl DaoWorld {
@@ -117,11 +124,17 @@ impl Default for DaoWorld {
             reputation_token.address(),
             va_token.address(),
         );
+        let bid_escrow = BidEscrowContractDeployer::init(
+            variable_repository.address(),
+            reputation_token.address(),
+            va_token.address(),
+            kyc_token.address(),
+        );
 
         // Setup DaoIds.
         ids.add_to_whitelist(kyc_voter.address());
         // TODO: uncomment once available
-        // ids.add_to_whitelist(bid_escrow.address());
+        ids.add_to_whitelist(bid_escrow.address());
         // ids.add_to_whitelist(onboarding.address());
         ids.add_to_whitelist(slashing_voter.address());
         ids.add_to_whitelist(repo_voter.address());
@@ -146,6 +159,9 @@ impl Default for DaoWorld {
             repo_voter,
             simple_voter,
             slashing_voter,
+            bid_escrow,
+            bids: Default::default(),
+            offers: Default::default(),
         }
     }
 }

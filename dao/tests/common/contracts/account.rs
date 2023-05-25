@@ -36,7 +36,7 @@ impl DaoWorld {
             Contract::SlashingVoter => self.slashing_voter.address(),
             Contract::SimpleVoter => self.simple_voter.address(),
             Contract::ReputationVoter => self.reputation_voter.address(),
-            Contract::BidEscrow => todo!(),
+            Contract::BidEscrow => self.bid_escrow.address(),
             Contract::Onboarding => todo!(),
             Contract::CSPRRateProvider => self.rate_provider.address(),
         }

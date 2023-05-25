@@ -498,7 +498,7 @@ impl JobEngine {
     fn redistribute_cspr_external_worker(&mut self, job: &Job, configuration: &Configuration) {
         let total_left = redistribute_to_governance(job.payment(), configuration);
         let config = self.bid_storage.get_job_offer_configuration(job);
-        let to_redistribute = Balance::from(config.apply_default_policing_rate_to(total_left));
+        let to_redistribute = Balance::from(config.apply_default_policing_rate_to(U512::from(total_left.as_u128())).as_u128());
         let to_worker = total_left - to_redistribute;
 
         // For External Worker
@@ -531,8 +531,8 @@ impl JobEngine {
         let total_supply = all_balances.total_supply();
 
         for (address, balance) in all_balances.balances() {
-            let amount = total_left * balance / total_supply;
-            withdraw(*address, amount, TransferReason::Redistribution);
+            let amount = U512::from(total_left.as_u128()) * balance / total_supply;
+            withdraw(*address, Balance::from(amount.as_u128()), TransferReason::Redistribution);
         }
     }
 
@@ -554,8 +554,8 @@ impl JobEngine {
         let balances = self.refs.reputation_token().partial_balances(all_voters);
         let partial_supply = balances.total_supply();
         for (address, balance) in balances.balances() {
-            let amount = to_redistribute * balance / partial_supply;
-            withdraw(*address, amount, TransferReason::Redistribution);
+            let amount = U512::from(to_redistribute.as_u128()) * balance / partial_supply;
+            withdraw(*address, Balance::from(amount.as_u128()), TransferReason::Redistribution)
         }
     }
 }

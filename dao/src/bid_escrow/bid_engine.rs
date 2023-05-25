@@ -19,7 +19,6 @@ use std::rc::Rc;
 /// Manages the Bidding process.
 #[odra::module]
 pub struct BidEngine {
-    // todo instance
     bid_storage: BidStorage,
     job_storage: JobStorage,
     kyc: KycInfo,
@@ -39,8 +38,8 @@ impl BidEngine {
     }
 
     /// Gets the [JobOffer] with a given id or `None`.
-    pub fn get_job_offer(&self, job_offer_id: &JobOfferId) -> Option<JobOffer> {
-        self.bid_storage.get_job_offer(job_offer_id)
+    pub fn get_job_offer(&self, job_offer_id: JobOfferId) -> Option<JobOffer> {
+        self.bid_storage.get_job_offer(&job_offer_id)
     }
 
     /// Gets the [JobOffer] with a given id or reverts with [JobOfferNotFound](casper_dao_utils::Error::JobOfferNotFound).
@@ -49,8 +48,8 @@ impl BidEngine {
     }
 
     /// Gets the [Bid] with a given id or `None`.
-    pub fn get_bid(&self, bid_id: &BidId) -> Option<Bid> {
-        self.bid_storage.get_bid(bid_id)
+    pub fn get_bid(&self, bid_id: BidId) -> Option<Bid> {
+        self.bid_storage.get_bid(&bid_id)
     }
 
     /// Gets the [Bid] with a given id or reverts with [BidNotFound](casper_dao_utils::Error::BidNotFound).
@@ -114,6 +113,7 @@ impl BidEngine {
         cspr_stake: Option<Balance>,
     ) {
         let worker = caller();
+
         let job_offer: JobOffer = self.bid_storage.get_job_offer_or_revert(&job_offer_id);
         let bid_id = self.bid_storage.next_bid_id();
         let block_time = get_block_time();
@@ -163,9 +163,9 @@ impl BidEngine {
         .emit();
     }
 
-    pub fn cancel_bid(&mut self, bid_id: &BidId) {
+    pub fn cancel_bid(&mut self, bid_id: BidId) {
         let caller = caller();
-        let mut bid = self.bid_storage.get_bid_or_revert(bid_id);
+        let mut bid = self.bid_storage.get_bid_or_revert(&bid_id);
         let job_offer = self.bid_storage.get_job_offer_or_revert(&bid.job_offer_id);
 
         let cancel_bid_request = CancelBidRequest {
@@ -179,7 +179,7 @@ impl BidEngine {
 
         self.unstake_cspr_or_reputation_for_bid(&bid);
 
-        BidCancelled::new(*bid_id, caller, bid.job_offer_id).emit();
+        BidCancelled::new(bid_id, caller, bid.job_offer_id).emit();
 
         self.bid_storage.store_bid(bid);
     }
@@ -193,8 +193,8 @@ impl BidEngine {
     /// [`HasPermissionsToCancelJobOffer`]: crate::rules::validation::bid_escrow::HasPermissionsToCancelJobOffer
     /// [`CanJobOfferBeCancelled`]: crate::rules::validation::bid_escrow::CanJobOfferBeCancelled
     /// [`Error::JobOfferNotFound`]: casper_dao_utils::Error::JobOfferNotFound
-    pub fn cancel_job_offer(&mut self, job_offer_id: &JobOfferId) {
-        let mut job_offer = self.bid_storage.get_job_offer_or_revert(job_offer_id);
+    pub fn cancel_job_offer(&mut self, job_offer_id: JobOfferId) {
+        let mut job_offer = self.bid_storage.get_job_offer_or_revert(&job_offer_id);
         let cancel_job_offer_request = CancelJobOfferRequest {
             caller: caller(),
             block_time: get_block_time(),
@@ -202,22 +202,22 @@ impl BidEngine {
         job_offer.cancel(&cancel_job_offer_request);
 
         self.cancel_all_bids(&job_offer_id);
-        self.return_job_offer_poster_dos_fee(job_offer_id);
+        self.return_job_offer_poster_dos_fee(&job_offer_id);
 
-        self.bid_storage.update_job_offer(job_offer_id, job_offer);
+        self.bid_storage.update_job_offer(&job_offer_id, job_offer);
     }
 
-    pub fn pick_bid(&mut self, job_offer_id: &JobOfferId, bid_id: &BidId, cspr_amount: Balance) {
-        let mut job_offer = self.bid_storage.get_job_offer_or_revert(job_offer_id);
-        let mut bid = self.bid_storage.get_bid_or_revert(bid_id);
+    pub fn pick_bid(&mut self, job_offer_id: JobOfferId, bid_id: BidId, cspr_amount: Balance) {
+        let mut job_offer = self.bid_storage.get_job_offer_or_revert(&job_offer_id);
+        let mut bid = self.bid_storage.get_bid_or_revert(&bid_id);
         let job_id = self.job_storage.next_job_id();
 
-        self.unstake_not_picked(job_offer_id, bid_id);
+        self.unstake_not_picked(&job_offer_id, &bid_id);
 
         let pick_bid_request = PickBidRequest {
             job_id,
-            job_offer_id: *job_offer_id,
-            bid_id: *bid_id,
+            job_offer_id: job_offer_id,
+            bid_id: bid_id,
             caller: caller(),
             poster: job_offer.job_poster,
             worker: bid.worker,
@@ -242,7 +242,7 @@ impl BidEngine {
         self.job_storage.store_job(job);
         self.bid_storage.store_bid(bid);
         self.bid_storage
-            .store_active_job_offer_id(&job_offer.job_poster, job_offer_id);
+            .store_active_job_offer_id(&job_offer.job_poster, &job_offer_id);
         self.bid_storage.store_job_offer(job_offer);
     }
 }
@@ -324,7 +324,7 @@ impl BidEngine {
     fn configuration(&self) -> Rc<Configuration> {
         Rc::new(
             ConfigurationBuilder::new(
-                self.refs.reputation_token().total_supply(),
+                self.refs.va_token().total_supply(),
                 &self.refs.variable_repository().all_variables(),
             )
             .set_is_bid_escrow(true)
