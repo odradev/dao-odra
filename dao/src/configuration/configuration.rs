@@ -291,7 +291,7 @@ impl Configuration {
     }
 
     /// Applies the value of `ReputationConversionRate` variable to a given amount.
-    pub fn apply_reputation_conversion_rate_to(&self, amount: U512) -> U512 {
+    pub fn apply_reputation_conversion_rate_to(&self, amount: Balance) -> U512 {
         per_mil_of(amount, self.dao_configuration.reputation_conversion_rate)
             .unwrap_or_revert_with(Error::ArithmeticOverflow)
     }

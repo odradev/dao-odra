@@ -3,5 +3,7 @@ pub mod bid_engine;
 pub mod events;
 pub mod job;
 pub mod job_offer;
+pub mod job_engine;
 pub mod storage;
 pub mod types;
+pub mod contract;
