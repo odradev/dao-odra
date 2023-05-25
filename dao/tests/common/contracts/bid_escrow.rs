@@ -1,10 +1,10 @@
-use odra::test_env;
-use odra::types::{Balance, BlockTime, U512};
+use crate::common::params::Account;
+use crate::common::DaoWorld;
 use dao::bid_escrow::bid::Bid;
 use dao::bid_escrow::types::{BidId, JobOfferId};
 use dao::utils::Error;
-use crate::common::DaoWorld;
-use crate::common::params::Account;
+use odra::test_env;
+use odra::types::{Balance, BlockTime};
 
 impl DaoWorld {
     pub fn get_bid(&self, offer_id: JobOfferId, poster: Account) -> Option<Bid> {
@@ -25,7 +25,7 @@ impl DaoWorld {
         bidder: Account,
         timeframe: BlockTime,
         budget: Balance,
-        stake: U512,
+        stake: Balance,
         onboarding: bool,
         cspr_stake: Option<Balance>,
     ) {
@@ -39,17 +39,15 @@ impl DaoWorld {
                 .submit_bid(offer_id, timeframe, budget, stake, onboarding, None),
             Some(cspr_stake) => {
                 self.bid_escrow.with_tokens(cspr_stake);
-                self
-                    .bid_escrow
-                    .submit_bid(
-                        offer_id,
-                        timeframe,
-                        budget,
-                        stake,
-                        onboarding,
-                        Some(cspr_stake),
-                    )
-            },
+                self.bid_escrow.submit_bid(
+                    offer_id,
+                    timeframe,
+                    budget,
+                    stake,
+                    onboarding,
+                    Some(cspr_stake),
+                )
+            }
         };
         let after_bids_count = self.bid_escrow.bids_count();
         if after_bids_count > bids_count {
@@ -102,8 +100,7 @@ impl DaoWorld {
 
     pub fn slash_all_active_job_offers(&mut self, bidder: Account) {
         let bidder = self.get_address(&bidder);
-        self.bid_escrow
-            .slash_all_active_job_offers(bidder);
+        self.bid_escrow.slash_all_active_job_offers(bidder);
     }
 
     pub fn slash_bid(&mut self, bid_id: u32) {

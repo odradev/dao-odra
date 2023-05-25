@@ -1,19 +1,19 @@
 use cucumber::{then, when};
-use odra::test_env;
-use odra::types::{BlockTime, U512};
 use dao::bid_escrow::contract::BidEscrowContractRef;
 use dao::bid_escrow::job::JobStatus;
 use dao::bid_escrow::job_offer::JobOfferStatus;
 use dao::bid_escrow::types::JobId;
-use dao::utils::Error;
 use dao::utils::types::DocumentHash;
+use dao::utils::Error;
+use odra::test_env;
+use odra::types::{Balance, BlockTime};
 
+use crate::common::params::ReputationBalance;
 use crate::common::{
     helpers::{self, parse_bool},
-    params::{Account, Balance, TimeUnit},
+    params::{Account, CsprBalance, TimeUnit},
     DaoWorld,
 };
-use crate::common::params::ReputationBalance;
 
 #[when(
     expr = "{account} posted a JobOffer with expected timeframe of {int} {time_unit}, maximum budget of {balance} CSPR and {balance} CSPR DOS Fee"
@@ -23,8 +23,8 @@ fn post_job_offer(
     job_poster: Account,
     timeframe: BlockTime,
     time_unit: TimeUnit,
-    maximum_budget: Balance,
-    dos_fee: Balance,
+    maximum_budget: CsprBalance,
+    dos_fee: CsprBalance,
 ) {
     let timeframe = helpers::to_milliseconds(timeframe, time_unit);
     let _ = w.post_offer(job_poster, timeframe, *maximum_budget, *dos_fee);
@@ -33,17 +33,13 @@ fn post_job_offer(
 #[when(expr = "{account} cancels the JobOffer with id {int}")]
 fn cancel_job_offer(w: &mut DaoWorld, caller: Account, offer_id: u32) {
     test_env::set_caller(w.get_address(&caller));
-    let _ = w
-        .bid_escrow
-        .cancel_job_offer(offer_id);
+    let _ = w.bid_escrow.cancel_job_offer(offer_id);
 }
 
 #[when(expr = "{account} cancels the Job with id {int}")]
 fn cancel_job(w: &mut DaoWorld, caller: Account, offer_id: u32) {
     test_env::set_caller(w.get_address(&caller));
-    let _ = w
-        .bid_escrow
-        .cancel_job(offer_id);
+    let _ = w.bid_escrow.cancel_job(offer_id);
 }
 
 #[when(
@@ -55,11 +51,19 @@ fn submit_bid_internal(
     job_offer_id: u32,
     timeframe: BlockTime,
     time_unit: TimeUnit,
-    budget: Balance,
+    budget: CsprBalance,
     stake: ReputationBalance,
 ) {
     let timeframe = helpers::to_milliseconds(timeframe, time_unit);
-    w.post_bid(job_offer_id, worker, timeframe, *budget, *stake, false, None);
+    w.post_bid(
+        job_offer_id,
+        worker,
+        timeframe,
+        *budget,
+        *stake,
+        false,
+        None,
+    );
 }
 
 #[when(
@@ -71,8 +75,8 @@ fn submit_bid_external(
     job_offer_id: u32,
     timeframe: BlockTime,
     time_unit: TimeUnit,
-    budget: Balance,
-    stake: Balance,
+    budget: CsprBalance,
+    stake: CsprBalance,
     onboarding: String,
 ) {
     let onboarding = parse_bool(onboarding);
@@ -82,7 +86,7 @@ fn submit_bid_external(
         worker,
         timeframe,
         *budget,
-        U512::zero(),
+        Balance::zero(), // TODO: Should be zero?
         onboarding,
         Some(*stake),
     );
@@ -108,20 +112,19 @@ fn submit_job_proof_during_grace_period_external(
     w: &mut DaoWorld,
     worker: Account,
     job_id: JobId,
-    cspr_stake: Balance,
+    cspr_stake: CsprBalance,
     onboarding: String,
 ) {
     let onboarding = parse_bool(onboarding);
     let worker = w.get_address(&worker);
     test_env::set_caller(worker);
     w.bid_escrow.with_tokens(*cspr_stake);
-    w.bid_escrow
-        .submit_job_proof_during_grace_period(
-            job_id,
-            DocumentHash::from("Job Proof"),
-            U512::zero(),
-            onboarding,
-        );
+    w.bid_escrow.submit_job_proof_during_grace_period(
+        job_id,
+        DocumentHash::from("Job Proof"),
+        Balance::zero(),
+        onboarding,
+    );
 }
 
 #[when(expr = "{account} submits the JobProof of Job {int} with {reputation} REP stake")]
@@ -133,13 +136,12 @@ fn submit_job_proof_during_grace_period_internal(
 ) {
     let worker = w.get_address(&worker);
     test_env::set_caller(worker);
-    w.bid_escrow
-        .submit_job_proof_during_grace_period(
-            job_id,
-            DocumentHash::from("Job Proof"),
-            *rep_stake,
-            false,
-        );
+    w.bid_escrow.submit_job_proof_during_grace_period(
+        job_id,
+        DocumentHash::from("Job Proof"),
+        *rep_stake,
+        false,
+    );
 }
 
 #[when(expr = "{account} cancels the Bid for {account}")]
@@ -180,7 +182,7 @@ fn is_job_cancelled(w: &mut DaoWorld, job_id: u32, cancelled: String) {
 }
 
 #[when(expr = "{account} submits an onboarding request with the stake of {balance} CSPR")]
-fn submit_onboarding_request(world: &mut DaoWorld, account: Account, cspr_stake: Balance) {
+fn submit_onboarding_request(world: &mut DaoWorld, account: Account, cspr_stake: CsprBalance) {
     // TODO: uncomment when onboarding is implemented
     // test_env::set_caller(world.get_address(&account));
     // wold.onboarding.with_tokens(*cspr_stake);
@@ -204,8 +206,7 @@ fn cannot_submit_job_proof(w: &mut DaoWorld, worker: Account, job_id: JobId) {
     test_env::set_caller(worker);
     test_env::assert_exception(Error::OnlyWorkerCanSubmitProof, || {
         let mut bid_escrow = BidEscrowContractRef::at(w.bid_escrow.address());
-        bid_escrow
-            .submit_job_proof(job_id, DocumentHash::from("Job Proof"))
+        bid_escrow.submit_job_proof(job_id, DocumentHash::from("Job Proof"))
     });
 }
 
@@ -215,7 +216,6 @@ fn cannot_submit_job_proof_second_time(w: &mut DaoWorld, worker: Account, job_id
     test_env::set_caller(worker);
     test_env::assert_exception(Error::JobAlreadySubmitted, || {
         let mut bid_escrow = BidEscrowContractRef::at(w.bid_escrow.address());
-        bid_escrow
-            .submit_job_proof(job_id, DocumentHash::from("Job Proof"))
+        bid_escrow.submit_job_proof(job_id, DocumentHash::from("Job Proof"))
     });
 }

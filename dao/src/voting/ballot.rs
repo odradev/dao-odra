@@ -1,6 +1,6 @@
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
-use odra::types::{Address, U512};
+use odra::types::{Address, Balance};
 use odra::OdraType;
 
 /// Represents user's vote.
@@ -15,7 +15,7 @@ pub struct Ballot {
     /// Selected option.
     pub choice: Choice,
     /// Vote power.
-    pub stake: U512,
+    pub stake: Balance,
     /// Indicates if the vote counts in the total voting stake.
     pub unbound: bool,
     /// Indicates if it reverts the previous ballot casted by the voter.
@@ -28,7 +28,7 @@ impl Ballot {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
         unbound: bool,
         canceled: bool,
     ) -> Self {
@@ -75,7 +75,7 @@ pub struct ShortenedBallot {
     /// The voter's address.
     pub voter: Address,
     /// Vote power.
-    pub stake: U512,
+    pub stake: Balance,
 }
 
 impl From<Ballot> for ShortenedBallot {

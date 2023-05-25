@@ -1,9 +1,7 @@
-use std::borrow::Borrow;
-use odra::contract_env::{attached_value, caller, get_block_time, revert};
-use odra::types::{Balance, U512, event::OdraEvent};
-use odra::UnwrapOrRevert;
 use crate::bid_escrow::bid::{Bid, ReclaimBidRequest};
-use crate::bid_escrow::events::{BidEscrowVotingCreated, JobCancelled, JobDone, JobRejected, JobSubmitted, TransferReason};
+use crate::bid_escrow::events::{
+    BidEscrowVotingCreated, JobCancelled, JobDone, JobRejected, JobSubmitted, TransferReason,
+};
 use crate::bid_escrow::job::{Job, ReclaimJobRequest, SubmitJobProofRequest, WorkerType};
 use crate::bid_escrow::storage::{BidStorage, JobStorage};
 use crate::bid_escrow::types::JobId;
@@ -11,13 +9,19 @@ use crate::configuration::Configuration;
 use crate::modules::kyc_info::KycInfo;
 use crate::modules::onboarding_info::OnboardingInfo;
 use crate::modules::refs::ContractRefsWithKycStorage;
-use crate::utils::{Error, withdraw};
 use crate::utils::types::DocumentHash;
+use crate::utils::{withdraw, Error};
 use crate::voting::ballot::Choice;
-use crate::voting::cspr_redistribution::{redistribute_cspr_to_all_vas, redistribute_to_governance};
+use crate::voting::cspr_redistribution::{
+    redistribute_cspr_to_all_vas, redistribute_to_governance,
+};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{VotingResult, VotingType};
 use crate::voting::voting_engine::VotingEngine;
+use odra::contract_env::{attached_value, caller, get_block_time, revert};
+use odra::types::{event::OdraEvent, Balance};
+use odra::UnwrapOrRevert;
+use std::borrow::Borrow;
 
 /// Manages Jobs lifecycle.
 #[odra::module]
@@ -48,7 +52,9 @@ impl JobEngine {
     /// If a proof has been submitted before, reverts with [`Error::JobAlreadySubmitted`].
     pub fn submit_job_proof(&mut self, job_id: JobId, proof: DocumentHash) {
         let mut job = self.job_storage.get_job_or_revert(job_id);
-        let job_offer = self.bid_storage.get_job_offer_or_revert(&job.job_offer_id());
+        let job_offer = self
+            .bid_storage
+            .get_job_offer_or_revert(&job.job_offer_id());
         let mut voting_configuration = job_offer.configuration().clone();
         let bid = self.bid_storage.get_bid_or_revert(&job.bid_id());
         let worker = caller();
@@ -75,14 +81,10 @@ impl JobEngine {
 
         let (voting_info, mut voting) =
             self.voting_engine
-                .create_voting(worker, U512::zero(), voting_configuration.clone());
+                .create_voting(worker, Balance::zero(), voting_configuration.clone());
 
-        BidEscrowVotingCreated::new(
-            &job,
-            worker,
-            voting_info.voting_id,
-            &voting_configuration,
-        ).emit();
+        BidEscrowVotingCreated::new(&job, worker, voting_info.voting_id, &voting_configuration)
+            .emit();
 
         job.set_voting_id(voting_info.voting_id);
 
@@ -110,7 +112,7 @@ impl JobEngine {
         &mut self,
         job_id: JobId,
         proof: DocumentHash,
-        reputation_stake: U512,
+        reputation_stake: Balance,
         onboard: bool,
     ) {
         let cspr_stake = {
@@ -180,7 +182,7 @@ impl JobEngine {
         let new_job_id = new_job.job_id();
 
         // Stake new bid
-        if new_bid.reputation_stake > U512::zero() {
+        if new_bid.reputation_stake > Balance::zero() {
             self.refs
                 .reputation_token()
                 .stake_bid(new_bid.borrow().into());
@@ -247,7 +249,7 @@ impl JobEngine {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         let caller = caller();
         let job = self.job_storage.get_job_by_voting_id(voting_id);
@@ -265,7 +267,9 @@ impl JobEngine {
     /// redistribute reputation.
     pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
         let job = self.job_storage.get_job_by_voting_id(voting_id);
-        let job_offer = self.bid_storage.get_job_offer_or_revert(&job.job_offer_id());
+        let job_offer = self
+            .bid_storage
+            .get_job_offer_or_revert(&job.job_offer_id());
         let voting_summary = self.voting_engine.finish_voting(voting_id, voting_type);
         match voting_summary.voting_type() {
             VotingType::Informal => match voting_summary.result() {
@@ -354,7 +358,10 @@ impl JobEngine {
 
 impl JobEngine {
     /// Calculates the stake for voting - either the reputation staked, or the cspr staked converted to reputation
-    fn calculate_stake_for_voting(job: &mut Job, voting_configuration: &mut Configuration) -> U512 {
+    fn calculate_stake_for_voting(
+        job: &mut Job,
+        voting_configuration: &mut Configuration,
+    ) -> Balance {
         if job.external_worker_cspr_stake().is_zero() {
             job.get_stake()
         } else {
@@ -364,7 +371,7 @@ impl JobEngine {
     }
 
     fn burn_reputation_stake(&self, bid: &Bid) {
-        if bid.reputation_stake > U512::zero() {
+        if bid.reputation_stake > Balance::zero() {
             self.refs
                 .reputation_token()
                 .unstake_bid(bid.borrow().into());
@@ -398,7 +405,9 @@ impl JobEngine {
     }
 
     fn return_job_poster_payment_and_dos_fee(&mut self, job: &Job) {
-        let job_offer = self.bid_storage.get_job_offer_or_revert(&job.job_offer_id());
+        let job_offer = self
+            .bid_storage
+            .get_job_offer_or_revert(&job.job_offer_id());
         withdraw(
             job.poster(),
             job.payment() + job_offer.dos_fee,
@@ -447,7 +456,7 @@ impl JobEngine {
         self.mint_reputation_for_voters(job, reputation_to_redistribute);
     }
 
-    fn mint_reputation_for_voters(&mut self, job: &Job, amount: U512) {
+    fn mint_reputation_for_voters(&mut self, job: &Job, amount: Balance) {
         let voting = self
             .voting_engine
             .get_voting(
@@ -498,7 +507,7 @@ impl JobEngine {
     fn redistribute_cspr_external_worker(&mut self, job: &Job, configuration: &Configuration) {
         let total_left = redistribute_to_governance(job.payment(), configuration);
         let config = self.bid_storage.get_job_offer_configuration(job);
-        let to_redistribute = Balance::from(config.apply_default_policing_rate_to(U512::from(total_left.as_u128())).as_u128());
+        let to_redistribute = config.apply_default_policing_rate_to(total_left);
         let to_worker = total_left - to_redistribute;
 
         // For External Worker
@@ -531,13 +540,15 @@ impl JobEngine {
         let total_supply = all_balances.total_supply();
 
         for (address, balance) in all_balances.balances() {
-            let amount = U512::from(total_left.as_u128()) * balance / total_supply;
-            withdraw(*address, Balance::from(amount.as_u128()), TransferReason::Redistribution);
+            let amount = total_left * *balance / total_supply;
+            withdraw(*address, amount, TransferReason::Redistribution);
         }
     }
 
     fn return_job_poster_dos_fee(&mut self, job: &Job) {
-        let job_offer = self.bid_storage.get_job_offer_or_revert(&job.job_offer_id());
+        let job_offer = self
+            .bid_storage
+            .get_job_offer_or_revert(&job.job_offer_id());
         withdraw(
             job.poster(),
             job_offer.dos_fee,
@@ -554,8 +565,8 @@ impl JobEngine {
         let balances = self.refs.reputation_token().partial_balances(all_voters);
         let partial_supply = balances.total_supply();
         for (address, balance) in balances.balances() {
-            let amount = U512::from(to_redistribute.as_u128()) * balance / partial_supply;
-            withdraw(*address, Balance::from(amount.as_u128()), TransferReason::Redistribution)
+            let amount = to_redistribute * *balance / partial_supply;
+            withdraw(*address, amount, TransferReason::Redistribution)
         }
     }
 }

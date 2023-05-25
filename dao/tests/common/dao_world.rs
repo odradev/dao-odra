@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use dao::bid_escrow::contract::{BidEscrowContractDeployer, BidEscrowContractRef};
+use dao::bid_escrow::types::{BidId, JobOfferId};
 use dao::{
     core_contracts::{
         KycNftContractDeployer, KycNftContractRef, ReputationContractDeployer,
@@ -15,14 +16,13 @@ use dao::{
         SlashingVoterContractDeployer, SlashingVoterContractRef,
     },
 };
+use odra::types::Address;
 use odra::{
     test_env,
     types::{Bytes, OdraType},
 };
+use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
-use odra::types::Address;
-use dao::bid_escrow::contract::{BidEscrowContractDeployer, BidEscrowContractRef};
-use dao::bid_escrow::types::{BidId, JobOfferId};
 
 use super::{contracts::cspr::VirtualBalances, params::Account};
 
@@ -44,7 +44,7 @@ pub struct DaoWorld {
     pub simple_voter: SimpleVoterContractRef,
     pub slashing_voter: SlashingVoterContractRef,
     pub bid_escrow: BidEscrowContractRef,
-    pub bids: HashMap<(u32, Address), BidId>, 
+    pub bids: HashMap<(u32, Address), BidId>,
     pub offers: HashMap<Address, JobOfferId>,
 }
 

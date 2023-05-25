@@ -3,7 +3,7 @@ use crate::utils::consts;
 use crate::utils::Error::{ActivationTimeInPast, KeyValueStorageError};
 use odra::contract_env::{get_block_time, revert};
 use odra::types::event::OdraEvent;
-use odra::types::{Address, Balance, Bytes, OdraType as OdraTyped, U512};
+use odra::types::{Address, Balance, Bytes, OdraType as OdraTyped};
 use odra::{List, Mapping, OdraType, UnwrapOrRevert};
 
 /// A data struct stored in the repository.
@@ -144,13 +144,13 @@ impl Default for RepositoryDefaults {
         items.push(consts::POST_JOB_DOS_FEE, Balance::from(10000));
         items.push(consts::INTERNAL_AUCTION_TIME, 604800000u64);
         items.push(consts::PUBLIC_AUCTION_TIME, 864000000u64);
-        items.push(consts::DEFAULT_POLICING_RATE, U512::from(300));
-        items.push(consts::REPUTATION_CONVERSION_RATE, U512::from(100));
+        items.push(consts::DEFAULT_POLICING_RATE, Balance::from(300));
+        items.push(consts::REPUTATION_CONVERSION_RATE, Balance::from(100));
         items.push(consts::FORUM_KYC_REQUIRED, true);
-        items.push(consts::BID_ESCROW_INFORMAL_QUORUM_RATIO, U512::from(500));
-        items.push(consts::BID_ESCROW_FORMAL_QUORUM_RATIO, U512::from(500));
-        items.push(consts::INFORMAL_QUORUM_RATIO, U512::from(500));
-        items.push(consts::FORMAL_QUORUM_RATIO, U512::from(500));
+        items.push(consts::BID_ESCROW_INFORMAL_QUORUM_RATIO, Balance::from(500));
+        items.push(consts::BID_ESCROW_FORMAL_QUORUM_RATIO, Balance::from(500));
+        items.push(consts::INFORMAL_QUORUM_RATIO, Balance::from(500));
+        items.push(consts::FORMAL_QUORUM_RATIO, Balance::from(500));
         items.push(consts::BID_ESCROW_INFORMAL_VOTING_TIME, 432000000u64);
         items.push(consts::BID_ESCROW_FORMAL_VOTING_TIME, 432000000u64);
         items.push(consts::INFORMAL_VOTING_TIME, 432000000u64);
@@ -160,13 +160,13 @@ impl Default for RepositoryDefaults {
         items.push(consts::VA_BID_ACCEPTANCE_TIMEOUT, 172800000u64);
         items.push(consts::VA_CAN_BID_ON_PUBLIC_AUCTION, false);
         items.push(consts::DISTRIBUTE_PAYMENT_TO_NON_VOTERS, true);
-        items.push(consts::DEFAULT_REPUTATION_SLASH, U512::from(100));
-        items.push(consts::VOTING_CLEARNESS_DELTA, U512::from(8));
+        items.push(consts::DEFAULT_REPUTATION_SLASH, Balance::from(100));
+        items.push(consts::VOTING_CLEARNESS_DELTA, Balance::from(8));
         items.push(
             consts::VOTING_START_AFTER_JOB_WORKER_SUBMISSION,
             259200000u64,
         );
-        items.push(consts::BID_ESCROW_PAYMENT_RATIO, U512::from(100));
+        items.push(consts::BID_ESCROW_PAYMENT_RATIO, Balance::from(100));
         items
     }
 }

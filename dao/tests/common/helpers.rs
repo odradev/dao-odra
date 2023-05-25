@@ -1,9 +1,9 @@
 use crate::common::params::ReputationBalance;
 use dao::utils::consts::*;
-use odra::types::{BlockTime, Bytes, OdraType, U512};
+use odra::types::{Balance, BlockTime, Bytes, OdraType};
 use std::{fmt::Debug, str::FromStr};
 
-use super::params::{Balance, TimeUnit};
+use super::params::{CsprBalance, TimeUnit};
 
 #[allow(dead_code)]
 pub fn parse_bool(value: String) -> bool {
@@ -35,7 +35,7 @@ pub fn value_to_bytes(value: &str, key: &str) -> Bytes {
             | FORMAL_QUORUM_RATIO
             | DEFAULT_REPUTATION_SLASH
             | VOTING_CLEARNESS_DELTA => {
-                let value = odra::types::U512::from_dec_str(value).unwrap();
+                let value = odra::types::Balance::from_dec_str(value).unwrap();
                 Bytes::from(value.serialize().unwrap())
             }
             _ => {
@@ -46,9 +46,14 @@ pub fn value_to_bytes(value: &str, key: &str) -> Bytes {
     }
 }
 
-pub fn is_cspr_balance_close_enough<A: Into<Balance>, B: Into<Balance>>(a: A, b: B) -> bool {
-    let a: Balance = a.into();
-    let b: Balance = b.into();
+// TODO: Refactor bo be more generic, or move to common?
+
+pub fn is_cspr_balance_close_enough<A: Into<CsprBalance>, B: Into<CsprBalance>>(
+    a: A,
+    b: B,
+) -> bool {
+    let a: CsprBalance = a.into();
+    let b: CsprBalance = b.into();
     let (a, b) = (a.0, b.0);
     let diff = if a > b { a - b } else { b - a };
     diff < odra::types::Balance::from(10_000_000)
@@ -62,7 +67,7 @@ pub fn is_reputation_close_enough<A: Into<ReputationBalance>, B: Into<Reputation
     let b: ReputationBalance = b.into();
     let (a, b) = (a.0, b.0);
     let diff = if a > b { a - b } else { b - a };
-    diff < U512::from(10_000_000)
+    diff < Balance::from(10_000_000)
 }
 
 #[allow(dead_code)]

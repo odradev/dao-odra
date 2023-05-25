@@ -30,7 +30,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{self, caller};
 use odra::types::event::OdraEvent;
-use odra::types::{Address, BlockTime, CallArgs, U512};
+use odra::types::{Address, Balance, BlockTime, CallArgs};
 use odra::{Composer, Event, Instance, UnwrapOrRevert};
 
 /// KycVoterContract
@@ -117,7 +117,7 @@ impl KycVoterContract {
         &mut self,
         subject_address: Address,
         document_hash: DocumentHash,
-        stake: U512,
+        stake: Balance,
     ) {
         self.assert_no_ongoing_voting(&subject_address);
         self.assert_not_kyced(&subject_address);
@@ -154,7 +154,7 @@ impl KycVoterContract {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         self.voting_engine
             .vote(caller(), voting_id, voting_type, choice, stake);
@@ -199,15 +199,15 @@ pub struct KycVotingCreated {
     subject_address: Address,
     document_hash: DocumentHash,
     creator: Address,
-    stake: Option<U512>,
+    stake: Option<Balance>,
     voting_id: VotingId,
     config_informal_quorum: u32,
     config_informal_voting_time: u64,
     config_formal_quorum: u32,
     config_formal_voting_time: u64,
-    config_total_onboarded: U512,
+    config_total_onboarded: Balance,
     config_double_time_between_votings: bool,
-    config_voting_clearness_delta: U512,
+    config_voting_clearness_delta: Balance,
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 

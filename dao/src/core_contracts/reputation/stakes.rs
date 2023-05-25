@@ -7,7 +7,7 @@ use crate::voting::ballot::ShortenedBallot;
 use crate::voting::types::VotingId;
 use odra::{
     contract_env,
-    types::{event::OdraEvent, Address, OdraType, U512},
+    types::{event::OdraEvent, Address, Balance, OdraType},
     Mapping, UnwrapOrRevert,
 };
 
@@ -21,7 +21,7 @@ use crate::bid_escrow::types::BidId;
 /// A module that stores information about stakes.
 #[odra::module(events = [Stake, Unstake])]
 pub struct StakesStorage {
-    total_stake: Mapping<Address, U512>,
+    total_stake: Mapping<Address, Balance>,
     bids: Mapping<Address, Vec<(Address, BidId)>>,
     votings: Mapping<Address, Vec<(Address, VotingId)>>,
     access_control: AccessControl,
@@ -176,7 +176,7 @@ impl StakesStorage {
     }
 
     /// Returns the total stake of the given account.
-    pub fn get_stake(&self, address: Address) -> U512 {
+    pub fn get_stake(&self, address: Address) -> Balance {
         self.total_stake.get(&address).unwrap_or_default()
     }
 
@@ -196,7 +196,7 @@ impl StakesStorage {
 }
 
 impl StakesStorage {
-    fn assert_balance(&self, address: Address, stake: U512) {
+    fn assert_balance(&self, address: Address, stake: Balance) {
         let user_stake = self.get_stake(address);
         let available_balance = self
             .reputation_storage
@@ -208,18 +208,18 @@ impl StakesStorage {
         }
     }
 
-    fn assert_stake(&self, stake: U512) {
+    fn assert_stake(&self, stake: Balance) {
         if stake.is_zero() {
             contract_env::revert(Error::ZeroStake)
         }
     }
 
-    fn inc_total_stake(&mut self, account: Address, amount: U512) {
+    fn inc_total_stake(&mut self, account: Address, amount: Balance) {
         let new_value = self.get_stake(account) + amount;
         self.total_stake.set(&account, new_value);
     }
 
-    fn dec_total_stake(&mut self, account: Address, amount: U512) {
+    fn dec_total_stake(&mut self, account: Address, amount: Balance) {
         let new_value = self
             .get_stake(account)
             .checked_sub(amount)

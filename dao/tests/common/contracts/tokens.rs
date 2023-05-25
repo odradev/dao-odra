@@ -1,7 +1,7 @@
 use dao::core_contracts::TokenId as DaoTokenId;
 use odra::{
     test_env,
-    types::{Address, U256, U512},
+    types::{Address, Balance, U256},
 };
 
 use crate::common::{
@@ -11,7 +11,7 @@ use crate::common::{
 
 #[odra::external_contract]
 pub trait TotalSupply {
-    fn total_supply(&self) -> U512;
+    fn total_supply(&self) -> Balance;
 }
 
 #[odra::external_contract]
@@ -24,7 +24,7 @@ pub trait NftToken {
 }
 
 impl DaoWorld {
-    pub fn total_supply(&self, contract: Contract) -> U512 {
+    pub fn total_supply(&self, contract: Contract) -> Balance {
         let contract = self.contract_address(contract);
         TotalSupplyRef::at(contract).total_supply()
     }

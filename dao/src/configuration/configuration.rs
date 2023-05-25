@@ -1,6 +1,6 @@
 use crate::configuration::{DaoConfiguration, VotingConfiguration};
 use crate::utils::{per_mil_of, per_mil_of_as_u32, to_per_mils, ContractCall, Error};
-use odra::types::{Address, Balance, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime};
 use odra::{OdraType, UnwrapOrRevert};
 
 /// Represents the current system configuration.
@@ -8,7 +8,7 @@ use odra::{OdraType, UnwrapOrRevert};
 pub struct Configuration {
     dao_configuration: DaoConfiguration,
     voting_configuration: VotingConfiguration,
-    total_onboarded: U512,
+    total_onboarded: Balance,
     fiat_rate: Option<Balance>,
 }
 
@@ -53,7 +53,7 @@ impl Configuration {
     pub fn new(
         dao_configuration: DaoConfiguration,
         voting_configuration: VotingConfiguration,
-        total_onboarded: U512,
+        total_onboarded: Balance,
     ) -> Configuration {
         Configuration {
             dao_configuration,
@@ -179,7 +179,7 @@ impl Configuration {
     ///
     /// See [Variable Repository](crate::variable_repository) DefaultReputationSlash
     /// ([available keys](crate::variable_repository#available-keys)).
-    pub fn default_reputation_slash(&self) -> U512 {
+    pub fn default_reputation_slash(&self) -> Balance {
         self.dao_configuration.default_reputation_slash
     }
 
@@ -187,7 +187,7 @@ impl Configuration {
     ///
     /// See [Variable Repository](crate::variable_repository) VotingClearnessDelta
     /// ([available keys](crate::variable_repository#available-keys)).
-    pub fn voting_clearness_delta(&self) -> U512 {
+    pub fn voting_clearness_delta(&self) -> Balance {
         self.dao_configuration.voting_clearness_delta
     }
 
@@ -249,7 +249,7 @@ impl Configuration {
     }
 
     /// Returns the number of onboarded users (VA's).
-    pub fn total_onboarded(&self) -> U512 {
+    pub fn total_onboarded(&self) -> Balance {
         self.total_onboarded
     }
 
@@ -279,25 +279,25 @@ impl Configuration {
     }
 
     /// Applies the value of `DefaultPolicingRate` variable to a given amount.
-    pub fn apply_default_policing_rate_to(&self, amount: U512) -> U512 {
+    pub fn apply_default_policing_rate_to(&self, amount: Balance) -> Balance {
         per_mil_of(amount, self.dao_configuration.default_policing_rate)
             .unwrap_or_revert_with(Error::ArithmeticOverflow)
     }
 
     /// Applies the value of `BidEscrowPaymentRatio` variable to a given amount.
-    pub fn apply_bid_escrow_payment_ratio_to(&self, amount: U512) -> U512 {
+    pub fn apply_bid_escrow_payment_ratio_to(&self, amount: Balance) -> Balance {
         per_mil_of(amount, self.dao_configuration.bid_escrow_payment_ratio)
             .unwrap_or_revert_with(Error::ArithmeticOverflow)
     }
 
     /// Applies the value of `ReputationConversionRate` variable to a given amount.
-    pub fn apply_reputation_conversion_rate_to(&self, amount: Balance) -> U512 {
+    pub fn apply_reputation_conversion_rate_to(&self, amount: Balance) -> Balance {
         per_mil_of(amount, self.dao_configuration.reputation_conversion_rate)
             .unwrap_or_revert_with(Error::ArithmeticOverflow)
     }
 
     /// Applies the value of `DefaultReputationSlash` variable to a given amount.
-    pub fn apply_default_reputation_slash_to(&self, amount: U512) -> U512 {
+    pub fn apply_default_reputation_slash_to(&self, amount: Balance) -> Balance {
         per_mil_of(amount, self.dao_configuration.default_reputation_slash)
             .unwrap_or_revert_with(Error::ArithmeticOverflow)
     }

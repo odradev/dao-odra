@@ -12,7 +12,7 @@
 //! Each [`Address`] can own only one VA token.
 //!
 //! [`Bid Escrow`]: crate::bid_escrow::BidEscrowContractInterface.
-use odra::types::{Address, U256, U512};
+use odra::types::{Address, Balance, U256};
 
 use crate::core_contracts::dao_nft::{DaoNft, TokenId, TokenUri};
 
@@ -64,7 +64,7 @@ impl VaNftContract {
             /// Returns the number of tokens owned by `owner`.
             pub fn balance_of(&self, owner: Address) -> U256;
             /// Returns the total number of tokens.
-            pub fn total_supply(&self) -> U512;
+            pub fn total_supply(&self) -> Balance;
             /// Returns a distinct Uniform Resource Identifier (URI) for a given asset.
             pub fn token_uri(&self, token_id: TokenId) -> TokenUri;
             /// Returns a URI prefix that is used by all the assets.

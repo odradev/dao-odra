@@ -13,7 +13,7 @@ use crate::voting::voting_engine::voting_state_machine::{
     VotingResult, VotingStateMachine, VotingSummary, VotingType,
 };
 use odra::contract_env::{emit_event, get_block_time, revert};
-use odra::types::{Address, U512};
+use odra::types::{Address, Balance};
 use odra::{List, Mapping, UnwrapOrRevert};
 use std::collections::BTreeMap;
 
@@ -66,7 +66,7 @@ impl VotingEngine {
     pub fn create_voting(
         &mut self,
         creator: Address,
-        stake: U512,
+        stake: Balance,
         configuration: Configuration,
     ) -> (VotingCreatedInfo, VotingStateMachine) {
         RulesBuilder::new()
@@ -299,7 +299,7 @@ impl VotingEngine {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         let mut voting = self.get_voting_or_revert(voting_id);
         self.cast_vote(voter, voting_type, choice, stake, &mut voting);
@@ -311,7 +311,7 @@ impl VotingEngine {
         voter: Address,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
         voting: &mut VotingStateMachine,
     ) {
         let voting_id = voting.voting_id();
@@ -355,7 +355,7 @@ impl VotingEngine {
         voter: Address,
         voting_id: VotingId,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
         unbound: bool,
         voting: &mut VotingStateMachine,
     ) {
@@ -463,7 +463,7 @@ impl VotingEngine {
         &mut self,
         voting_id: VotingId,
         voting_type: VotingType,
-    ) -> BTreeMap<Address, U512> {
+    ) -> BTreeMap<Address, Balance> {
         let mut transfers = BTreeMap::new();
         let mut ballots = Vec::<ShortenedBallot>::new();
         for i in 0..self.voters_count(voting_id, voting_type) {
@@ -501,7 +501,7 @@ impl VotingEngine {
         &self,
         voting_id: VotingId,
         voting_type: VotingType,
-    ) -> BTreeMap<Address, U512> {
+    ) -> BTreeMap<Address, Balance> {
         let mut summary = BTreeMap::new();
         let mut ballots = Vec::<ShortenedBallot>::new();
         for i in 0..self.voters_count(voting_id, voting_type) {
@@ -521,7 +521,7 @@ impl VotingEngine {
         &self,
         voting_id: VotingId,
         voting_type: VotingType,
-    ) -> BTreeMap<Address, U512> {
+    ) -> BTreeMap<Address, Balance> {
         let mut summary = BTreeMap::new();
         let mut ballots = Vec::<ShortenedBallot>::new();
         for i in 0..self.voters_count(voting_id, voting_type) {
@@ -541,12 +541,12 @@ impl VotingEngine {
         &self,
         voting: &VotingStateMachine,
         voting_type: VotingType,
-    ) -> (BTreeMap<Address, U512>, BTreeMap<Address, U512>) {
+    ) -> (BTreeMap<Address, Balance>, BTreeMap<Address, Balance>) {
         let total_stake_in_favor = voting.stake_in_favor();
         let voting_id = voting.voting_id();
         let total_stake_against = voting.stake_against();
-        let mut burns: BTreeMap<Address, U512> = BTreeMap::new();
-        let mut mints: BTreeMap<Address, U512> = BTreeMap::new();
+        let mut burns: BTreeMap<Address, Balance> = BTreeMap::new();
+        let mut mints: BTreeMap<Address, Balance> = BTreeMap::new();
         let mut ballots: Vec<ShortenedBallot> = Vec::new();
 
         for i in 0..self.voters_count(voting_id, voting_type) {
@@ -575,12 +575,12 @@ impl VotingEngine {
         &self,
         voting: &VotingStateMachine,
         voting_type: VotingType,
-    ) -> (BTreeMap<Address, U512>, BTreeMap<Address, U512>) {
+    ) -> (BTreeMap<Address, Balance>, BTreeMap<Address, Balance>) {
         let voting_id = voting.voting_id();
         let total_stake_in_favor = voting.stake_in_favor();
         let total_stake_against = voting.stake_against();
-        let mut burns: BTreeMap<Address, U512> = BTreeMap::new();
-        let mut mints: BTreeMap<Address, U512> = BTreeMap::new();
+        let mut burns: BTreeMap<Address, Balance> = BTreeMap::new();
+        let mut mints: BTreeMap<Address, Balance> = BTreeMap::new();
         let mut ballots: Vec<ShortenedBallot> = Vec::new();
         for i in 0..self.voters_count(voting_id, voting_type) {
             let ballot = self.get_ballot_at(voting_id, voting_type, i);
@@ -707,9 +707,9 @@ impl VotingEngine {
 }
 
 fn add_to_map(
-    target: &mut BTreeMap<(Address, Reason), U512>,
+    target: &mut BTreeMap<(Address, Reason), Balance>,
     reason: Reason,
-    source: BTreeMap<Address, U512>,
+    source: BTreeMap<Address, Balance>,
 ) {
     for (addr, amount) in source {
         target.insert((addr, reason), amount);

@@ -6,7 +6,7 @@ use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
 use crate::configuration::Configuration;
 use crate::utils::types::DocumentHash;
 use crate::voting::types::VotingId;
-use odra::types::{Address, Balance, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime};
 use odra::Event;
 
 /// Informs a new [Job Offer](JobOffer) has been created.
@@ -43,7 +43,7 @@ pub struct BidSubmitted {
     onboard: bool,
     proposed_timeframe: BlockTime,
     proposed_payment: Balance,
-    reputation_stake: Option<U512>,
+    reputation_stake: Option<Balance>,
     cspr_stake: Option<Balance>,
 }
 
@@ -57,7 +57,7 @@ impl BidSubmitted {
         onboard: bool,
         proposed_timeframe: BlockTime,
         proposed_payment: Balance,
-        reputation_stake: Option<U512>,
+        reputation_stake: Option<Balance>,
         cspr_stake: Option<Balance>,
     ) -> Self {
         BidSubmitted {
@@ -148,7 +148,7 @@ pub struct JobCancelled {
     caller: Address,
     job_poster: Address,
     worker: Address,
-    cspr_amount: U512,
+    cspr_amount: Balance,
 }
 
 impl JobCancelled {
@@ -223,9 +223,9 @@ pub struct BidEscrowVotingCreated {
     config_informal_voting_time: u64,
     config_formal_quorum: u32,
     config_formal_voting_time: u64,
-    config_total_onboarded: U512,
+    config_total_onboarded: Balance,
     config_double_time_between_votings: bool,
-    config_voting_clearness_delta: U512,
+    config_voting_clearness_delta: Balance,
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 

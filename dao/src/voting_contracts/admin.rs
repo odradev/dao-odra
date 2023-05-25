@@ -9,7 +9,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{caller, emit_event};
-use odra::types::{Address, BlockTime, CallArgs, U512};
+use odra::types::{Address, Balance, BlockTime, CallArgs};
 use odra::{Composer, Event, Instance, OdraType};
 
 /// Admin contract uses [VotingEngine](VotingEngine) to vote on changes of ownership and managing whitelists of other contracts.
@@ -86,7 +86,7 @@ impl AdminContract {
         contract_to_update: Address,
         action: Action,
         address: Address,
-        stake: U512,
+        stake: Balance,
     ) {
         let mut call_args = CallArgs::new();
         call_args.insert(action.get_arg(), address);
@@ -120,7 +120,7 @@ impl AdminContract {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         self.voting_engine
             .vote(caller(), voting_id, voting_type, choice, stake);
@@ -143,15 +143,15 @@ pub struct AdminVotingCreated {
     action: Action,
     address: Address,
     creator: Address,
-    stake: Option<U512>,
+    stake: Option<Balance>,
     voting_id: VotingId,
     config_informal_quorum: u32,
     config_informal_voting_time: u64,
     config_formal_quorum: u32,
     config_formal_voting_time: u64,
-    config_total_onboarded: U512,
+    config_total_onboarded: Balance,
     config_double_time_between_votings: bool,
-    config_voting_clearness_delta: U512,
+    config_voting_clearness_delta: Balance,
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 

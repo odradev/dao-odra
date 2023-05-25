@@ -186,26 +186,28 @@
 //! [`Reputation`]: crate::reputation::ReputationContractInterface
 //! [`Governance Variable`]: crate::variable_repository#available-keys
 
-use std::borrow::Borrow;
-use odra::contract_env::{caller, revert, self_balance};
-use odra::types::{Address, Balance, BlockTime, U512};
-use odra::{Composer, Instance, UnwrapOrRevert};
 use crate::bid_escrow::bid::Bid;
 use crate::bid_escrow::bid_engine::{BidEngine, BidEngineComposer};
 use crate::bid_escrow::job::Job;
 use crate::bid_escrow::job_engine::{JobEngine, JobEngineComposer};
 use crate::bid_escrow::job_offer::{JobOffer, JobOfferStatus};
 use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
-use crate::modules::AccessControl;
 use crate::modules::kyc_info::KycInfoComposer;
-use crate::modules::onboarding_info::{OnboardingInfo, OnboardingInfoComposer};
-use crate::modules::refs::{ContractRefsStorageComposer, ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer};
-use crate::utils::Error;
+use crate::modules::onboarding_info::OnboardingInfoComposer;
+use crate::modules::refs::{
+    ContractRefsStorageComposer, ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer,
+};
+use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
+use crate::utils::Error;
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingType};
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
+use odra::contract_env::{caller, revert, self_balance};
+use odra::types::{Address, Balance, BlockTime};
+use odra::{Composer, Instance, UnwrapOrRevert};
+use std::borrow::Borrow;
 
 /// A contract that manages the full `Bid Escrow` process.
 /// Uses [`VotingEngine`](crate::voting::VotingEngine) to conduct the voting process.
@@ -314,7 +316,7 @@ impl BidEscrowContract {
                 job_offer_id: JobOfferId,
                 time: BlockTime,
                 payment: Balance,
-                reputation_stake: U512,
+                reputation_stake: Balance,
                 onboard: bool,
                 cspr_stake: Option<Balance>
             );
@@ -384,7 +386,7 @@ impl BidEscrowContract {
                 &mut self,
                 job_id: JobId,
                 proof: DocumentHash,
-                reputation_stake: U512,
+                reputation_stake: Balance,
                 onboard: bool,
             );
 
@@ -398,7 +400,7 @@ impl BidEscrowContract {
             /// # Errors
             /// * [`CannotVoteOnOwnJob`](Error::CannotVoteOnOwnJob) if the voter is either of Job Poster or Worker
             /// * [`VotingNotStarted`](Error::VotingNotStarted) if the voting was not yet started for this job
-            pub fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: U512);
+            pub fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: Balance);
 
             /// Finishes voting. Depending on type of voting, different actions are performed.
             /// [Read more](VotingEngine::finish_voting())

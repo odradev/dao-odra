@@ -6,7 +6,7 @@ use crate::voting::ballot::ShortenedBallot;
 use crate::voting::types::VotingId;
 use odra::{
     contract_env,
-    types::{Address, U512},
+    types::{Address, Balance},
     Instance,
 };
 
@@ -88,7 +88,7 @@ impl ReputationContract {
             ///
             /// # Events
             /// * [`Mint`](events::Mint).
-            pub fn mint(&mut self, recipient: Address, amount: U512);
+            pub fn mint(&mut self, recipient: Address, amount: Balance);
             /// Burns existing tokens. Removes `amount` of existing tokens from the balance of the `owner`
             /// and decrements the total supply. Only whitelisted addresses are permitted to call this
             /// method.
@@ -99,20 +99,20 @@ impl ReputationContract {
             ///
             /// # Events
             /// * [`Burn`](events::Burn) event.
-            pub fn burn(&mut self, owner: Address, amount: U512);
+            pub fn burn(&mut self, owner: Address, amount: Balance);
             /// Returns the total token supply.
-            pub fn total_supply(&self) -> U512;
+            pub fn total_supply(&self) -> Balance;
             /// Returns the current token balance of the given address.
-            pub fn balance_of(&self, address: Address) -> U512;
+            pub fn balance_of(&self, address: Address) -> Balance;
             /// Redistributes the reputation based on the voting summary
-            pub fn bulk_mint_burn(&mut self, mints: BTreeMap<Address, U512>, burns: BTreeMap<Address, U512>);
+            pub fn bulk_mint_burn(&mut self, mints: BTreeMap<Address, Balance>, burns: BTreeMap<Address, Balance>);
             /// Burns all the tokens of the `owner`.
             pub fn burn_all(&mut self, owner: Address);
         }
 
         to self.stakes_storage {
             /// Returns the total stake of the given account.
-            pub fn get_stake(&self, address: Address) -> U512;
+            pub fn get_stake(&self, address: Address) -> Balance;
             /// Stakes the reputation used as voting power.
             pub fn stake_voting(&mut self, voting_id: VotingId, ballot: ShortenedBallot);
             /// Stakes the reputation used as bid value.
@@ -159,7 +159,7 @@ impl ReputationContract {
     /// # Errors
     /// * [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if caller
     /// is not whitelisted.
-    pub fn mint_passive(&mut self, recipient: Address, amount: U512) {
+    pub fn mint_passive(&mut self, recipient: Address, amount: Balance) {
         self.passive_reputation_storage.mint(recipient, amount);
     }
 
@@ -170,12 +170,12 @@ impl ReputationContract {
     /// is not whitelisted.
     /// * [`InsufficientBalance`](utils::errors::Error::InsufficientBalance) if the passed
     /// amount exceeds the balance of the passive reputation of the given address.
-    pub fn burn_passive(&mut self, owner: Address, amount: U512) {
+    pub fn burn_passive(&mut self, owner: Address, amount: Balance) {
         self.passive_reputation_storage.burn(owner, amount);
     }
 
     /// Returns the current passive balance of the given address.
-    pub fn passive_balance_of(&self, address: Address) -> U512 {
+    pub fn passive_balance_of(&self, address: Address) -> Balance {
         self.passive_reputation_storage.balance_of(address)
     }
 }
@@ -183,7 +183,7 @@ impl ReputationContract {
 pub mod events {
     use crate::bid_escrow::types::BidId;
     use odra::{
-        types::{Address, U512},
+        types::{Address, Balance},
         Event,
     };
 
@@ -191,21 +191,21 @@ pub mod events {
     #[derive(Debug, PartialEq, Eq, Event)]
     pub struct Burn {
         pub address: Address,
-        pub amount: U512,
+        pub amount: Balance,
     }
 
     /// Informs tokens have been minted.
     #[derive(Debug, PartialEq, Eq, Event)]
     pub struct Mint {
         pub address: Address,
-        pub amount: U512,
+        pub amount: Balance,
     }
 
     /// Informs tokens have been staked.
     #[derive(Debug, PartialEq, Eq, Event)]
     pub struct Stake {
         pub worker: Address,
-        pub amount: U512,
+        pub amount: Balance,
         pub bid_id: BidId,
     }
 
@@ -213,7 +213,7 @@ pub mod events {
     #[derive(Debug, PartialEq, Eq, Event)]
     pub struct Unstake {
         pub worker: Address,
-        pub amount: U512,
+        pub amount: Balance,
         pub bid_id: BidId,
     }
 }

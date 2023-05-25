@@ -1,6 +1,6 @@
 use odra::{
     contract_env::caller,
-    types::{event::OdraEvent, Address, BlockTime, U512},
+    types::{event::OdraEvent, Address, Balance, BlockTime},
     Composer, Event, Instance, Mapping, UnwrapOrRevert,
 };
 
@@ -92,7 +92,7 @@ impl SimpleVoterContract {
         self.access_control.init(caller())
     }
 
-    pub fn create_voting(&mut self, document_hash: DocumentHash, stake: U512) {
+    pub fn create_voting(&mut self, document_hash: DocumentHash, stake: Balance) {
         let voting_configuration = ConfigurationBuilder::new(
             self.refs.va_token().total_supply(),
             &self.refs.variable_repository().all_variables(),
@@ -137,7 +137,7 @@ impl SimpleVoterContract {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         self.voting_engine
             .vote(caller(), voting_id, voting_type, choice, stake);
@@ -154,15 +154,15 @@ impl SimpleVoterContract {
 pub struct SimpleVotingCreated {
     document_hash: DocumentHash,
     creator: Address,
-    stake: Option<U512>,
+    stake: Option<Balance>,
     voting_id: VotingId,
     config_informal_quorum: u32,
     config_informal_voting_time: u64,
     config_formal_quorum: u32,
     config_formal_voting_time: u64,
-    config_total_onboarded: U512,
+    config_total_onboarded: Balance,
     config_double_time_between_votings: bool,
-    config_voting_clearness_delta: U512,
+    config_voting_clearness_delta: Balance,
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 

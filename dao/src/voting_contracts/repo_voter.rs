@@ -1,6 +1,6 @@
 use odra::{
     contract_env::caller,
-    types::{event::OdraEvent, Address, BlockTime, Bytes, CallArgs, U512},
+    types::{event::OdraEvent, Address, Balance, BlockTime, Bytes, CallArgs},
     Composer, Event, Instance,
 };
 
@@ -97,7 +97,7 @@ impl RepoVoterContract {
         key: String,
         value: Bytes,
         activation_time: Option<u64>,
-        stake: U512,
+        stake: Balance,
     ) {
         let voting_configuration = ConfigurationBuilder::new(
             self.refs.va_token().total_supply(),
@@ -129,7 +129,7 @@ impl RepoVoterContract {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         self.voting_engine
             .vote(caller(), voting_id, voting_type, choice, stake);
@@ -149,15 +149,15 @@ pub struct RepoVotingCreated {
     value: Bytes,
     activation_time: Option<u64>,
     creator: Address,
-    stake: Option<U512>,
+    stake: Option<Balance>,
     voting_id: VotingId,
     config_informal_quorum: u32,
     config_informal_voting_time: u64,
     config_formal_quorum: u32,
     config_formal_voting_time: u64,
-    config_total_onboarded: U512,
+    config_total_onboarded: Balance,
     config_double_time_between_votings: bool,
-    config_voting_clearness_delta: U512,
+    config_voting_clearness_delta: Balance,
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 

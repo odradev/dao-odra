@@ -8,7 +8,7 @@ use dao::{
 };
 use odra::{
     test_env,
-    types::{Address, Bytes, U512},
+    types::{Address, Balance, Bytes},
 };
 
 use crate::common::{
@@ -28,7 +28,7 @@ pub trait Voter {
         voting_id: VotingId,
         voting_type: DaoVotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     );
     fn finish_voting(&mut self, voting_id: VotingId, voting_type: DaoVotingType);
     fn slash_voter(&mut self, voter: Address, voting_id: VotingId);
@@ -108,7 +108,7 @@ impl DaoWorld {
             Contract::ReputationVoter => self.reputation_voter.create_voting(
                 alice,
                 dao::voting_contracts::ReputationAction::Mint,
-                U512::from(10),
+                Balance::from(10),
                 document_hash,
                 *stake,
             ),

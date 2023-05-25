@@ -8,7 +8,7 @@ use crate::rules::validation::bid_escrow::{
 };
 use crate::rules::validation::IsUserKyced;
 use crate::rules::RulesBuilder;
-use odra::types::{Address, Balance, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime};
 use odra::OdraType;
 
 /// Bid status representation
@@ -39,7 +39,7 @@ pub struct SubmitBidRequest {
     /// Proposed payment for completing the Job.
     pub proposed_payment: Balance,
     /// Bid reputation stake.
-    pub reputation_stake: U512,
+    pub reputation_stake: Balance,
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
     pub cspr_stake: Option<Balance>,
     /// Should be onborded when the Job is done.
@@ -81,7 +81,7 @@ pub struct ReclaimBidRequest {
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
     pub cspr_stake: Option<Balance>,
     /// Bid reputation stake.
-    pub reputation_stake: U512,
+    pub reputation_stake: Balance,
     /// New [Worker](crate::bid_escrow#definitions) address.
     pub new_worker: Address,
     /// If the `Worker` is a [VA](crate::bid_escrow#definitions).
@@ -116,7 +116,7 @@ pub struct Bid {
     /// Proposed payment for the Job.
     pub proposed_payment: Balance,
     /// Bid reputation stake.
-    pub reputation_stake: U512,
+    pub reputation_stake: Balance,
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
     pub cspr_stake: Option<Balance>,
     /// Should be onborded when the Job is done.
@@ -283,13 +283,13 @@ impl Bid {
 #[derive(OdraType)]
 pub struct ShortenedBid {
     pub bid_id: BidId,
-    pub reputation_stake: U512,
+    pub reputation_stake: Balance,
     pub worker: Address,
 }
 
 impl ShortenedBid {
     /// Creates a new instance of ShortenedBid.
-    pub fn new(bid_id: BidId, reputation_stake: U512, worker: Address) -> Self {
+    pub fn new(bid_id: BidId, reputation_stake: Balance, worker: Address) -> Self {
         Self {
             bid_id,
             reputation_stake,

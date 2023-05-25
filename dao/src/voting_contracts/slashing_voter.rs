@@ -1,6 +1,6 @@
 use odra::{
     contract_env::{caller, revert},
-    types::{event::OdraEvent, Address, BlockTime, U512},
+    types::{event::OdraEvent, Address, Balance, BlockTime},
     Composer, Event, Instance, Mapping, OdraType, UnwrapOrRevert, Variable,
 };
 
@@ -100,7 +100,7 @@ impl SlashingVoterContract {
         self.bid_escrows.set(bid_escrows);
     }
 
-    pub fn create_voting(&mut self, address_to_slash: Address, slash_ratio: u32, stake: U512) {
+    pub fn create_voting(&mut self, address_to_slash: Address, slash_ratio: u32, stake: Balance) {
         // TODO: constraints
         let current_reputation = self.refs.reputation_token().balance_of(address_to_slash);
 
@@ -130,7 +130,7 @@ impl SlashingVoterContract {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         // Check if the caller is not a subject for the voting.
         let task = self.tasks.get(&voting_id).unwrap_or_revert();
@@ -165,8 +165,8 @@ impl SlashingVoterContract {
         // If partial slash only burn reputation.
         if slash_task.ratio != 1000 {
             let slash_amount = (slash_task.reputation_at_voting_creation
-                * U512::from(slash_task.ratio))
-                / U512::from(1000);
+                * Balance::from(slash_task.ratio))
+                / Balance::from(1000);
             reputation.burn(slash_task.subject, slash_amount);
             return;
         }
@@ -206,7 +206,7 @@ trait Slashable {
 pub struct SlashTask {
     pub subject: Address,
     pub ratio: u32,
-    pub reputation_at_voting_creation: U512,
+    pub reputation_at_voting_creation: Balance,
 }
 
 /// Informs slashing voting has been created.
@@ -215,15 +215,15 @@ pub struct SlashingVotingCreated {
     address_to_slash: Address,
     slash_ratio: u32,
     creator: Address,
-    stake: Option<U512>,
+    stake: Option<Balance>,
     voting_id: VotingId,
     config_informal_quorum: u32,
     config_informal_voting_time: u64,
     config_formal_quorum: u32,
     config_formal_voting_time: u64,
-    config_total_onboarded: U512,
+    config_total_onboarded: Balance,
     config_double_time_between_votings: bool,
-    config_voting_clearness_delta: U512,
+    config_voting_clearness_delta: Balance,
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 

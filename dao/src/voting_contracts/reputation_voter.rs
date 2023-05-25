@@ -24,7 +24,7 @@ use crate::voting::voting_engine::voting_state_machine::VotingType;
 use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingSummary};
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{caller, emit_event};
-use odra::types::{Address, BlockTime, CallArgs, U512};
+use odra::types::{Address, Balance, BlockTime, CallArgs};
 use odra::{Composer, Event, Instance, OdraType};
 
 /// ReputationVoterContract
@@ -103,9 +103,9 @@ impl ReputationVoterContract {
         &mut self,
         account: Address,
         action: Action,
-        amount: U512,
+        amount: Balance,
         document_hash: DocumentHash,
-        stake: U512,
+        stake: Balance,
     ) {
         let voting_configuration = ConfigurationBuilder::new(
             self.refs.va_token().total_supply(),
@@ -137,7 +137,7 @@ impl ReputationVoterContract {
         voting_id: VotingId,
         voting_type: VotingType,
         choice: Choice,
-        stake: U512,
+        stake: Balance,
     ) {
         self.voting_engine
             .vote(caller(), voting_id, voting_type, choice, stake);
@@ -154,18 +154,18 @@ impl ReputationVoterContract {
 pub struct ReputationVotingCreated {
     account: Address,
     action: Action,
-    amount: U512,
+    amount: Balance,
     document_hash: DocumentHash,
     creator: Address,
-    stake: Option<U512>,
+    stake: Option<Balance>,
     voting_id: VotingId,
     config_informal_quorum: u32,
     config_informal_voting_time: u64,
     config_formal_quorum: u32,
     config_formal_voting_time: u64,
-    config_total_onboarded: U512,
+    config_total_onboarded: Balance,
     config_double_time_between_votings: bool,
-    config_voting_clearness_delta: U512,
+    config_voting_clearness_delta: Balance,
     config_time_between_informal_and_formal_voting: BlockTime,
 }
 
@@ -173,7 +173,7 @@ impl ReputationVotingCreated {
     pub fn new(
         account: Address,
         action: Action,
-        amount: U512,
+        amount: Balance,
         document_hash: DocumentHash,
         info: VotingCreatedInfo,
     ) -> Self {
@@ -213,7 +213,7 @@ impl Action {
         }
     }
 
-    pub fn call_args(&self, account: Address, amount: U512) -> CallArgs {
+    pub fn call_args(&self, account: Address, amount: Balance) -> CallArgs {
         match self {
             Action::Burn => {
                 let mut call_args = CallArgs::new();

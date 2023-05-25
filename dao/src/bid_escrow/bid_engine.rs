@@ -12,7 +12,7 @@ use crate::modules::onboarding_info::OnboardingInfo;
 use crate::modules::refs::ContractRefsWithKycStorage;
 use crate::utils::withdraw;
 use odra::contract_env::{caller, get_block_time};
-use odra::types::{event::OdraEvent, Address, Balance, BlockTime, U512};
+use odra::types::{event::OdraEvent, Address, Balance, BlockTime};
 use std::borrow::Borrow;
 use std::rc::Rc;
 
@@ -108,7 +108,7 @@ impl BidEngine {
         job_offer_id: JobOfferId,
         time: BlockTime,
         payment: Balance,
-        reputation_stake: U512,
+        reputation_stake: Balance,
         onboard: bool,
         cspr_stake: Option<Balance>,
     ) {
@@ -144,7 +144,7 @@ impl BidEngine {
         self.bid_storage.store_bid(bid);
         self.bid_storage.store_bid_id(job_offer_id, bid_id);
 
-        let reputation_stake = if reputation_stake == U512::zero() {
+        let reputation_stake = if reputation_stake == Balance::zero() {
             None
         } else {
             Some(reputation_stake)
@@ -250,7 +250,7 @@ impl BidEngine {
 impl BidEngine {
     fn stake_cspr_or_reputation_for_bid(
         &mut self,
-        reputation_stake: U512,
+        reputation_stake: Balance,
         cspr_stake: Option<Balance>,
         worker: Address,
         bid_id: BidId,

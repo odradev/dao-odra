@@ -7,7 +7,7 @@ use crate::modules::AccessControl;
 use crate::utils::Error;
 use odra::{
     contract_env,
-    types::{event::OdraEvent, Address, U512},
+    types::{event::OdraEvent, Address, Balance},
     Iter, List, Mapping, UnwrapOrRevert, Variable,
 };
 
@@ -23,7 +23,7 @@ use super::token::events::{Burn, Mint};
 /// Having both types of balances allows for keeping track of the total value of the system.
 #[odra::module(events = [Mint, Burn])]
 pub struct BalanceStorage {
-    balances: Mapping<Address, U512>,
+    balances: Mapping<Address, Balance>,
     holders: List<Address>,
     total_supply: TotalSupply,
     access_control: AccessControl,
@@ -41,7 +41,7 @@ impl BalanceStorage {
     /// # Errors
     ///
     /// [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if called by a not whitelisted account.
-    pub fn mint(&mut self, recipient: Address, amount: U512) {
+    pub fn mint(&mut self, recipient: Address, amount: Balance) {
         self.access_control.ensure_whitelisted();
         self.inc_balance(&recipient, amount);
         self.total_supply += amount;
@@ -66,7 +66,7 @@ impl BalanceStorage {
     /// # Errors
     ///
     /// [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if called by a not whitelisted account.
-    pub fn burn(&mut self, owner: Address, amount: U512) {
+    pub fn burn(&mut self, owner: Address, amount: Balance) {
         self.access_control.ensure_whitelisted();
         self.dec_balance(&owner, amount);
         self.total_supply -= amount;
@@ -91,8 +91,8 @@ impl BalanceStorage {
     /// [`NotWhitelisted`](utils::errors::Error::NotWhitelisted) if called by a not whitelisted account.
     pub fn bulk_mint_burn(
         &mut self,
-        mints: BTreeMap<Address, U512>,
-        burns: BTreeMap<Address, U512>,
+        mints: BTreeMap<Address, Balance>,
+        burns: BTreeMap<Address, Balance>,
     ) {
         self.access_control.ensure_whitelisted();
 
@@ -132,22 +132,22 @@ impl BalanceStorage {
     }
 
     /// Returns the current balance of the given account address.
-    pub fn balance_of(&self, address: Address) -> U512 {
+    pub fn balance_of(&self, address: Address) -> Balance {
         self.balances.get(&address).unwrap_or_default()
     }
 
     /// Returns the total token supply.
-    pub fn total_supply(&self) -> U512 {
+    pub fn total_supply(&self) -> Balance {
         self.total_supply.value()
     }
 }
 
 impl BalanceStorage {
-    fn set_balance(&mut self, owner: &Address, new_balance: U512) {
+    fn set_balance(&mut self, owner: &Address, new_balance: Balance) {
         self.balances.set(owner, new_balance);
     }
 
-    fn inc_balance(&mut self, owner: &Address, amount: U512) {
+    fn inc_balance(&mut self, owner: &Address, amount: Balance) {
         let balance = self.balances.get(owner).unwrap_or_default();
         let new_balance = balance
             .checked_add(amount)
@@ -156,7 +156,7 @@ impl BalanceStorage {
         self.set_balance(owner, new_balance);
     }
 
-    fn dec_balance(&mut self, owner: &Address, amount: U512) {
+    fn dec_balance(&mut self, owner: &Address, amount: Balance) {
         let balance = self.balances.get(owner).unwrap_or_default();
         let new_balance = balance
             .checked_sub(amount)
@@ -169,21 +169,21 @@ impl BalanceStorage {
 /// Wraps `total_supply` and some operations for convenience.
 #[odra::module]
 pub struct TotalSupply {
-    total_supply: Variable<U512>,
+    total_supply: Variable<Balance>,
 }
 
 impl TotalSupply {
-    pub fn value(&self) -> U512 {
+    pub fn value(&self) -> Balance {
         self.total_supply.get().unwrap_or_default()
     }
 
-    pub fn set(&mut self, total_supply: U512) {
+    pub fn set(&mut self, total_supply: Balance) {
         self.total_supply.set(total_supply);
     }
 }
 
-impl AddAssign<U512> for TotalSupply {
-    fn add_assign(&mut self, rhs: U512) {
+impl AddAssign<Balance> for TotalSupply {
+    fn add_assign(&mut self, rhs: Balance) {
         let (new_value, is_overflowed) = self.value().overflowing_add(rhs);
         if is_overflowed {
             contract_env::revert(Error::TotalSupplyOverflow)
@@ -192,8 +192,8 @@ impl AddAssign<U512> for TotalSupply {
     }
 }
 
-impl SubAssign<U512> for TotalSupply {
-    fn sub_assign(&mut self, rhs: U512) {
+impl SubAssign<Balance> for TotalSupply {
+    fn sub_assign(&mut self, rhs: Balance) {
         let (new_value, is_overflowed) = self.value().overflowing_sub(rhs);
         if is_overflowed {
             contract_env::revert(Error::TotalSupplyOverflow)

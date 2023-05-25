@@ -7,7 +7,7 @@ use crate::utils::types::DocumentHash;
 use crate::utils::Error;
 use crate::voting::types::VotingId;
 use odra::contract_env::revert;
-use odra::types::{Address, Balance, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime};
 use odra::OdraType;
 
 /// Serializable Job status.
@@ -54,7 +54,7 @@ pub struct PickBidRequest {
     /// The amount transferred by `Job Poster`.
     pub transferred_cspr: Balance,
     /// Bid reputation stake.
-    pub stake: U512,
+    pub stake: Balance,
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
     pub external_worker_cspr_stake: Balance,
 }
@@ -70,7 +70,7 @@ pub struct ReclaimJobRequest {
     /// [Worker](crate::bid_escrow#definitions) address.
     pub worker: Address,
     /// Bid reputation stake.
-    pub reputation_stake: U512,
+    pub reputation_stake: Balance,
     /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
     pub cspr_stake: Option<Balance>,
     /// Should be onborded when the Job is done.
@@ -100,7 +100,7 @@ pub struct Job {
     worker_type: WorkerType,
     poster: Address,
     payment: Balance,
-    stake: U512,
+    stake: Balance,
     external_worker_cspr_stake: Balance,
     followed_by: Option<JobId>,
 }
@@ -291,7 +291,7 @@ impl Job {
     }
 
     /// Gets the job's stake.
-    pub fn get_stake(&self) -> U512 {
+    pub fn get_stake(&self) -> Balance {
         self.stake
     }
 

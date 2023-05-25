@@ -3,7 +3,7 @@ use std::{collections::BTreeMap, slice::Iter};
 use crate::bid_escrow::types::BidId;
 use crate::voting::types::VotingId;
 use odra::{
-    types::{Address, U512},
+    types::{Address, Balance},
     OdraType,
 };
 
@@ -20,7 +20,7 @@ pub struct BalanceAggregates {
 impl BalanceAggregates {
     /// Gets balances of all the token holders.
     pub fn all_balances(&self) -> AggregatedBalance {
-        let mut balances = BTreeMap::<Address, U512>::new();
+        let mut balances = BTreeMap::<Address, Balance>::new();
         self.reputation_storage.holders().for_each(|address| {
             balances.insert(address, self.reputation_storage.balance_of(address));
         });
@@ -30,8 +30,8 @@ impl BalanceAggregates {
 
     /// Gets balances of the given account addresses.
     pub fn partial_balances(&self, addresses: Vec<Address>) -> AggregatedBalance {
-        let mut balances = BTreeMap::<Address, U512>::new();
-        let mut partial_supply = U512::zero();
+        let mut balances = BTreeMap::<Address, Balance>::new();
+        let mut partial_supply = Balance::zero();
         for address in addresses {
             let balance = self.reputation_storage.balance_of(address);
             balances.insert(address, balance);
@@ -54,23 +54,23 @@ impl BalanceAggregates {
 /// Stores information about balances and the total supply.
 #[derive(OdraType)]
 pub struct AggregatedBalance {
-    balances: BTreeMap<Address, U512>,
-    total_supply: U512,
+    balances: BTreeMap<Address, Balance>,
+    total_supply: Balance,
 }
 
 impl AggregatedBalance {
-    pub fn new(balances: BTreeMap<Address, U512>, total_supply: U512) -> Self {
+    pub fn new(balances: BTreeMap<Address, Balance>, total_supply: Balance) -> Self {
         Self {
             balances,
             total_supply,
         }
     }
 
-    pub fn balances(&self) -> &BTreeMap<Address, U512> {
+    pub fn balances(&self) -> &BTreeMap<Address, Balance> {
         &self.balances
     }
 
-    pub fn total_supply(&self) -> U512 {
+    pub fn total_supply(&self) -> Balance {
         self.total_supply
     }
 }

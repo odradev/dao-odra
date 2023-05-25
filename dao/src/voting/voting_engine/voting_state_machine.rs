@@ -4,7 +4,7 @@ use crate::rules::RulesBuilder;
 use crate::utils::ContractCall;
 use crate::voting::ballot::Choice;
 use crate::voting::types::VotingId;
-use odra::types::{Address, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime};
 use odra::OdraType;
 
 /// Serializable voting state with a state machine capabilities.
@@ -116,7 +116,7 @@ impl VotingStateMachine {
     }
 
     /// Depending on the result of the voting, returns the amount of reputation staked on the winning side.
-    pub fn get_winning_stake(&self) -> U512 {
+    pub fn get_winning_stake(&self) -> Balance {
         match (self.voting_type(), self.is_in_favor()) {
             (VotingType::Informal, true) => self.informal_stats.stake_in_favor,
             (VotingType::Informal, false) => self.informal_stats.stake_against,
@@ -137,8 +137,8 @@ impl VotingStateMachine {
     }
 
     /// Adds the `stake` to the total bound stake.
-    pub fn add_stake(&mut self, stake: U512, choice: Choice) {
-        // overflow is not possible due to reputation token having U512 as max
+    pub fn add_stake(&mut self, stake: Balance, choice: Choice) {
+        // overflow is not possible due to reputation token having Balance as max
         match (self.voting_type(), choice) {
             (VotingType::Informal, Choice::InFavor) => self.informal_stats.stake_in_favor += stake,
             (VotingType::Informal, Choice::Against) => self.informal_stats.stake_against += stake,
@@ -148,8 +148,8 @@ impl VotingStateMachine {
     }
 
     /// Adds the `stake` to the total unbound stake.
-    pub fn add_unbound_stake(&mut self, stake: U512, choice: Choice) {
-        // overflow is not possible due to reputation token having U512 as max
+    pub fn add_unbound_stake(&mut self, stake: Balance, choice: Choice) {
+        // overflow is not possible due to reputation token having Balance as max
         match (self.voting_type(), choice) {
             (VotingType::Informal, Choice::InFavor) => {
                 self.informal_stats.unbound_stake_in_favor += stake
@@ -167,8 +167,8 @@ impl VotingStateMachine {
     }
 
     /// Removes the `stake` from the total bound stake.
-    pub fn remove_stake(&mut self, stake: U512, choice: Choice) {
-        // overflow is not possible due to reputation token having U512 as max
+    pub fn remove_stake(&mut self, stake: Balance, choice: Choice) {
+        // overflow is not possible due to reputation token having Balance as max
         match (self.voting_type(), choice) {
             (VotingType::Informal, Choice::InFavor) => self.informal_stats.stake_in_favor -= stake,
             (VotingType::Informal, Choice::Against) => self.informal_stats.stake_against -= stake,
@@ -178,8 +178,8 @@ impl VotingStateMachine {
     }
 
     /// Removes the `stake` from the total unbound stake.
-    pub fn remove_unbound_stake(&mut self, stake: U512, choice: Choice) {
-        // overflow is not possible due to reputation token having U512 as max
+    pub fn remove_unbound_stake(&mut self, stake: Balance, choice: Choice) {
+        // overflow is not possible due to reputation token having Balance as max
         match (self.voting_type(), choice) {
             (VotingType::Informal, Choice::InFavor) => {
                 self.informal_stats.unbound_stake_in_favor -= stake
@@ -197,20 +197,20 @@ impl VotingStateMachine {
     }
 
     /// Removes the unbound stake and adds it to the bound stake.
-    pub fn bind_stake(&mut self, stake: U512, choice: Choice) {
+    pub fn bind_stake(&mut self, stake: Balance, choice: Choice) {
         self.remove_unbound_stake(stake, choice);
         self.add_stake(stake, choice);
     }
 
     /// Gets the sum of bound and unbound stake.
-    pub fn total_stake(&self) -> U512 {
-        // overflow is not possible due to reputation token having U512 as max
+    pub fn total_stake(&self) -> Balance {
+        // overflow is not possible due to reputation token having Balance as max
         self.total_bound_stake() + self.total_unbound_stake()
     }
 
     /// Gets the total bound stake.
-    pub fn total_bound_stake(&self) -> U512 {
-        // overflow is not possible due to reputation token having U512 as max
+    pub fn total_bound_stake(&self) -> Balance {
+        // overflow is not possible due to reputation token having Balance as max
         match self.voting_type() {
             VotingType::Informal => {
                 self.informal_stats.stake_in_favor + self.informal_stats.stake_against
@@ -222,8 +222,8 @@ impl VotingStateMachine {
     }
 
     /// Gets the total unbound stake.
-    pub fn total_unbound_stake(&self) -> U512 {
-        // overflow is not possible due to reputation token having U512 as max
+    pub fn total_unbound_stake(&self) -> Balance {
+        // overflow is not possible due to reputation token having Balance as max
         match self.voting_type() {
             VotingType::Informal => {
                 self.informal_stats.unbound_stake_in_favor
@@ -241,7 +241,7 @@ impl VotingStateMachine {
     }
 
     /// Get the voting's stake in favor.
-    pub fn stake_in_favor(&self) -> U512 {
+    pub fn stake_in_favor(&self) -> Balance {
         match self.voting_type() {
             VotingType::Informal => self.informal_stats.stake_in_favor,
             VotingType::Formal => self.formal_stats.stake_in_favor,
@@ -249,7 +249,7 @@ impl VotingStateMachine {
     }
 
     /// Get the voting's stake against.
-    pub fn stake_against(&self) -> U512 {
+    pub fn stake_against(&self) -> Balance {
         match self.voting_type() {
             VotingType::Informal => self.informal_stats.stake_against,
             VotingType::Formal => self.formal_stats.stake_against,
@@ -323,7 +323,7 @@ impl VotingStateMachine {
         let stake_in_favor = self.stake_in_favor() + self.unbound_stake_in_favor();
         let stake_against = self.stake_against() + self.unbound_stake_against();
         let stake_diff = stake_in_favor.abs_diff(stake_against);
-        let stake_diff_percent = stake_diff.saturating_mul(U512::from(100)) / self.total_stake();
+        let stake_diff_percent = stake_diff.saturating_mul(Balance::from(100)) / self.total_stake();
         stake_diff_percent <= self.configuration.voting_clearness_delta()
     }
 
@@ -334,14 +334,14 @@ impl VotingStateMachine {
         }
     }
 
-    fn unbound_stake_in_favor(&self) -> U512 {
+    fn unbound_stake_in_favor(&self) -> Balance {
         match self.voting_type() {
             VotingType::Informal => self.informal_stats.unbound_stake_in_favor,
             VotingType::Formal => self.formal_stats.unbound_stake_in_favor,
         }
     }
 
-    fn unbound_stake_against(&self) -> U512 {
+    fn unbound_stake_against(&self) -> Balance {
         match self.voting_type() {
             VotingType::Informal => self.informal_stats.unbound_stake_against,
             VotingType::Formal => self.formal_stats.unbound_stake_against,
@@ -374,13 +374,13 @@ impl VotingStateMachine {
 #[derive(OdraType, Default)]
 pub struct Stats {
     /// The total `in favor` stake.
-    pub stake_in_favor: U512,
+    pub stake_in_favor: Balance,
     /// The total `against` stake.
-    pub stake_against: U512,
+    pub stake_against: Balance,
     /// The total unbounded `in favor` stake.
-    pub unbound_stake_in_favor: U512,
+    pub unbound_stake_in_favor: Balance,
     /// The total unbounded `against` stake.
-    pub unbound_stake_against: U512,
+    pub unbound_stake_against: Balance,
     /// The number of VA's voted `in favor`.
     pub votes_in_favor: u32,
     /// The number of VA's voted `against`.

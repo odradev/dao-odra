@@ -6,7 +6,7 @@ use crate::utils::ContractCall;
 use crate::utils::Error;
 use odra::call_contract;
 use odra::contract_env::revert;
-use odra::types::{Address, Balance, Bytes, CallArgs, OdraType, U512};
+use odra::types::{Address, Balance, Bytes, CallArgs, OdraType};
 use std::collections::BTreeMap;
 
 /// Utility to crate a [Configuration] instance.
@@ -16,7 +16,7 @@ pub struct ConfigurationBuilder {
 
 impl ConfigurationBuilder {
     /// Creates a new instance of ConfigurationBuilder.
-    pub fn new(total_onboarded: U512, variables: &BTreeMap<String, Bytes>) -> Self {
+    pub fn new(total_onboarded: Balance, variables: &BTreeMap<String, Bytes>) -> Self {
         use consts::*;
         ConfigurationBuilder {
             configuration: Configuration::new(

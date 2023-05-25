@@ -1,196 +1,62 @@
 use cucumber::Parameter;
 use odra::types::Balance as OdraBalance;
-use odra::types::{U256, U512};
-use std::{
-    ops::{Add, Deref},
-    str::FromStr,
-};
+use std::{ops::Deref, str::FromStr};
 
-#[derive(
-    Copy, Clone, Debug, Default, derive_more::Deref, PartialEq, Eq, PartialOrd, Ord, Parameter,
-)]
-#[param(name = "balance", regex = r"\d+")]
-pub struct Balance(pub OdraBalance);
+// Macro that is used to implement CsprBalance and ReputationBalance.
+macro_rules! impl_balance {
+    ($type:ident, $name:expr) => {
+        #[derive(
+            Copy,
+            Clone,
+            Debug,
+            Default,
+            derive_more::Deref,
+            PartialEq,
+            Eq,
+            PartialOrd,
+            Ord,
+            Parameter,
+        )]
+        #[param(name = $name, regex = r"\d+")]
+        pub struct $type(pub OdraBalance);
 
-impl FromStr for Balance {
-    type Err = String;
+        impl FromStr for $type {
+            type Err = String;
 
-    fn from_str(s: &str) -> core::result::Result<Self, Self::Err> {
-        let value = OdraBalance::from((s.parse::<f32>().unwrap() * 1_000f32) as u32)
-            * OdraBalance::from(1_000_000);
-        Ok(Balance(value))
-    }
+            fn from_str(s: &str) -> core::result::Result<Self, Self::Err> {
+                let value = OdraBalance::from((s.parse::<f32>().unwrap() * 1_000f32) as u32)
+                    * OdraBalance::from(1_000_000);
+                Ok(Self(value))
+            }
+        }
+
+        impl From<u32> for $type {
+            fn from(value: u32) -> Self {
+                Self(OdraBalance::from(value))
+            }
+        }
+
+        impl From<OdraBalance> for $type {
+            fn from(value: OdraBalance) -> Self {
+                Self(value)
+            }
+        }
+
+        #[allow(dead_code)]
+        impl $type {
+            pub fn zero() -> Self {
+                Self(OdraBalance::zero())
+            }
+
+            pub fn one() -> Self {
+                Self(OdraBalance::from(1_000_000_000))
+            }
+        }
+    };
 }
 
-impl From<U512> for Balance {
-    fn from(value: U512) -> Self {
-        Balance(OdraBalance::from(value.as_u128()))
-    }
-}
-
-impl From<U256> for Balance {
-    fn from(value: U256) -> Self {
-        Balance(OdraBalance::from(value.as_u128()))
-    }
-}
-
-impl Add<Balance> for Balance {
-    type Output = Balance;
-
-    fn add(self, rhs: Balance) -> Self::Output {
-        let result = self.0 + rhs.0;
-        Balance(result)
-    }
-}
-
-impl Add<Balance> for &Balance {
-    type Output = Balance;
-
-    fn add(self, rhs: Balance) -> Self::Output {
-        let result = self.0 + rhs.0;
-        Balance(result)
-    }
-}
-
-impl Add<U512> for Balance {
-    type Output = Balance;
-
-    fn add(self, rhs: U512) -> Self::Output {
-        let result = self.0 + OdraBalance::from(rhs.as_u128());
-        Balance(result)
-    }
-}
-
-impl Add<U512> for &Balance {
-    type Output = Balance;
-
-    fn add(self, rhs: U512) -> Self::Output {
-        let result = self.0 + OdraBalance::from(rhs.as_u128());
-        Balance(result)
-    }
-}
-
-impl Add<U256> for Balance {
-    type Output = Balance;
-
-    fn add(self, rhs: U256) -> Self::Output {
-        let result = self.0 + OdraBalance::from(rhs.as_u128());
-        Balance(result)
-    }
-}
-
-impl Add<U256> for &Balance {
-    type Output = Balance;
-
-    fn add(self, rhs: U256) -> Self::Output {
-        let result = self.0 + OdraBalance::from(rhs.as_u128());
-        Balance(result)
-    }
-}
-
-#[derive(
-    Copy, Clone, Debug, Default, derive_more::Deref, PartialEq, Eq, PartialOrd, Ord, Parameter,
-)]
-#[param(name = "reputation", regex = r"\d+")]
-pub struct ReputationBalance(pub U512);
-
-impl FromStr for ReputationBalance {
-    type Err = String;
-
-    fn from_str(s: &str) -> core::result::Result<Self, Self::Err> {
-        let value =
-            U512::from((s.parse::<f32>().unwrap() * 1_000f32) as u32) * U512::from(1_000_000);
-        Ok(ReputationBalance(value))
-    }
-}
-
-impl From<U512> for ReputationBalance {
-    fn from(value: U512) -> Self {
-        ReputationBalance(U512::from(value.as_u128()))
-    }
-}
-
-impl From<U256> for ReputationBalance {
-    fn from(value: U256) -> Self {
-        ReputationBalance(U512::from(value.as_u128()))
-    }
-}
-
-impl Add<ReputationBalance> for ReputationBalance {
-    type Output = ReputationBalance;
-
-    fn add(self, rhs: ReputationBalance) -> Self::Output {
-        let result = self.0 + rhs.0;
-        ReputationBalance(result)
-    }
-}
-
-impl Add<ReputationBalance> for &ReputationBalance {
-    type Output = ReputationBalance;
-
-    fn add(self, rhs: ReputationBalance) -> Self::Output {
-        let result = self.0 + rhs.0;
-        ReputationBalance(result)
-    }
-}
-
-impl Add<U512> for ReputationBalance {
-    type Output = ReputationBalance;
-
-    fn add(self, rhs: U512) -> Self::Output {
-        let result = self.0 + U512::from(rhs.as_u128());
-        ReputationBalance(result)
-    }
-}
-
-impl Add<U512> for &ReputationBalance {
-    type Output = ReputationBalance;
-
-    fn add(self, rhs: U512) -> Self::Output {
-        let result = self.0 + U512::from(rhs.as_u128());
-        ReputationBalance(result)
-    }
-}
-
-impl Add<U256> for ReputationBalance {
-    type Output = ReputationBalance;
-
-    fn add(self, rhs: U256) -> Self::Output {
-        let result = self.0 + U512::from(rhs.as_u128());
-        ReputationBalance(result)
-    }
-}
-
-impl Add<U256> for &ReputationBalance {
-    type Output = ReputationBalance;
-
-    fn add(self, rhs: U256) -> Self::Output {
-        let result = self.0 + U512::from(rhs.as_u128());
-        ReputationBalance(result)
-    }
-}
-
-#[allow(dead_code)]
-impl ReputationBalance {
-    pub fn zero() -> ReputationBalance {
-        U512::zero().into()
-    }
-
-    pub fn one() -> ReputationBalance {
-        U512::from(1_000_000_000).into()
-    }
-}
-
-#[allow(dead_code)]
-impl Balance {
-    pub fn zero() -> Balance {
-        U512::zero().into()
-    }
-
-    pub fn one() -> Balance {
-        U512::from(1_000_000_000).into()
-    }
-}
+impl_balance!(CsprBalance, "balance");
+impl_balance!(ReputationBalance, "reputation");
 
 #[derive(Clone, Copy, Debug, Default, derive_more::Deref, Parameter, PartialEq)]
 #[param(name = "token_id", regex = r"\d+")]

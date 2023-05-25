@@ -5,7 +5,7 @@ use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{
     Stats, VotingResult, VotingStateMachine, VotingType,
 };
-use odra::types::{Address, BlockTime, U512};
+use odra::types::{Address, Balance, BlockTime};
 use odra::{Event, OdraType};
 use std::collections::BTreeMap;
 
@@ -35,7 +35,7 @@ pub struct BallotCast {
     /// Selected option.
     pub choice: Choice,
     /// Vote power.
-    pub stake: U512,
+    pub stake: Balance,
 }
 
 impl BallotCast {
@@ -56,7 +56,7 @@ pub struct VotingCreatedInfo {
     /// The creator's address.
     pub creator: Address,
     /// The amount of tokens staked by the creator
-    pub stake: Option<U512>,
+    pub stake: Option<Balance>,
     /// A unique voting id.
     pub voting_id: VotingId,
     /// Configuration value - [informal voting quorum](crate::config::Configuration::informal_voting_quorum()).
@@ -68,11 +68,11 @@ pub struct VotingCreatedInfo {
     /// Configuration value - [formal voting time](crate::config::Configuration::formal_voting_time()).
     pub config_formal_voting_time: u64,
     /// Configuration value - [total number of onboarded users](crate::config::Configuration::total_onboarded()).
-    pub config_total_onboarded: U512,
+    pub config_total_onboarded: Balance,
     /// Configuration value - [is the time between votes doubled](crate::config::Configuration::should_double_time_between_votings()).
     pub config_double_time_between_votings: bool,
     /// Configuration value - [voting clearness delta](crate::config::Configuration::voting_clearness_delta()).
-    pub config_voting_clearness_delta: U512,
+    pub config_voting_clearness_delta: Balance,
     /// Configuration value - [the time between informal/formal voting](crate::config::Configuration::time_between_informal_and_formal_voting()).
     pub config_time_between_informal_and_formal_voting: BlockTime,
 }
@@ -81,7 +81,7 @@ impl VotingCreatedInfo {
     pub fn new(
         creator: Address,
         voting_id: VotingId,
-        stake: Option<U512>,
+        stake: Option<Balance>,
         config: &Configuration,
     ) -> Self {
         Self {
@@ -107,16 +107,16 @@ pub struct VotingEnded {
     pub voting_id: VotingId,
     pub voting_type: VotingType,
     pub voting_result: VotingResult,
-    pub stake_in_favor: U512,
-    pub stake_against: U512,
-    pub unbound_stake_in_favor: U512,
-    pub unbound_stake_against: U512,
+    pub stake_in_favor: Balance,
+    pub stake_against: Balance,
+    pub unbound_stake_in_favor: Balance,
+    pub unbound_stake_against: Balance,
     pub votes_in_favor: u32,
     pub votes_against: u32,
-    pub unstakes: BTreeMap<(Address, Reason), U512>,
-    pub stakes: BTreeMap<(Address, Reason), U512>,
-    pub burns: BTreeMap<(Address, Reason), U512>,
-    pub mints: BTreeMap<(Address, Reason), U512>,
+    pub unstakes: BTreeMap<(Address, Reason), Balance>,
+    pub stakes: BTreeMap<(Address, Reason), Balance>,
+    pub burns: BTreeMap<(Address, Reason), Balance>,
+    pub mints: BTreeMap<(Address, Reason), Balance>,
 }
 
 impl VotingEnded {
@@ -124,10 +124,10 @@ impl VotingEnded {
         voting: &VotingStateMachine,
         voting_result: VotingResult,
         stats: &Stats,
-        unstakes: BTreeMap<(Address, Reason), U512>,
-        stakes: BTreeMap<(Address, Reason), U512>,
-        burns: BTreeMap<(Address, Reason), U512>,
-        mints: BTreeMap<(Address, Reason), U512>,
+        unstakes: BTreeMap<(Address, Reason), Balance>,
+        stakes: BTreeMap<(Address, Reason), Balance>,
+        burns: BTreeMap<(Address, Reason), Balance>,
+        mints: BTreeMap<(Address, Reason), Balance>,
     ) -> Self {
         Self {
             voting_id: voting.voting_id(),
@@ -159,7 +159,7 @@ pub struct BallotCanceled {
     /// Selected option.
     pub choice: Choice,
     /// Vote power.
-    pub stake: U512,
+    pub stake: Balance,
 }
 
 impl BallotCanceled {
@@ -182,14 +182,14 @@ pub struct VotingCanceled {
     /// Voting type (Formal/Informal).
     pub voting_type: VotingType,
     /// Map of voters' addresses to their canceled stakes.
-    pub unstakes: BTreeMap<Address, U512>,
+    pub unstakes: BTreeMap<Address, Balance>,
 }
 
 impl VotingCanceled {
     pub fn new(
         voting_id: VotingId,
         voting_type: VotingType,
-        unstakes: BTreeMap<Address, U512>,
+        unstakes: BTreeMap<Address, Balance>,
     ) -> Self {
         Self {
             voting_id,

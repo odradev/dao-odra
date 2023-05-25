@@ -1,6 +1,6 @@
 use super::{
     helpers,
-    params::{Account, Balance},
+    params::{Account, CsprBalance},
 };
 use crate::common::params::ReputationBalance;
 
@@ -12,7 +12,7 @@ pub struct UserConfiguration {
     is_va: bool,
     reputation_balance: ReputationBalance,
     reputation_staked: ReputationBalance,
-    cspr_balance: Balance,
+    cspr_balance: CsprBalance,
 }
 
 #[allow(dead_code)]
@@ -23,7 +23,7 @@ impl UserConfiguration {
         let mut is_va = false;
         let mut reputation_balance = ReputationBalance::zero();
         let mut reputation_staked = ReputationBalance::zero();
-        let mut cspr_balance = Balance::zero();
+        let mut cspr_balance = CsprBalance::zero();
         let mut account = None::<Account>;
 
         for (idx, label) in labels.iter().enumerate() {
@@ -99,7 +99,7 @@ impl UserConfiguration {
         self.reputation_balance
     }
 
-    pub fn cspr_balance(&self) -> Balance {
+    pub fn cspr_balance(&self) -> CsprBalance {
         self.cspr_balance
     }
 }
