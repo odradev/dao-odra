@@ -1,5 +1,5 @@
 use cucumber::{given, then, when};
-use odra::types::Balance;
+use odra::types::{U256, U512};
 
 use crate::common::{
     params::{Account, CsprBalance},
@@ -20,9 +20,15 @@ use crate::common::{
 
 #[then(expr = "value of {word} is {word}")]
 fn assert_variable(world: &mut DaoWorld, key: String, value: String) {
-    let current_value: Balance = world.get_variable(key);
-    let expected = Balance::from_dec_str(&value).unwrap();
-    assert_eq!(current_value, expected);
+    if let Some(current_value) = world.get_variable_or_none::<U512>(&key) {
+        let expected = U512::from_dec_str(&value).unwrap();
+        assert_eq!(current_value, expected);
+    } else if let Some(current_value) = world.get_variable_or_none::<U256>(&key) {
+        let expected = U256::from_dec_str(&value).unwrap();
+        assert_eq!(current_value, expected);
+    } else {
+        panic!("Unknown type of variable {}", key)
+    }
 }
 
 #[given(expr = "the price of USDT is {balance} CSPR")]

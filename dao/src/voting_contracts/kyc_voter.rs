@@ -25,8 +25,8 @@ use crate::utils::{consts, ContractCall, Error};
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::events::VotingCreatedInfo;
-use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
+use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingSummary};
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{self, caller};
 use odra::types::event::OdraEvent;
@@ -165,7 +165,7 @@ impl KycVoterContract {
         self.voting_engine.slash_voter(voter, voting_id);
     }
 
-    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
+    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary {
         let summary = self.voting_engine.finish_voting(voting_id, voting_type);
         // The voting is ended when:
         // 1. Informal voting has been rejected.
@@ -178,6 +178,7 @@ impl KycVoterContract {
             let address = self.kyc.get_voting_subject(voting.voting_id());
             self.kyc.clear_voting(&address);
         }
+        summary
     }
 
     fn assert_not_kyced(&self, address: &Address) {

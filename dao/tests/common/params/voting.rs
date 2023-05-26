@@ -35,8 +35,8 @@ impl Voting {
     }
 }
 
-impl From<&Vec<String>> for Voting {
-    fn from(value: &Vec<String>) -> Self {
+impl From<&[String]> for Voting {
+    fn from(value: &[String]) -> Self {
         let contract = value.get(0).unwrap().parse().unwrap();
         let stake = value.get(1).unwrap().parse().unwrap();
         let raw_args = value.iter().skip(2).map(|str| str.to_owned()).collect();

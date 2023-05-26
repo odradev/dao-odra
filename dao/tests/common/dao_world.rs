@@ -16,11 +16,8 @@ use dao::{
         SlashingVoterContractDeployer, SlashingVoterContractRef,
     },
 };
+use odra::test_env;
 use odra::types::Address;
-use odra::{
-    test_env,
-    types::{Bytes, OdraType},
-};
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
@@ -65,17 +62,6 @@ impl DaoWorld {
 
     pub fn set_caller(&mut self, caller: &Account) {
         test_env::set_caller(self.get_address(caller));
-    }
-
-    // sets variable value
-    pub fn set_variable(&mut self, name: String, value: Bytes) {
-        self.variable_repository.update_at(name, value, None);
-    }
-
-    // gets variable value
-    pub fn get_variable<T: OdraType>(&self, name: String) -> T {
-        let bytes = self.variable_repository.get(name).unwrap();
-        T::deserialize(bytes.as_slice()).unwrap()
     }
 }
 
@@ -124,7 +110,7 @@ impl Default for DaoWorld {
             reputation_token.address(),
             va_token.address(),
         );
-        let mut simple_voter = SimpleVoterContractDeployer::init(
+        let simple_voter = SimpleVoterContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
             va_token.address(),
@@ -149,10 +135,11 @@ impl Default for DaoWorld {
             repo_voter => [slashing_voter, simple_voter],
             kyc_voter => [slashing_voter],
             admin => [slashing_voter],
-            bid_escrow => [slashing_voter]
+            bid_escrow => [slashing_voter],
+            kyc_token => [kyc_voter]
             // onboarding => [slashing_voter]
         );
-        slashing_voter.update_bid_escrow_list(vec![/*bid_escrow.address()*/]);
+        slashing_voter.update_bid_escrow_list(vec![bid_escrow.address()]);
 
         Self {
             virtual_balances: Default::default(),

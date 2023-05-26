@@ -14,7 +14,7 @@ use crate::{
         types::VotingId,
         voting_engine::{
             events::VotingCreatedInfo,
-            voting_state_machine::{VotingResult, VotingStateMachine, VotingType},
+            voting_state_machine::{VotingResult, VotingStateMachine, VotingSummary, VotingType},
             VotingEngine, VotingEngineComposer,
         },
     },
@@ -141,11 +141,12 @@ impl SlashingVoterContract {
             .vote(caller(), voting_id, voting_type, choice, stake);
     }
 
-    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
+    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary {
         let summary = self.voting_engine.finish_voting(voting_id, voting_type);
         if summary.is_formal() && summary.result() == VotingResult::InFavor {
             self.slash(voting_id);
         }
+        summary
     }
 
     pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {

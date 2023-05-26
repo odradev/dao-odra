@@ -23,7 +23,7 @@ Scenario: RepoVoter sets the value of PostJobDOSFee
     | RepoVoter       | 100   | VariableRepository | PostJobDOSFee    | 10     |
   Then value of PostJobDOSFee is 12345
 
-Scenario: RepoVoter sets the of PostJobDOSFee with activiation time
+Scenario: RepoVoter sets the of PostJobDOSFee with activation time
   When RepoVoter voting with id 0 created by VA1 passes
     | voting_contract | stake | arg1               | arg2             | arg3   | arg4    |
     | RepoVoter       | 100   | VariableRepository | PostJobDOSFee    | 12345  | 14 days | 

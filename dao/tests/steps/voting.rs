@@ -1,11 +1,11 @@
 use cucumber::{gherkin::Step, given, then, when};
-use dao::utils::Error;
+use odra::test_env;
 
 use crate::common::{
     helpers::{self, to_milliseconds},
     params::{
         voting::{Ballot, BallotBuilder, Choice, Voting, VotingType},
-        Account, Contract, ReputationBalance, Result, TimeUnit,
+        Account, Contract, Error, ReputationBalance, Result, TimeUnit,
     },
     DaoWorld,
 };
@@ -15,8 +15,21 @@ use crate::common::{
 fn voting_setup(world: &mut DaoWorld, step: &Step, creator: Account) {
     let rows = step.table.as_ref().unwrap().rows.iter().skip(1);
     for row in rows {
-        let voting: Voting = row.into();
+        let voting: Voting = row.as_slice().into();
         world.create_voting(creator, voting);
+    }
+}
+
+#[then(expr = "{account} can't start voting with the following config")]
+fn voting_creation_fails(world: &mut DaoWorld, step: &Step, creator: Account) {
+    let rows = step.table.as_ref().unwrap().rows.iter().skip(1);
+
+    for row in rows {
+        if let Some((error, row)) = row.split_last() {
+            let error = error.parse::<Error>().expect("Valid error expected");
+            let voting: Voting = row.into();
+            test_env::assert_exception(*error, || world.create_voting(creator, voting));
+        }
     }
 }
 
@@ -104,9 +117,13 @@ fn assert_vote_fails(
         )
     })
     .for_each(|(error, ballot)| match error.as_str() {
-        "CannotVoteTwice" => world.failing_vote(&contract, &ballot, Error::CannotVoteTwice),
-        "InsufficientBalance" => world.failing_vote(&contract, &ballot, Error::InsufficientBalance),
-        "ZeroStake" => world.failing_vote(&contract, &ballot, Error::ZeroStake),
+        "CannotVoteTwice" => {
+            world.failing_vote(&contract, &ballot, dao::utils::Error::CannotVoteTwice)
+        }
+        "InsufficientBalance" => {
+            world.failing_vote(&contract, &ballot, dao::utils::Error::InsufficientBalance)
+        }
+        "ZeroStake" => world.failing_vote(&contract, &ballot, dao::utils::Error::ZeroStake),
         unknown => panic!("Unknown error {}", unknown),
     });
 }
@@ -219,14 +236,14 @@ fn conduct_voting(
     // creator starts voting
     let rows = step.table.as_ref().unwrap().rows.iter().skip(1);
     for row in rows {
-        let voting: Voting = row.into();
+        let voting: Voting = row.as_slice().into();
         world.create_voting(creator, voting);
     }
     let stake = "500".parse().unwrap();
     let voting_type = VotingType::Informal;
 
     // voters vote in favor
-    (1..8)
+    (2..4)
         .into_iter()
         .map(Account::VA)
         .map(|voter| Ballot {
@@ -251,7 +268,7 @@ fn conduct_voting(
 
     // voters vote in favor
     let voting_type = VotingType::Formal;
-    (1..8)
+    (2..4)
         .into_iter()
         .map(Account::VA)
         .map(|voter| Ballot {

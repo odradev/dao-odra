@@ -13,7 +13,7 @@ use crate::{
         types::VotingId,
         voting_engine::{
             events::VotingCreatedInfo,
-            voting_state_machine::{VotingStateMachine, VotingType},
+            voting_state_machine::{VotingStateMachine, VotingSummary, VotingType},
             VotingEngine, VotingEngineComposer,
         },
     },
@@ -109,7 +109,7 @@ impl SimpleVoterContract {
         SimpleVotingCreated::new(document_hash, info).emit();
     }
 
-    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
+    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary {
         let voting_summary = self.voting_engine.finish_voting(voting_id, voting_type);
 
         if let VotingType::Informal = voting_summary.voting_type() {
@@ -126,6 +126,7 @@ impl SimpleVoterContract {
                 }
             }
         }
+        voting_summary
     }
 
     pub fn get_document_hash(&self, voting_id: VotingId) -> Option<DocumentHash> {

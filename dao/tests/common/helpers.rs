@@ -25,8 +25,7 @@ pub fn value_to_bytes(value: &str, key: &str) -> Bytes {
     match value {
         "true" | "false" => value.parse::<bool>().unwrap().serialize().unwrap().into(),
         _ => match key {
-            POST_JOB_DOS_FEE
-            | BID_ESCROW_PAYMENT_RATIO
+            BID_ESCROW_PAYMENT_RATIO
             | DEFAULT_POLICING_RATE
             | REPUTATION_CONVERSION_RATE
             | BID_ESCROW_INFORMAL_QUORUM_RATIO
@@ -35,6 +34,10 @@ pub fn value_to_bytes(value: &str, key: &str) -> Bytes {
             | FORMAL_QUORUM_RATIO
             | DEFAULT_REPUTATION_SLASH
             | VOTING_CLEARNESS_DELTA => {
+                let value = odra::types::Balance::from_dec_str(value).unwrap();
+                Bytes::from(value.serialize().unwrap())
+            }
+            POST_JOB_DOS_FEE => {
                 let value = odra::types::Balance::from_dec_str(value).unwrap();
                 Bytes::from(value.serialize().unwrap())
             }

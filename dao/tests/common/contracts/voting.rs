@@ -3,7 +3,9 @@ use dao::{
     voting::{
         ballot::{Ballot as DaoBallot, Choice},
         types::VotingId,
-        voting_engine::voting_state_machine::{VotingStateMachine, VotingType as DaoVotingType},
+        voting_engine::voting_state_machine::{
+            VotingStateMachine, VotingSummary, VotingType as DaoVotingType,
+        },
     },
 };
 use odra::{
@@ -30,7 +32,7 @@ pub trait Voter {
         choice: Choice,
         stake: Balance,
     );
-    fn finish_voting(&mut self, voting_id: VotingId, voting_type: DaoVotingType);
+    fn finish_voting(&mut self, voting_id: VotingId, voting_type: DaoVotingType) -> VotingSummary;
     fn slash_voter(&mut self, voter: Address, voting_id: VotingId);
     fn voting_exists(&self, voting_id: VotingId, voting_type: DaoVotingType) -> bool;
     fn get_voting(&self, voting_id: VotingId) -> Option<VotingStateMachine>;
@@ -155,7 +157,6 @@ impl DaoWorld {
         voting_type: Option<VotingType>,
     ) {
         let voting_type = voting_type.map(|vt| vt.into()).unwrap();
-
         let contract = self.get_address(contract);
         VoterRef::at(contract).finish_voting(voting_id, voting_type);
     }

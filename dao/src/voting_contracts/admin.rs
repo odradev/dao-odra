@@ -5,8 +5,8 @@ use crate::utils::ContractCall;
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::events::VotingCreatedInfo;
-use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 use crate::voting::voting_engine::voting_state_machine::VotingType;
+use crate::voting::voting_engine::voting_state_machine::{VotingStateMachine, VotingSummary};
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{caller, emit_event};
 use odra::types::{Address, Balance, BlockTime, CallArgs};
@@ -53,6 +53,7 @@ impl AdminContract {
                 address: Address,
             ) -> Option<Ballot>;
             pub fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
+            pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary;
         }
 
         to self.access_control {
@@ -124,10 +125,6 @@ impl AdminContract {
     ) {
         self.voting_engine
             .vote(caller(), voting_id, voting_type, choice, stake);
-    }
-
-    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
-        self.voting_engine.finish_voting(voting_id, voting_type);
     }
 
     pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
