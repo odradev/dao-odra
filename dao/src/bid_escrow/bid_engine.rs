@@ -10,8 +10,8 @@ use crate::configuration::{Configuration, ConfigurationBuilder};
 use crate::modules::kyc_info::KycInfo;
 use crate::modules::onboarding_info::OnboardingInfo;
 use crate::modules::refs::ContractRefsWithKycStorage;
-use crate::utils::withdraw;
-use odra::contract_env::{caller, get_block_time};
+use crate::utils::{withdraw, Error};
+use odra::contract_env::{self, caller, get_block_time};
 use odra::types::{event::OdraEvent, Address, Balance, BlockTime};
 use std::borrow::Borrow;
 use std::rc::Rc;
@@ -21,7 +21,7 @@ use std::rc::Rc;
 pub struct BidEngine {
     bid_storage: BidStorage,
     job_storage: JobStorage,
-    kyc: KycInfo,
+    kyc_info: KycInfo,
     onboarding: OnboardingInfo,
     refs: ContractRefsWithKycStorage,
 }
@@ -83,12 +83,13 @@ impl BidEngine {
         budget: Balance,
         dos_fee: Balance,
     ) {
+        // contract_env::revert(Error::ActivationTimeInPast);
         let caller = caller();
         let configuration = self.configuration();
 
         let request = PostJobOfferRequest {
             job_offer_id: self.bid_storage.next_job_offer_id(),
-            job_poster_kyced: self.kyc.is_kycd(&caller),
+            job_poster_kyced: self.kyc_info.is_kycd(&caller),
             job_poster: caller,
             max_budget: budget,
             expected_timeframe,
@@ -131,7 +132,7 @@ impl BidEngine {
             cspr_stake,
             onboard,
             worker,
-            worker_kyced: self.kyc.is_kycd(&worker),
+            worker_kyced: self.kyc_info.is_kycd(&worker),
             worker_is_va: self.onboarding.is_onboarded(&worker),
             job_poster: job_offer.job_poster,
             max_budget: job_offer.max_budget,

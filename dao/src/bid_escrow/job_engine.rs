@@ -31,7 +31,7 @@ pub struct JobEngine {
     refs: ContractRefsWithKycStorage,
     voting_engine: VotingEngine,
     onboarding: OnboardingInfo,
-    kyc: KycInfo,
+    kyc_info: KycInfo,
 }
 
 #[odra::module]
@@ -156,7 +156,7 @@ impl JobEngine {
             reputation_stake,
             new_worker,
             new_worker_va: self.onboarding.is_onboarded(&new_worker),
-            new_worker_kyced: self.kyc.is_kycd(&new_worker),
+            new_worker_kyced: self.kyc_info.is_kycd(&new_worker),
             job_poster: old_job.poster(),
             onboard,
             block_time,

@@ -29,7 +29,6 @@ impl DaoWorld {
         onboarding: bool,
         cspr_stake: Option<Balance>,
     ) {
-        let bids_count = self.bid_escrow.bids_count();
         let bidder = self.get_address(&bidder);
 
         test_env::set_caller(bidder);
@@ -37,23 +36,17 @@ impl DaoWorld {
             None => self
                 .bid_escrow
                 .submit_bid(offer_id, timeframe, budget, stake, onboarding, None),
-            Some(cspr_stake) => {
-                self.bid_escrow.with_tokens(cspr_stake);
-                self.bid_escrow.submit_bid(
-                    offer_id,
-                    timeframe,
-                    budget,
-                    stake,
-                    onboarding,
-                    Some(cspr_stake),
-                )
-            }
+            Some(cspr_stake) => self.bid_escrow.with_tokens(cspr_stake).submit_bid(
+                offer_id,
+                timeframe,
+                budget,
+                stake,
+                onboarding,
+                Some(cspr_stake),
+            ),
         };
-        let after_bids_count = self.bid_escrow.bids_count();
-        if after_bids_count > bids_count {
-            let bid_id = self.bid_escrow.bids_count();
-            self.bids.insert((offer_id, bidder), bid_id);
-        }
+        let bid_id = self.bid_escrow.bids_count();
+        self.bids.insert((offer_id, bidder), bid_id);
     }
 
     pub fn cancel_bid(&mut self, worker: Account, job_offer_id: JobOfferId, bid_id: BidId) {
@@ -77,8 +70,8 @@ impl DaoWorld {
         let poster = self.get_address(&poster);
 
         test_env::set_caller(poster);
-        self.bid_escrow.with_tokens(dos_fee);
         self.bid_escrow
+            .with_tokens(dos_fee)
             .post_job_offer(timeframe, maximum_budget, dos_fee);
 
         let offer_id = self.bid_escrow.job_offers_count();
@@ -89,12 +82,12 @@ impl DaoWorld {
     pub fn pick_bid(&mut self, job_poster: Account, worker: Account) {
         let job_poster = self.get_address(&job_poster);
         let worker = self.get_address(&worker);
-        let job_offer_id = self.offers.get(&job_poster).unwrap();
-        let bid_id = self.bids.get(&(*job_offer_id, worker)).unwrap();
-        let bid = self.bid_escrow.get_bid(*bid_id).unwrap();
+        let job_offer_id = self.offers.get(&job_poster).expect("a");
+        let bid_id = self.bids.get(&(*job_offer_id, worker)).expect("b");
+        let bid = self.bid_escrow.get_bid(*bid_id).expect("c");
         test_env::set_caller(job_poster);
-        self.bid_escrow.with_tokens(bid.proposed_payment);
         self.bid_escrow
+            // .with_tokens(bid.proposed_payment)
             .pick_bid(*job_offer_id, *bid_id, bid.proposed_payment);
     }
 

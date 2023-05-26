@@ -14,6 +14,7 @@ pub struct IsDosFeeEnough {
 
 impl Validation for IsDosFeeEnough {
     fn validate(&self) -> Result<(), Error> {
+        // TODO: check attached value
         let fiat_value = self.configuration.convert_to_fiat(self.dos_fee)?;
         if self.configuration.is_post_job_dos_fee_too_low(fiat_value) {
             return Err(Error::DosFeeTooLow);

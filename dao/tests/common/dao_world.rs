@@ -137,8 +137,8 @@ impl Default for DaoWorld {
         let mut bid_escrow = BidEscrowContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
-            va_token.address(),
             kyc_token.address(),
+            va_token.address(),
         );
 
         whitelist!(

@@ -240,12 +240,12 @@ impl Instance for BidEscrowContract {
         let job_engine = JobEngineComposer::new(namespace, "job_engine")
             .with_refs(&refs_with_kyc)
             .with_voting_engine(&voting_engine)
-            .with_kyc(&kyc)
+            .with_kyc_info(&kyc)
             .with_onboarding(&onboarding)
             .compose();
         let bid_engine = BidEngineComposer::new(namespace, "bid_engine")
             .with_refs(&refs_with_kyc)
-            .with_kyc(&kyc)
+            .with_kyc_info(&kyc)
             .with_onboarding(&onboarding)
             .compose();
         Self {
