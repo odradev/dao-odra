@@ -25,6 +25,17 @@ use super::{contracts::cspr::VirtualBalances, params::Account};
 // 1CSPR ~= 0.02924$
 const DEFAULT_CSPR_USD_RATE: u64 = 34_000_000_000;
 
+macro_rules! whitelist {
+    ( $( $source:ident => [$( $target:ident ),+] ),+ ) => {
+        
+        $(
+            $(
+                $source.add_to_whitelist($target.address());
+            )+
+        )+
+    }
+}
+
 #[derive(cucumber::World)]
 pub struct DaoWorld {
     pub virtual_balances: VirtualBalances,
@@ -71,7 +82,7 @@ impl Default for DaoWorld {
         let multisig_wallet = test_env::get_account(8);
         let rate_provider = CSPRRateProviderContractDeployer::init(DEFAULT_CSPR_USD_RATE.into());
         let mut ids = DaoIdsContractDeployer::init();
-        let variable_repository = VariableRepositoryContractDeployer::init(
+        let mut variable_repository = VariableRepositoryContractDeployer::init(
             rate_provider.address(),
             multisig_wallet,
             ids.address(),
@@ -82,9 +93,9 @@ impl Default for DaoWorld {
             "KYC".to_string(),
             "".to_string(),
         );
-        let va_token =
+        let mut va_token =
             VaNftContractDeployer::init("va_token".to_string(), "VAT".to_string(), "".to_string());
-        let admin = AdminContractDeployer::init(
+        let mut admin = AdminContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
             va_token.address(),
@@ -96,7 +107,7 @@ impl Default for DaoWorld {
             reputation_token.address(),
             va_token.address(),
         );
-        let kyc_voter = KycVoterContractDeployer::init(
+        let mut kyc_voter = KycVoterContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
             va_token.address(),
@@ -112,26 +123,25 @@ impl Default for DaoWorld {
             reputation_token.address(),
             va_token.address(),
         );
-        let slashing_voter = SlashingVoterContractDeployer::init(
+        let mut slashing_voter = SlashingVoterContractDeployer::init(
             variable_repository.address(),
             reputation_token.address(),
             va_token.address(),
         );
 
-        // Setup DaoIds.
-        ids.add_to_whitelist(kyc_voter.address());
-        // TODO: uncomment once available
-        // ids.add_to_whitelist(bid_escrow.address());
-        // ids.add_to_whitelist(onboarding.address());
-        ids.add_to_whitelist(slashing_voter.address());
-        ids.add_to_whitelist(repo_voter.address());
-        ids.add_to_whitelist(reputation_voter.address());
-        ids.add_to_whitelist(simple_voter.address());
-        ids.add_to_whitelist(admin.address());
-
-        // Setup SimpleVoter.
-        repo_voter.add_to_whitelist(simple_voter.address());
-        reputation_token.add_to_whitelist(simple_voter.address());
+        whitelist!(
+            ids => [admin, kyc_voter, slashing_voter, repo_voter, reputation_voter, simple_voter/*, bid_escrow, onboarding*/],
+            variable_repository => [repo_voter],
+            reputation_token => [admin, repo_voter, reputation_voter, kyc_voter, repo_voter, slashing_voter, simple_voter/*, bid_escrow, onboarding*/],
+            va_token => [slashing_voter/*, bid_escrow, onboarding*/],
+            repo_voter => [slashing_voter, simple_voter],
+            kyc_voter => [slashing_voter],
+            admin => [slashing_voter]
+            // bid_escrow => [slashing_voter],
+            // onboarding => [slashing_voter]
+        );
+        slashing_voter
+            .update_bid_escrow_list(vec![/*bid_escrow.address()*/]);
 
         Self {
             virtual_balances: Default::default(),
