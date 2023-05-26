@@ -105,7 +105,7 @@ impl SlashingVoterContract {
         let current_reputation = self.refs.reputation_token().balance_of(address_to_slash);
 
         let voting_configuration = ConfigurationBuilder::new(
-            self.refs.reputation_token().total_supply(),
+            self.refs.va_token().total_supply(),
             &self.refs.variable_repository().all_variables(),
         )
         .build();
