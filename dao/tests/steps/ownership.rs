@@ -2,20 +2,22 @@ use cucumber::{given, then, when};
 
 use crate::common::{params::Account, DaoWorld};
 
+use super::suppress;
+
 #[when(expr = "{account} sets {account} as a new owner of {account} contract")]
 fn change_ownership(world: &mut DaoWorld, caller: Account, new_owner: Account, contract: Account) {
-    world.change_ownership(&contract, &caller, &new_owner);
+    suppress(|| world.change_ownership(&contract, &caller, &new_owner));
 }
 
 #[when(expr = "{account} adds {account} to whitelist in {account} contract")]
 #[given(expr = "{account} added {account} to whitelist in {account} contract")]
 fn whitelist(world: &mut DaoWorld, caller: Account, target: Account, contract: Account) {
-    world.whitelist_account(&contract, &caller, &target);
+    suppress(|| world.whitelist_account(&contract, &caller, &target));
 }
 
 #[when(expr = "{account} removes {account} from whitelist in {account} contract")]
 fn remove_from_whitelist(world: &mut DaoWorld, caller: Account, user: Account, contract: Account) {
-    world.remove_from_whitelist(&contract, &caller, &user);
+    suppress(|| world.remove_from_whitelist(&contract, &caller, &user));
 }
 
 #[then(expr = "{account} is not whitelisted in {account} contract")]

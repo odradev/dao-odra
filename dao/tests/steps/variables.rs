@@ -6,6 +6,8 @@ use crate::common::{
     DaoWorld,
 };
 
+use super::suppress;
+
 // #[then(expr = "{account} Bid {word} posted")]
 // fn bid_is_posted(world: &mut DaoWorld, account: Account, is_posted: String) {
 //     let is_posted = match is_posted.as_str() {
@@ -38,8 +40,7 @@ fn set_cspr_rate(world: &mut DaoWorld, rate: CsprBalance) {
 
 #[when(expr = "{account} sets the price of USDT to {balance} CSPR")]
 fn set_cspr_rate_by(world: &mut DaoWorld, account: Account, rate: CsprBalance) {
-    world.set_caller(&account);
-    world.set_cspr_rate(rate);
+    suppress(|| world.set_cspr_rate_by(rate, &account));
 }
 
 #[then(expr = "the price of USDT is {balance} CSPR")]

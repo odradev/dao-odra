@@ -5,6 +5,8 @@ use crate::common::{
     DaoWorld,
 };
 
+use super::suppress;
+
 #[given(expr = "{account} that owns a VA Token")]
 fn setup_user_with_token(world: &mut DaoWorld, user: Account) {
     world.mint_nft_token(Contract::VaToken, &Account::Owner, &user);
@@ -14,12 +16,12 @@ fn setup_user_with_token(world: &mut DaoWorld, user: Account) {
 
 #[when(expr = "{account} mints a VA Token to {account}")]
 fn mint(world: &mut DaoWorld, minter: Account, recipient: Account) {
-    world.mint_nft_token(Contract::VaToken, &minter, &recipient);
+    suppress(|| world.mint_nft_token(Contract::VaToken, &minter, &recipient));
 }
 
 #[when(expr = "{account} burns {account}'s VA token")]
 fn burn(world: &mut DaoWorld, burner: Account, holder: Account) {
-    world.burn_nft_token(Contract::VaToken, &burner, &holder);
+    suppress(|| world.burn_nft_token(Contract::VaToken, &burner, &holder));
 }
 
 #[then(expr = "the {account}'s balance of VA Token is {int}")]
