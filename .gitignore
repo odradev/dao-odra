@@ -2,3 +2,4 @@
 /wasm
 .builder*
 .idea
+.vscode/*

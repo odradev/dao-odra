@@ -6,15 +6,15 @@ Feature: Ownership management
     Examples: 
       | contract           |
       | Admin              |
-      # | BidEscrow          |
+      | BidEscrow          |
       | KycToken           |
       | KycVoter           |
       # | Onboarding         |
       | RepoVoter          |
       | ReputationToken    |
-      # | ReputationVoter    |
+      | ReputationVoter    |
       | SimpleVoter        |
-      # | SlashingVoter      |
+      | SlashingVoter      |
       | VaToken            |
       | VariableRepository |
   
@@ -29,7 +29,7 @@ Feature: Ownership management
       Examples: 
         | contract           |
         | Admin              |
-        # | BidEscrow          |
+        | BidEscrow          |
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
@@ -49,7 +49,7 @@ Feature: Ownership management
       Examples: 
         | contract           |
         | Admin              |
-        # | BidEscrow          |
+        | BidEscrow          |
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
@@ -70,7 +70,7 @@ Feature: Ownership management
       Examples: 
         | contract           |
         | Admin              |
-        # | BidEscrow          |
+        | BidEscrow          |
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
@@ -93,7 +93,7 @@ Feature: Ownership management
       Examples: 
         | contract           |
         | Admin              |
-        # | BidEscrow          |
+        | BidEscrow          |
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
@@ -115,7 +115,7 @@ Feature: Ownership management
       Examples: 
         | contract           |
         | Admin              |
-        # | BidEscrow          |
+        | BidEscrow          |
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
@@ -137,7 +137,7 @@ Feature: Ownership management
       Examples: 
         | contract           |
         | Admin              |
-        # | BidEscrow          |
+        | BidEscrow          |
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |
@@ -159,7 +159,7 @@ Feature: Ownership management
       Examples: 
         | contract           |
         | Admin              |
-        # | BidEscrow          |
+        | BidEscrow          |
         | KycToken           |
         | KycVoter           |
         # | Onboarding         |

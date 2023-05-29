@@ -8,17 +8,17 @@ use crate::common::{
 
 use super::suppress;
 
-// #[then(expr = "{account} Bid {word} posted")]
-// fn bid_is_posted(world: &mut DaoWorld, account: Account, is_posted: String) {
-//     let is_posted = match is_posted.as_str() {
-//         "is" => true,
-//         "isn't" => false,
-//         _ => panic!("Unknown is_posted option - it should be either is or isn't"),
-//     };
-//     let bid = world.get_bid(0, account);
+#[then(expr = "{account} Bid {word} posted")]
+fn bid_is_posted(world: &mut DaoWorld, account: Account, is_posted: String) {
+    let is_posted = match is_posted.as_str() {
+        "is" => true,
+        "isn't" => false,
+        _ => panic!("Unknown is_posted option - it should be either is or isn't"),
+    };
+    let bid = world.get_bid(0, account);
 
-//     assert_eq!(bid.is_some(), is_posted);
-// }
+    assert_eq!(bid.is_some(), is_posted);
+}
 
 #[then(expr = "value of {word} is {word}")]
 fn assert_variable(world: &mut DaoWorld, key: String, value: String) {
