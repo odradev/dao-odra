@@ -16,7 +16,7 @@ use crate::voting::cspr_redistribution::{
     redistribute_cspr_to_all_vas, redistribute_to_governance,
 };
 use crate::voting::types::VotingId;
-use crate::voting::voting_engine::voting_state_machine::{VotingResult, VotingType};
+use crate::voting::voting_engine::voting_state_machine::{VotingResult, VotingSummary, VotingType};
 use crate::voting::voting_engine::VotingEngine;
 use odra::contract_env::{attached_value, caller, get_block_time, revert};
 use odra::types::{event::OdraEvent, Balance};
@@ -265,7 +265,7 @@ impl JobEngine {
     ///
     /// Interacts with [`Reputation Token Contract`](crate::reputation::ReputationContractInterface) to
     /// redistribute reputation.
-    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) {
+    pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary {
         let job = self.job_storage.get_job_by_voting_id(voting_id);
         let job_offer = self
             .bid_storage
@@ -353,6 +353,7 @@ impl JobEngine {
         }
 
         self.job_storage.store_job(job);
+        voting_summary
     }
 }
 

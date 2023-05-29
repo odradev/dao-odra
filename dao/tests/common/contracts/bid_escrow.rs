@@ -86,9 +86,11 @@ impl DaoWorld {
         let bid_id = self.bids.get(&(*job_offer_id, worker)).expect("b");
         let bid = self.bid_escrow.get_bid(*bid_id).expect("c");
         test_env::set_caller(job_poster);
-        self.bid_escrow
-            // .with_tokens(bid.proposed_payment)
-            .pick_bid(*job_offer_id, *bid_id, bid.proposed_payment);
+        self.bid_escrow.with_tokens(bid.proposed_payment).pick_bid(
+            *job_offer_id,
+            *bid_id,
+            bid.proposed_payment,
+        );
     }
 
     pub fn slash_all_active_job_offers(&mut self, bidder: Account) {

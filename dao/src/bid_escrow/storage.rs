@@ -169,6 +169,7 @@ impl JobStorage {
 
     /// Writes a [Job] to the storage.
     pub fn store_job(&mut self, job: Job) {
+        let job_id = job.job_id();
         self.jobs.set(&job.job_id(), job);
     }
 

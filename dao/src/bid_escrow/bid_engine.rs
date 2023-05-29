@@ -83,7 +83,6 @@ impl BidEngine {
         budget: Balance,
         dos_fee: Balance,
     ) {
-        // contract_env::revert(Error::ActivationTimeInPast);
         let caller = caller();
         let configuration = self.configuration();
 
@@ -214,11 +213,10 @@ impl BidEngine {
         let job_id = self.job_storage.next_job_id();
 
         self.unstake_not_picked(&job_offer_id, &bid_id);
-
         let pick_bid_request = PickBidRequest {
             job_id,
-            job_offer_id: job_offer_id,
-            bid_id: bid_id,
+            job_offer_id,
+            bid_id,
             caller: caller(),
             poster: job_offer.job_poster,
             worker: bid.worker,

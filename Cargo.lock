@@ -647,6 +647,8 @@ dependencies = [
  "once_cell",
  "regex",
  "sealed 0.4.0",
+ "serde",
+ "serde_json",
  "smart-default",
 ]
 

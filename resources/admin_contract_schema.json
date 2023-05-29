@@ -67,21 +67,6 @@
       "return_ty": "Unit"
     },
     {
-      "name": "finish_voting",
-      "is_mutable": true,
-      "args": [
-        {
-          "name": "voting_id",
-          "ty": "U32"
-        },
-        {
-          "name": "voting_type",
-          "ty": "U32"
-        }
-      ],
-      "return_ty": "Unit"
-    },
-    {
       "name": "slash_voter",
       "is_mutable": true,
       "args": [
@@ -165,6 +150,21 @@
       "return_ty": {
         "Option": "Key"
       }
+    },
+    {
+      "name": "finish_voting",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "voting_id",
+          "ty": "U32"
+        },
+        {
+          "name": "voting_type",
+          "ty": "U32"
+        }
+      ],
+      "return_ty": "Any"
     },
     {
       "name": "change_ownership",

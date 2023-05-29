@@ -1,6 +1,6 @@
 use cucumber::{gherkin::Step, given, then, when};
-use odra::test_env;
 use dao::utils::Error as DaoError;
+use odra::test_env;
 
 use crate::common::{
     helpers::{self, to_milliseconds},
@@ -117,11 +117,17 @@ fn assert_vote_fails(
                 .build(row),
         )
     })
-    .for_each(|(error, ballot)| match *(error.parse::<crate::common::params::Error>().unwrap()) {
-        DaoError::CannotVoteTwice => world.failing_vote(&contract, &ballot, DaoError::CannotVoteTwice),
-        DaoError::InsufficientBalance => world.failing_vote(&contract, &ballot, DaoError::InsufficientBalance),
-        DaoError::ZeroStake => world.failing_vote(&contract, &ballot, DaoError::ZeroStake),
-        _ => panic!("Unknown error"),
+    .for_each(|(error, ballot)| {
+        match *(error.parse::<crate::common::params::Error>().unwrap()) {
+            DaoError::CannotVoteTwice => {
+                world.failing_vote(&contract, &ballot, DaoError::CannotVoteTwice)
+            }
+            DaoError::InsufficientBalance => {
+                world.failing_vote(&contract, &ballot, DaoError::InsufficientBalance)
+            }
+            DaoError::ZeroStake => world.failing_vote(&contract, &ballot, DaoError::ZeroStake),
+            _ => panic!("Unknown error"),
+        }
     });
 }
 

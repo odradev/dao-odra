@@ -48,7 +48,7 @@
           "ty": "U32"
         }
       ],
-      "return_ty": "Unit"
+      "return_ty": "Any"
     },
     {
       "name": "get_document_hash",

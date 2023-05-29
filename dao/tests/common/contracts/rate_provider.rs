@@ -1,4 +1,7 @@
-use crate::common::{params::{CsprBalance, Account}, DaoWorld};
+use crate::common::{
+    params::{Account, CsprBalance},
+    DaoWorld,
+};
 
 impl DaoWorld {
     pub fn set_cspr_rate(&mut self, rate: CsprBalance) {

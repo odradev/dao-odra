@@ -11,7 +11,7 @@ use odra::types::{Address, Balance, BlockTime};
 use odra::OdraType;
 
 /// Serializable Job status.
-#[derive(OdraType, Copy, PartialEq, Eq)]
+#[derive(OdraType, Copy, PartialEq, Eq, Debug)]
 pub enum JobStatus {
     /// Job
     Created,
@@ -86,7 +86,7 @@ pub struct SubmitJobProofRequest {
 }
 
 /// Serializable representation of a `Job`.
-#[derive(OdraType)]
+#[derive(OdraType, Debug)]
 pub struct Job {
     job_id: JobId,
     bid_id: BidId,
@@ -317,7 +317,7 @@ impl Job {
 }
 
 /// Serializable [Worker](crate::bid_escrow#definitions) type.
-#[derive(OdraType, Copy, Eq, PartialEq)]
+#[derive(OdraType, Copy, Eq, PartialEq, Debug)]
 pub enum WorkerType {
     /// [VA](crate::bid_escrow#definitions)
     Internal,

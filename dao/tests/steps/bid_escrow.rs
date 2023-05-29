@@ -14,6 +14,7 @@ use crate::common::{
     params::{Account, CsprBalance, TimeUnit},
     DaoWorld,
 };
+use crate::steps::suppress;
 
 #[when(
     expr = "{account} posted a JobOffer with expected timeframe of {int} {time_unit}, maximum budget of {balance} CSPR and {balance} CSPR DOS Fee"
@@ -33,13 +34,13 @@ fn post_job_offer(
 #[when(expr = "{account} cancels the JobOffer with id {int}")]
 fn cancel_job_offer(w: &mut DaoWorld, caller: Account, offer_id: u32) {
     test_env::set_caller(w.get_address(&caller));
-    let _ = w.bid_escrow.cancel_job_offer(offer_id);
+    suppress(|| w.bid_escrow.cancel_job_offer(offer_id));
 }
 
 #[when(expr = "{account} cancels the Job with id {int}")]
 fn cancel_job(w: &mut DaoWorld, caller: Account, offer_id: u32) {
     test_env::set_caller(w.get_address(&caller));
-    let _ = w.bid_escrow.cancel_job(offer_id);
+    suppress(|| w.bid_escrow.cancel_job(offer_id));
 }
 
 #[when(
@@ -118,13 +119,14 @@ fn submit_job_proof_during_grace_period_external(
     let onboarding = parse_bool(onboarding);
     let worker = w.get_address(&worker);
     test_env::set_caller(worker);
-    w.bid_escrow.with_tokens(*cspr_stake);
-    w.bid_escrow.submit_job_proof_during_grace_period(
-        job_id,
-        DocumentHash::from("Job Proof"),
-        Balance::zero(),
-        onboarding,
-    );
+    w.bid_escrow
+        .with_tokens(*cspr_stake)
+        .submit_job_proof_during_grace_period(
+            job_id,
+            DocumentHash::from("Job Proof"),
+            Balance::zero(),
+            onboarding,
+        );
 }
 
 #[when(expr = "{account} submits the JobProof of Job {int} with {reputation} REP stake")]
@@ -153,11 +155,13 @@ fn cancel_bid(w: &mut DaoWorld, worker: Account, job_poster: Account) {
 
 #[when(expr = "{account} got his active job offers slashed")]
 fn slash_all_active_job_offers(w: &mut DaoWorld, bidder: Account) {
+    w.set_caller(&Account::Owner);
     w.slash_all_active_job_offers(bidder);
 }
 
 #[when(expr = "bid with id {int} is slashed")]
 fn slash_bid(w: &mut DaoWorld, bid_id: u32) {
+    w.set_caller(&Account::Owner);
     w.slash_bid(bid_id);
 }
 

@@ -130,7 +130,7 @@ impl Default for DaoWorld {
         whitelist!(
             ids => [admin, kyc_voter, slashing_voter, repo_voter, reputation_voter, simple_voter, bid_escrow /*onboarding*/],
             variable_repository => [repo_voter],
-            reputation_token => [admin, repo_voter, reputation_voter, kyc_voter, repo_voter, slashing_voter, simple_voter, bid_escrow /*onboarding*/],
+            reputation_token => [admin, repo_voter, reputation_voter, kyc_voter, slashing_voter, simple_voter, bid_escrow /*onboarding*/],
             va_token => [slashing_voter, bid_escrow /*, onboarding*/],
             repo_voter => [slashing_voter, simple_voter],
             kyc_voter => [slashing_voter],
