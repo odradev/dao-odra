@@ -21,7 +21,7 @@ impl VirtualBalances {
             "Cannot set cspr balance twice"
         );
 
-        self.current.insert(account, amount.into());
+        self.current.insert(account, amount);
 
         self.initial
             .insert(account, CsprBalance(test_env::token_balance(account)));

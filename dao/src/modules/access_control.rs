@@ -19,7 +19,7 @@ impl AccessControl {
     #[odra(init)]
     pub fn init(&mut self, address: Address) {
         self.owner.init(address);
-        self.whitelist.add_to_whitelist(address.clone());
+        self.whitelist.add_to_whitelist(address);
     }
 
     /// Changes ownership of the contract. Transfer the ownership to the `owner`. Only the current owner

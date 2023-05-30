@@ -12,8 +12,10 @@ use odra::OdraType;
 
 /// Serializable Job status.
 #[derive(OdraType, Copy, PartialEq, Eq, Debug)]
+#[derive(Default)]
 pub enum JobStatus {
     /// Job
+    #[default]
     Created,
     Cancelled,
     /// Job proof submitted.
@@ -21,11 +23,7 @@ pub enum JobStatus {
     Completed,
 }
 
-impl Default for JobStatus {
-    fn default() -> Self {
-        JobStatus::Created
-    }
-}
+
 
 /// Data required to pick the Bid.
 pub struct PickBidRequest {

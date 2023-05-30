@@ -52,8 +52,8 @@ pub fn build(world: &DaoWorld, voting: Voting) -> VotingSetup {
             let value = value_to_bytes(&value, &key);
 
             let activation_time = voting.get_parsed_arg_or_none::<String>(3).map(|s| {
-                let values = s.split(" ").collect::<Vec<_>>();
-                let value = values.get(0).and_then(|s| s.parse().ok()).unwrap();
+                let values = s.split(' ').collect::<Vec<_>>();
+                let value = values.first().and_then(|s| s.parse().ok()).unwrap();
                 let unit = values.get(1).and_then(|s| s.parse().ok()).unwrap();
                 odra::contract_env::get_block_time() + to_milliseconds(value, unit)
             });

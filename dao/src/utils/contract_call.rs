@@ -34,9 +34,9 @@ impl ContractCall {
     /// Calls the contract.
     pub fn call(&self) {
         call_contract(
-            self.address().clone(),
+            *self.address(),
             self.entry_point(),
-            &self.call_args(),
+            self.call_args(),
             self.amount(),
         )
     }

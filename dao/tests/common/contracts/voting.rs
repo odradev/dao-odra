@@ -128,7 +128,7 @@ impl DaoWorld {
 
     pub fn vote(&mut self, contract: &Account, ballot: &Ballot) {
         let voting_id = ballot.voting_id;
-        let choice = ballot.choice.clone().into();
+        let choice = ballot.choice.into();
         let stake = ballot.stake.0;
         let voting_type = ballot.voting_type.into();
 
@@ -139,7 +139,7 @@ impl DaoWorld {
 
     pub fn failing_vote(&mut self, contract: &Account, ballot: &Ballot, expected_error: Error) {
         let voting_id = ballot.voting_id;
-        let choice = ballot.choice.clone().into();
+        let choice = ballot.choice.into();
         let stake = ballot.stake.0;
         let voting_type = ballot.voting_type.into();
 
@@ -181,7 +181,7 @@ impl DaoWorld {
     }
 
     pub fn get_voting(&mut self, contract: &Account, voting_id: VotingId) -> VotingStateMachine {
-        let voter = VoterRef::at(self.get_address(&contract));
+        let voter = VoterRef::at(self.get_address(contract));
         voter.get_voting(voting_id).expect("Voting does not exists")
     }
 
@@ -194,6 +194,6 @@ impl DaoWorld {
     ) -> Option<DaoBallot> {
         let account = self.get_address(account);
 
-        VoterRef::at(self.get_address(&contract)).get_ballot(voting_id, voting_type, account)
+        VoterRef::at(self.get_address(contract)).get_ballot(voting_id, voting_type, account)
     }
 }

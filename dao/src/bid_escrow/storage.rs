@@ -70,7 +70,7 @@ impl BidStorage {
 
     /// Gets the total number of [JobOffer]s.
     pub fn get_job_offer(&self, job_offer_id: &JobOfferId) -> Option<JobOffer> {
-        self.job_offers.get(&job_offer_id)
+        self.job_offers.get(job_offer_id)
     }
 
     /// Gets the [JobOffer] with a given id or reverts with [JobOfferNotFound](casper_dao_utils::Error::JobOfferNotFound).

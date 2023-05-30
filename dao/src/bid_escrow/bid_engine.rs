@@ -278,10 +278,10 @@ impl BidEngine {
     }
 
     pub fn cancel_all_bids(&mut self, job_offer_id: &JobOfferId) {
-        let bids_amount = self.bid_storage.get_bids_count(&job_offer_id);
+        let bids_amount = self.bid_storage.get_bids_count(job_offer_id);
         let mut bids = Vec::<ShortenedBid>::new();
         for i in 0..bids_amount {
-            let mut bid = self.bid_storage.get_nth_bid(&job_offer_id, i);
+            let mut bid = self.bid_storage.get_nth_bid(job_offer_id, i);
             if let Some(cspr) = bid.cspr_stake {
                 withdraw(bid.worker, cspr, TransferReason::BidStakeReturn);
             }

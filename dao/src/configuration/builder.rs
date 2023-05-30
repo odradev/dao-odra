@@ -21,77 +21,77 @@ impl ConfigurationBuilder {
         ConfigurationBuilder {
             configuration: Configuration::new(
                 DaoConfiguration {
-                    post_job_dos_fee: Self::get_variable(POST_JOB_DOS_FEE, &variables),
-                    internal_auction_time: Self::get_variable(INTERNAL_AUCTION_TIME, &variables),
-                    public_auction_time: Self::get_variable(PUBLIC_AUCTION_TIME, &variables),
-                    default_policing_rate: Self::get_variable(DEFAULT_POLICING_RATE, &variables),
+                    post_job_dos_fee: Self::get_variable(POST_JOB_DOS_FEE, variables),
+                    internal_auction_time: Self::get_variable(INTERNAL_AUCTION_TIME, variables),
+                    public_auction_time: Self::get_variable(PUBLIC_AUCTION_TIME, variables),
+                    default_policing_rate: Self::get_variable(DEFAULT_POLICING_RATE, variables),
                     reputation_conversion_rate: Self::get_variable(
                         REPUTATION_CONVERSION_RATE,
-                        &variables,
+                        variables,
                     ),
                     fiat_conversion_rate_address: Self::get_variable(
                         FIAT_CONVERSION_RATE_ADDRESS,
-                        &variables,
+                        variables,
                     ),
-                    forum_kyc_required: Self::get_variable(FORUM_KYC_REQUIRED, &variables),
+                    forum_kyc_required: Self::get_variable(FORUM_KYC_REQUIRED, variables),
                     bid_escrow_informal_quorum_ratio: Self::get_variable(
                         BID_ESCROW_INFORMAL_QUORUM_RATIO,
-                        &variables,
+                        variables,
                     ),
                     bid_escrow_formal_quorum_ratio: Self::get_variable(
                         BID_ESCROW_FORMAL_QUORUM_RATIO,
-                        &variables,
+                        variables,
                     ),
                     bid_escrow_informal_voting_time: Self::get_variable(
                         BID_ESCROW_INFORMAL_VOTING_TIME,
-                        &variables,
+                        variables,
                     ),
                     bid_escrow_formal_voting_time: Self::get_variable(
                         BID_ESCROW_FORMAL_VOTING_TIME,
-                        &variables,
+                        variables,
                     ),
-                    informal_voting_time: Self::get_variable(INFORMAL_VOTING_TIME, &variables),
-                    formal_voting_time: Self::get_variable(FORMAL_VOTING_TIME, &variables),
+                    informal_voting_time: Self::get_variable(INFORMAL_VOTING_TIME, variables),
+                    formal_voting_time: Self::get_variable(FORMAL_VOTING_TIME, variables),
                     informal_stake_reputation: Self::get_variable(
                         INFORMAL_STAKE_REPUTATION,
-                        &variables,
+                        variables,
                     ),
                     time_between_informal_and_formal_voting: Self::get_variable(
                         TIME_BETWEEN_INFORMAL_AND_FORMAL_VOTING,
-                        &variables,
+                        variables,
                     ),
                     va_bid_acceptance_timeout: Self::get_variable(
                         VA_BID_ACCEPTANCE_TIMEOUT,
-                        &variables,
+                        variables,
                     ),
                     va_can_bid_on_public_auction: Self::get_variable(
                         VA_CAN_BID_ON_PUBLIC_AUCTION,
-                        &variables,
+                        variables,
                     ),
                     distribute_payment_to_non_voters: Self::get_variable(
                         DISTRIBUTE_PAYMENT_TO_NON_VOTERS,
-                        &variables,
+                        variables,
                     ),
                     bid_escrow_wallet_address: Self::get_variable(
                         BID_ESCROW_WALLET_ADDRESS,
-                        &variables,
+                        variables,
                     ),
                     default_reputation_slash: Self::get_variable(
                         DEFAULT_REPUTATION_SLASH,
-                        &variables,
+                        variables,
                     ),
-                    voting_clearness_delta: Self::get_variable(VOTING_CLEARNESS_DELTA, &variables),
+                    voting_clearness_delta: Self::get_variable(VOTING_CLEARNESS_DELTA, variables),
                     voting_start_after_job_worker_submission: Self::get_variable(
                         VOTING_START_AFTER_JOB_WORKER_SUBMISSION,
-                        &variables,
+                        variables,
                     ),
-                    informal_quorum_ratio: Self::get_variable(INFORMAL_QUORUM_RATIO, &variables),
-                    formal_quorum_ratio: Self::get_variable(FORMAL_QUORUM_RATIO, &variables),
+                    informal_quorum_ratio: Self::get_variable(INFORMAL_QUORUM_RATIO, variables),
+                    formal_quorum_ratio: Self::get_variable(FORMAL_QUORUM_RATIO, variables),
                     bid_escrow_payment_ratio: Self::get_variable(
                         BID_ESCROW_PAYMENT_RATIO,
-                        &variables,
+                        variables,
                     ),
-                    voting_ids_address: Self::get_variable(VOTING_IDS_ADDRESS, &variables),
+                    voting_ids_address: Self::get_variable(VOTING_IDS_ADDRESS, variables),
                 },
                 VotingConfiguration {
                     is_bid_escrow: false,
