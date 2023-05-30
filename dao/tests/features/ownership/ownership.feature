@@ -9,7 +9,7 @@ Feature: Ownership management
       | BidEscrow          |
       | KycToken           |
       | KycVoter           |
-      # | Onboarding         |
+      | Onboarding         |
       | RepoVoter          |
       | ReputationToken    |
       | ReputationVoter    |
@@ -32,7 +32,7 @@ Feature: Ownership management
         | BidEscrow          |
         | KycToken           |
         | KycVoter           |
-        # | Onboarding         |
+        | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
         | ReputationVoter    |
@@ -40,7 +40,6 @@ Feature: Ownership management
         | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
-
 
     Scenario Outline: A user out of the whitelist claims ownership
       When Alice sets Alice as a new owner of <contract> contract
@@ -52,7 +51,7 @@ Feature: Ownership management
         | BidEscrow          |
         | KycToken           |
         | KycVoter           |
-        # | Onboarding         |
+        | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
         | ReputationVoter    |
@@ -60,7 +59,6 @@ Feature: Ownership management
         | SlashingVoter      |
         | VaToken            |
         | VariableRepository |
-    
 
     Scenario Outline: A whitelisted user claims ownership
       When Deployer adds Bob to whitelist in <contract> contract
@@ -73,7 +71,7 @@ Feature: Ownership management
         | BidEscrow          |
         | KycToken           |
         | KycVoter           |
-        # | Onboarding         |
+        | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
         | ReputationVoter    |
@@ -88,15 +86,14 @@ Feature: Ownership management
       When Deployer adds Bob to whitelist in <contract> contract
       And Deployer removes Bob from whitelist in <contract> contract
       Then Bob is not whitelisted in <contract> contract
-      
-      
+         
       Examples: 
         | contract           |
         | Admin              |
         | BidEscrow          |
         | KycToken           |
         | KycVoter           |
-        # | Onboarding         |
+        | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
         | ReputationVoter    |
@@ -110,7 +107,6 @@ Feature: Ownership management
       When Deployer adds Bob to whitelist in <contract> contract
       And Bob removes Bob from whitelist in <contract> contract
       Then Bob is whitelisted in <contract> contract
-      
 
       Examples: 
         | contract           |
@@ -118,7 +114,7 @@ Feature: Ownership management
         | BidEscrow          |
         | KycToken           |
         | KycVoter           |
-        # | Onboarding         |
+        | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
         | ReputationVoter    |
@@ -133,14 +129,13 @@ Feature: Ownership management
       When Deployer adds Alice to whitelist in <contract> contract
       Then Alice is whitelisted in <contract> contract
       
-
       Examples: 
         | contract           |
         | Admin              |
         | BidEscrow          |
         | KycToken           |
         | KycVoter           |
-        # | Onboarding         |
+        | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
         | ReputationVoter    |
@@ -162,7 +157,7 @@ Feature: Ownership management
         | BidEscrow          |
         | KycToken           |
         | KycVoter           |
-        # | Onboarding         |
+        | Onboarding         |
         | RepoVoter          |
         | ReputationToken    |
         | ReputationVoter    |
