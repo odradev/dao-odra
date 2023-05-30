@@ -51,5 +51,5 @@ name = "bid_escrow_contract"
 fqn = "dao::bid_escrow::contract::BidEscrowContract"
 
 [[contracts]]
-name = "onboarding_request"
+name = "onboarding_request_contract"
 fqn = "dao::voting_contracts::OnboardingRequestContract"

@@ -12,18 +12,9 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
-use std::{
-    fmt::Debug,
-    panic::{self, AssertUnwindSafe},
-    sync::Arc,
-    thread,
-};
+use std::{fmt::Debug, panic::AssertUnwindSafe, sync::Arc, thread};
 
-use cucumber::{
-    cli,
-    codegen::{Lazy, WorldInventory},
-    event, parser, step, Event, World,
-};
+use cucumber::{cli, codegen::WorldInventory, event, parser, step, Event, World};
 use derive_more::{Display, From};
 use futures::{
     executor::block_on,
@@ -43,10 +34,6 @@ where
     <W as World>::Error: Debug,
 {
     fn steps_fns() -> step::Collection<W> {
-        // Wire the static collection of step matching functions.
-        // static STEPS: Lazy<step::Collection<W>> =
-        //     Lazy::new();
-        // &STEPS
         W::collection()
     }
 
@@ -77,21 +64,10 @@ where
     async fn execute_scenario(
         scenario: gherkin::Scenario,
     ) -> impl Stream<Item = event::Feature<W>> {
-        // Those panic hook shenanigans are done to avoid console messages like
-        // "thread 'main' panicked at ..."
-        //
-        // 1. We obtain the current panic hook and replace it with an empty one.
-        // 2. We run tests, which can panic. In that case we pass all panic info
-        //    down the line to the `Writer`, which will print it at right time.
-        // 3. We restore original panic hook, because suppressing all panics
-        //    doesn't sound like a very good idea.
         let s = scenario.clone();
         let (tx, rx) = futures::channel::oneshot::channel();
 
         thread::spawn(move || {
-            // let hook = panic::take_hook();
-            // panic::set_hook(Box::new(|_| {}));
-
             let steps = block_on(async {
                 let mut steps = Vec::with_capacity(s.steps.len());
                 let mut world = W::new().await.unwrap();
@@ -106,8 +82,6 @@ where
                 }
                 steps
             });
-
-            // panic::set_hook(hook);
             tx.send(steps).unwrap();
         });
 
@@ -138,13 +112,96 @@ where
             })
     }
 
+    async fn execute_rule_scenario(
+        scenario: gherkin::Scenario,
+        background: Option<gherkin::Background>,
+    ) -> impl Stream<Item = event::Rule<W>> {
+        let scenario = Arc::new(scenario);
+        let s = scenario.clone();
+        let (tx, rx) = futures::channel::oneshot::channel();
+
+        thread::spawn(move || {
+            let steps = block_on(async {
+                let mut steps = Vec::new();
+                let mut world = W::new().await.unwrap();
+
+                if let Some(background) = background {
+                    for step in background.steps {
+                        let (w, ev) = Self::execute_step(world, step.clone()).await;
+                        world = w;
+                        let should_stop = matches!(ev, SyncStep::Failed(..));
+                        steps.push((step, ev));
+                        if should_stop {
+                            break;
+                        }
+                    }
+                }
+
+                for step in s.steps.clone() {
+                    let (w, ev) = Self::execute_step(world, step.clone()).await;
+                    world = w;
+                    let should_stop = matches!(ev, SyncStep::Failed(..));
+                    steps.push((step, ev));
+                    if should_stop {
+                        break;
+                    }
+                }
+                steps
+            });
+            tx.send(steps).unwrap();
+        });
+
+        let steps = rx.await.unwrap();
+        let steps: Vec<(gherkin::Step, event::Step<W>)> = steps
+            .into_iter()
+            .map(|(step, ev)| (step, event::Step::from(ev)))
+            .collect();
+
+        // let scenario = Arc::new(scenario);
+        stream::once(future::ready(event::Scenario::Started))
+            .chain(stream::iter(steps.into_iter().flat_map(|(step, ev)| {
+                let step = Arc::new(step);
+                [
+                    event::Scenario::Step(step.clone(), event::Step::Started),
+                    event::Scenario::Step(step, ev),
+                ]
+            })))
+            .chain(stream::once(future::ready(event::Scenario::Finished)))
+            .map(move |event| {
+                event::Rule::Scenario(
+                    scenario.clone(),
+                    event::RetryableScenario {
+                        event,
+                        retries: None,
+                    },
+                )
+            })
+    }
+
+    async fn execute_rule(rule: gherkin::Rule) -> impl Stream<Item = event::Feature<W>> {
+        let rule = Arc::new(rule);
+        let background = rule.background.clone();
+        stream::once(future::ready(event::Rule::Started))
+            .chain(
+                stream::iter(rule.scenarios.clone())
+                    .then(move |s| Self::execute_rule_scenario(s, background.clone()))
+                    .flatten(),
+            )
+            .chain(stream::once(future::ready(event::Rule::Finished)))
+            .map(move |ev| event::Feature::Rule(rule.clone(), ev))
+    }
+
     fn execute_feature(feature: gherkin::Feature) -> impl Stream<Item = event::Cucumber<W>> {
-        // dbg!(feature.rules.clone());
         let feature = Arc::new(feature);
         stream::once(future::ready(event::Feature::Started))
             .chain(
                 stream::iter(feature.scenarios.clone())
                     .then(Self::execute_scenario)
+                    .flatten(),
+            )
+            .chain(
+                stream::iter(feature.rules.clone())
+                    .then(Self::execute_rule)
                     .flatten(),
             )
             .chain(stream::once(future::ready(event::Feature::Finished)))
