@@ -8,7 +8,7 @@ use crate::common::{
     DaoWorld,
 };
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct VirtualBalances {
     current: HashMap<Address, CsprBalance>,
     initial: HashMap<Address, CsprBalance>,

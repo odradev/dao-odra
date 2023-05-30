@@ -3,7 +3,7 @@ mod steps;
 
 use common::DaoWorld;
 use cucumber::writer::Libtest;
-use cucumber::{writer, World as _};
+use cucumber::World as _;
 
 fn main() {
     let runner = DaoWorld::cucumber()

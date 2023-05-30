@@ -36,7 +36,7 @@ macro_rules! whitelist {
     }
 }
 
-#[derive(cucumber::World)]
+#[derive(cucumber::World, Clone)]
 pub struct DaoWorld {
     pub virtual_balances: VirtualBalances,
     pub admin: AdminContractRef,

@@ -2,6 +2,7 @@
 members = [
     "dao",
     "macros",
+    "cucumber-runner"
 ]
 
 [workspace.dependencies]

@@ -12,6 +12,7 @@ macros = { path = "../macros" }
 cucumber = { version = "0.19.1", features = ["libtest"] }
 futures = "0.3.5"
 derive_more = "0.99.11"
+cucumber-runner = { path = "../cucumber-runner" }
 
 [features]
 default = ["mock-vm"]
