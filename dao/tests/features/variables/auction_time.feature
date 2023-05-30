@@ -10,8 +10,8 @@ Feature: AuctionTime Variables
       | InternalWorker   | 0            | 1000         | 0          | true     | true  |
     And following configuration
       | key                           | value        |
-      | InternalAuctionTime           | 604800       |
-      | ExternalAuctionTime           | 864000       |
+      | InternalAuctionTime           | 604800000    |
+      | ExternalAuctionTime           | 864000000    |
       | VotingStartAfterJobSubmission | 0            |
 
     When JobPoster posted a JobOffer with expected timeframe of 14 days, maximum budget of 1000 CSPR and 400 CSPR DOS Fee

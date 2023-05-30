@@ -11,8 +11,7 @@ use odra::types::{Address, Balance, BlockTime};
 use odra::OdraType;
 
 /// Serializable Job status.
-#[derive(OdraType, Copy, PartialEq, Eq, Debug)]
-#[derive(Default)]
+#[derive(OdraType, Copy, PartialEq, Eq, Debug, Default)]
 pub enum JobStatus {
     /// Job
     #[default]
@@ -22,8 +21,6 @@ pub enum JobStatus {
     Submitted,
     Completed,
 }
-
-
 
 /// Data required to pick the Bid.
 pub struct PickBidRequest {

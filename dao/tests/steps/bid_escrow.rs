@@ -28,7 +28,7 @@ fn post_job_offer(
     dos_fee: CsprBalance,
 ) {
     let timeframe = helpers::to_milliseconds(timeframe, time_unit);
-    let _ = w.post_offer(job_poster, timeframe, *maximum_budget, *dos_fee);
+    suppress(|| w.post_offer(job_poster, timeframe, *maximum_budget, *dos_fee));
 }
 
 #[when(expr = "{account} cancels the JobOffer with id {int}")]
@@ -56,15 +56,17 @@ fn submit_bid_internal(
     stake: ReputationBalance,
 ) {
     let timeframe = helpers::to_milliseconds(timeframe, time_unit);
-    w.post_bid(
-        job_offer_id,
-        worker,
-        timeframe,
-        *budget,
-        *stake,
-        false,
-        None,
-    );
+    suppress(|| {
+        w.post_bid(
+            job_offer_id,
+            worker,
+            timeframe,
+            *budget,
+            *stake,
+            false,
+            None,
+        )
+    });
 }
 
 #[when(
@@ -82,15 +84,17 @@ fn submit_bid_external(
 ) {
     let onboarding = parse_bool(onboarding);
     let timeframe = helpers::to_milliseconds(timeframe, time_unit);
-    w.post_bid(
-        job_offer_id,
-        worker,
-        timeframe,
-        *budget,
-        Balance::zero(), // TODO: Should be zero?
-        onboarding,
-        Some(*stake),
-    );
+    suppress(|| {
+        w.post_bid(
+            job_offer_id,
+            worker,
+            timeframe,
+            *budget,
+            Balance::zero(), // TODO: Should be zero?
+            onboarding,
+            Some(*stake),
+        )
+    });
 }
 
 #[when(expr = "{account} picked the Bid of {account}")]
@@ -148,9 +152,11 @@ fn submit_job_proof_during_grace_period_internal(
 
 #[when(expr = "{account} cancels the Bid for {account}")]
 fn cancel_bid(w: &mut DaoWorld, worker: Account, job_poster: Account) {
-    let job_offer_id = w.get_job_offer_id(&job_poster).unwrap();
-    let bid = w.get_bid(*job_offer_id, worker).unwrap();
-    w.cancel_bid(worker, *job_offer_id, bid.bid_id);
+    suppress(|| {
+        let job_offer_id = w.get_job_offer_id(&job_poster).unwrap();
+        let bid = w.get_bid(*job_offer_id, worker).unwrap();
+        w.cancel_bid(worker, *job_offer_id, bid.bid_id)
+    });
 }
 
 #[when(expr = "{account} got his active job offers slashed")]

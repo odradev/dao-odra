@@ -10,7 +10,7 @@ Feature: TimeBetweenInformalAndFormalVoting Variable
       | VA2              | 0            | 1000         | 0          | true     | true  |
     And following configuration
       | key                                     | value    |
-      | TimeBetweenInformalAndFormalVoting      | 86400    |
+      | TimeBetweenInformalAndFormalVoting      | 86400000 |
       | VotingStartAfterJobSubmission           | 0        |
 
     When JobPoster posted a JobOffer with expected timeframe of 14 days, maximum budget of 1000 CSPR and 400 CSPR DOS Fee
@@ -31,7 +31,7 @@ Feature: TimeBetweenInformalAndFormalVoting Variable
 
     Scenario: Voting for formal voting is possible before 24 hours after informal voting
       When InternalWorker submits the JobProof of Job 0
-      And voters vote in BidEscrow formal voting with id 0
+      And voters vote in BidEscrow informal voting with id 0
         | account          | REP stake | choice |
        #| InternalWorker   | 100       | Yes  | - automatically voted by the system
         | VA1              | 500       | Yes  |

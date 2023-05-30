@@ -10,6 +10,7 @@ use crate::common::{
     },
     DaoWorld,
 };
+use crate::steps::suppress;
 
 #[when(expr = "{account} starts voting with the following config")]
 #[given(expr = "{account} starts voting with the following config")]
@@ -152,7 +153,7 @@ fn assert_vote(
         choice,
         stake,
     };
-    world.vote(&contract, &ballot);
+    suppress(|| world.vote(&contract, &ballot));
 
     assert_eq!(
         *expected_result,
