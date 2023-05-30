@@ -49,3 +49,7 @@ fqn = "dao::voting_contracts::SlashingVoterContract"
 [[contracts]]
 name = "bid_escrow_contract"
 fqn = "dao::bid_escrow::contract::BidEscrowContract"
+
+[[contracts]]
+name = "onboarding_request"
+fqn = "dao::voting_contracts::OnboardingRequestContract"

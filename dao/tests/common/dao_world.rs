@@ -1,5 +1,6 @@
 use dao::bid_escrow::contract::{BidEscrowContractDeployer, BidEscrowContractRef};
 use dao::bid_escrow::types::{BidId, JobOfferId};
+use dao::voting_contracts::{OnboardingRequestContractDeployer, OnboardingRequestContractRef};
 use dao::{
     core_contracts::{
         KycNftContractDeployer, KycNftContractRef, ReputationContractDeployer,
@@ -51,6 +52,7 @@ pub struct DaoWorld {
     pub simple_voter: SimpleVoterContractRef,
     pub slashing_voter: SlashingVoterContractRef,
     pub bid_escrow: BidEscrowContractRef,
+    pub onboarding: OnboardingRequestContractRef,
     pub bids: HashMap<(u32, Address), BidId>,
     pub offers: HashMap<Address, JobOfferId>,
 }
@@ -126,18 +128,24 @@ impl Default for DaoWorld {
             kyc_token.address(),
             va_token.address(),
         );
+        let mut onboarding = OnboardingRequestContractDeployer::init(
+            variable_repository.address(),
+            reputation_token.address(),
+            kyc_token.address(),
+            va_token.address(),
+        );
 
         whitelist!(
-            ids => [admin, kyc_voter, slashing_voter, repo_voter, reputation_voter, simple_voter, bid_escrow /*onboarding*/],
+            ids => [admin, kyc_voter, slashing_voter, repo_voter, reputation_voter, simple_voter, bid_escrow, onboarding],
             variable_repository => [repo_voter],
-            reputation_token => [admin, repo_voter, reputation_voter, kyc_voter, slashing_voter, simple_voter, bid_escrow /*onboarding*/],
-            va_token => [slashing_voter, bid_escrow /*, onboarding*/],
+            reputation_token => [admin, repo_voter, reputation_voter, kyc_voter, slashing_voter, simple_voter, bid_escrow, onboarding],
+            va_token => [slashing_voter, bid_escrow, onboarding],
             repo_voter => [slashing_voter, simple_voter],
             kyc_voter => [slashing_voter],
             admin => [slashing_voter],
             bid_escrow => [slashing_voter],
-            kyc_token => [kyc_voter]
-            // onboarding => [slashing_voter]
+            kyc_token => [kyc_voter],
+            onboarding => [slashing_voter]
         );
         slashing_voter.update_bid_escrow_list(vec![bid_escrow.address()]);
 
@@ -155,6 +163,7 @@ impl Default for DaoWorld {
             simple_voter,
             slashing_voter,
             bid_escrow,
+            onboarding,
             bids: Default::default(),
             offers: Default::default(),
         }

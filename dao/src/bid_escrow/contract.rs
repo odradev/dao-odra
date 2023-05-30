@@ -236,7 +236,7 @@ impl Instance for BidEscrowContract {
         let kyc = KycInfoComposer::new(namespace, "kyc_info")
             .with_refs(&refs_with_kyc)
             .compose();
-        let onboarding = OnboardingInfoComposer::new(namespace, "onboarding_info")
+        let onboarding_info = OnboardingInfoComposer::new(namespace, "onboarding_info")
             .with_refs(&refs_with_kyc)
             .compose();
         let job_storage = Composer::new(namespace, "job_storage").compose();
@@ -247,14 +247,14 @@ impl Instance for BidEscrowContract {
             .with_bid_storage(&bid_storage)
             .with_voting_engine(&voting_engine)
             .with_kyc_info(&kyc)
-            .with_onboarding(&onboarding)
+            .with_onboarding(&onboarding_info)
             .compose();
         let bid_engine = BidEngineComposer::new(namespace, "bid_engine")
             .with_refs(&refs_with_kyc)
             .with_job_storage(&job_storage)
             .with_bid_storage(&bid_storage)
             .with_kyc_info(&kyc)
-            .with_onboarding(&onboarding)
+            .with_onboarding(&onboarding_info)
             .compose();
         Self {
             refs: refs_with_kyc,

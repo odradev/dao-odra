@@ -62,6 +62,8 @@ execution_error! {
         VotingWithGivenTypeNotInProgress => 3413,
         VotingIdNotFound => 3414,
         VotingAddressNotFound => 3415,
+        OnboardingRequestNotFound => 3416,
+        OnboardingConfigurationNotFound => 3417,
 
         // Bid Escrow Errors.
         CannotPostJobForSelf => 4000,

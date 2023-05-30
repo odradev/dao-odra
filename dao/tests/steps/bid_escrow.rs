@@ -186,13 +186,14 @@ fn is_job_cancelled(w: &mut DaoWorld, job_id: u32, cancelled: String) {
 }
 
 #[when(expr = "{account} submits an onboarding request with the stake of {balance} CSPR")]
-fn submit_onboarding_request(_world: &mut DaoWorld, _account: Account, _cspr_stake: CsprBalance) {
-    // TODO: uncomment when onboarding is implemented
-    // test_env::set_caller(world.get_address(&account));
-    // wold.onboarding.with_tokens(*cspr_stake);
-    // let _ = world
-    //     .onboarding
-    //     .submit_onboarding_request(DocumentHash::default());
+fn submit_onboarding_request(world: &mut DaoWorld, account: Account, cspr_stake: CsprBalance) {
+    test_env::set_caller(world.get_address(&account));
+    suppress(|| {
+        world
+            .onboarding
+            .with_tokens(*cspr_stake)
+            .create_voting(DocumentHash::default())
+    });
 }
 
 #[then(expr = "the JobOffer by {account} {word} posted")]

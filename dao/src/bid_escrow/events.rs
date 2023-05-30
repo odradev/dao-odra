@@ -266,6 +266,7 @@ pub enum TransferReason {
     DOSFeeReturn,
     JobPaymentAndDOSFeeReturn,
     Redistribution,
+    OnboardingStakeReturn,
 }
 
 impl ToString for TransferReason {
@@ -279,6 +280,7 @@ impl ToString for TransferReason {
             TransferReason::DOSFeeReturn => "DOSFeeReturn".to_string(),
             TransferReason::JobPaymentAndDOSFeeReturn => "JobPaymentAndDOSFeeReturn".to_string(),
             TransferReason::Redistribution => "Redistribution".to_string(),
+            TransferReason::OnboardingStakeReturn => "OnboardingStakeReturn".to_string(),
         }
     }
 }
