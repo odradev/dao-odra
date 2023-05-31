@@ -8,15 +8,26 @@ pub struct Executor {
 
 fn get() -> impl Stream<Item = (u32, ThreadId)> {
     let (tx, rx) = mpsc::channel(10);
-    let _cpu_pool = ThreadPoolBuilder::new()
-        .pool_size(30)
-        .after_start(move |_| {
+    // let _cpu_pool = ThreadPoolBuilder::new()
+    //     .pool_size(30)
+    //     .after_start(move |_| {
+    //         let id = std::thread::current().id();
+    //         counter::increment();
+    //         tx.clone().try_send((counter::value(), id)).unwrap()
+    //     })
+    //     .create()
+    //     .unwrap();
+    let pool = ThreadPool::new().unwrap();
+
+    for _ in 0..10 {
+        let tx = tx.clone();
+        pool.spawn_ok(async move {
             let id = std::thread::current().id();
             counter::increment();
             tx.clone().try_send((counter::value(), id)).unwrap()
-        })
-        .create()
-        .unwrap();
+        });
+    }
+
     stream::once(future::ready((0, std::thread::current().id()))).chain(rx)
 }
 
