@@ -73,6 +73,7 @@ where
                 let mut steps = Vec::new();
                 let mut world = W::new().await.unwrap();
 
+                let mut can_run_scenario = true;
                 if let Some(background) = background {
                     for step in background.steps {
                         let (w, ev) = Self::execute_step(world, step.clone()).await;
@@ -80,18 +81,21 @@ where
                         let should_stop = matches!(ev, SyncStep::Failed(..));
                         steps.push((step, ev));
                         if should_stop {
+                            can_run_scenario = false;
                             break;
                         }
                     }
                 }
-
-                for step in s.steps.clone() {
-                    let (w, ev) = Self::execute_step(world, step.clone()).await;
-                    world = w;
-                    let should_stop = matches!(ev, SyncStep::Failed(..));
-                    steps.push((step, ev));
-                    if should_stop {
-                        break;
+                
+                if can_run_scenario {
+                    for step in s.steps.clone() {
+                        let (w, ev) = Self::execute_step(world, step.clone()).await;
+                        world = w;
+                        let should_stop = matches!(ev, SyncStep::Failed(..));
+                        steps.push((step, ev));
+                        if should_stop {
+                            break;
+                        }
                     }
                 }
                 steps
@@ -139,6 +143,7 @@ where
                 let mut steps = Vec::new();
                 let mut world = W::new().await.unwrap();
 
+                let mut can_run_scenario = true;
                 if let Some(background) = background {
                     for step in background.steps {
                         let (w, ev) = Self::execute_step(world, step.clone()).await;
@@ -146,18 +151,21 @@ where
                         let should_stop = matches!(ev, SyncStep::Failed(..));
                         steps.push((step, ev));
                         if should_stop {
+                            can_run_scenario = false;
                             break;
                         }
                     }
                 }
 
-                for step in s.steps.clone() {
-                    let (w, ev) = Self::execute_step(world, step.clone()).await;
-                    world = w;
-                    let should_stop = matches!(ev, SyncStep::Failed(..));
-                    steps.push((step, ev));
-                    if should_stop {
-                        break;
+                if can_run_scenario {
+                    for step in s.steps.clone() {
+                        let (w, ev) = Self::execute_step(world, step.clone()).await;
+                        world = w;
+                        let should_stop = matches!(ev, SyncStep::Failed(..));
+                        steps.push((step, ev));
+                        if should_stop {
+                            break;
+                        }
                     }
                 }
                 steps

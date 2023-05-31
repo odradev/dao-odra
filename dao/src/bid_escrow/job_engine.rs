@@ -24,7 +24,7 @@ use odra::UnwrapOrRevert;
 use std::borrow::Borrow;
 
 /// Manages Jobs lifecycle.
-#[odra::module]
+#[odra::module(events = [JobSubmitted, JobRejected, JobCancelled, JobDone, BidEscrowVotingCreated])]
 pub struct JobEngine {
     job_storage: JobStorage,
     bid_storage: BidStorage,

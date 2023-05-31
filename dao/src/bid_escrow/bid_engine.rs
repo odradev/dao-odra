@@ -17,7 +17,7 @@ use std::borrow::Borrow;
 use std::rc::Rc;
 
 /// Manages the Bidding process.
-#[odra::module]
+#[odra::module(events = [JobCreated, JobOfferCreated, BidSubmitted, BidCancelled])]
 pub struct BidEngine {
     bid_storage: BidStorage,
     job_storage: JobStorage,
