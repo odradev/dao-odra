@@ -63,14 +63,28 @@ where
 
     async fn execute_scenario(
         scenario: gherkin::Scenario,
+        background: Option<gherkin::Background>
     ) -> impl Stream<Item = event::Feature<W>> {
         let s = scenario.clone();
         let (tx, rx) = futures::channel::oneshot::channel();
 
         thread::spawn(move || {
             let steps = block_on(async {
-                let mut steps = Vec::with_capacity(s.steps.len());
+                let mut steps = Vec::new();
                 let mut world = W::new().await.unwrap();
+
+                if let Some(background) = background {
+                    for step in background.steps {
+                        let (w, ev) = Self::execute_step(world, step.clone()).await;
+                        world = w;
+                        let should_stop = matches!(ev, SyncStep::Failed(..));
+                        steps.push((step, ev));
+                        if should_stop {
+                            break;
+                        }
+                    }
+                }
+
                 for step in s.steps.clone() {
                     let (w, ev) = Self::execute_step(world, step.clone()).await;
                     world = w;
@@ -193,10 +207,11 @@ where
 
     fn execute_feature(feature: gherkin::Feature) -> impl Stream<Item = event::Cucumber<W>> {
         let feature = Arc::new(feature);
+        let background = feature.background.clone();
         stream::once(future::ready(event::Feature::Started))
             .chain(
                 stream::iter(feature.scenarios.clone())
-                    .then(Self::execute_scenario)
+                    .then(move |s| Self::execute_scenario(s, background.clone()))
                     .flatten(),
             )
             .chain(
