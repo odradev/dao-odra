@@ -22,7 +22,7 @@ Feature: VA Bid
       | account          | CSPR balance | REP balance  | REP stake  |
       | InternalWorker   | 0            | 1000         | 100        |
     When InternalWorker cancels the Bid for JobPoster
-    Then InternalWorker Bid is posted
+    Then Bid 0 isn't canceled
     And balances are
       | account          | CSPR balance | REP balance  | REP stake  |
       | InternalWorker   | 0            | 1000         | 100        |
@@ -35,7 +35,7 @@ Feature: VA Bid
       | InternalWorker   | 0            | 1000         | 100        |
     When 2 days passed
     And InternalWorker cancels the Bid for JobPoster
-    Then InternalWorker Bid isn't posted
+    Then Bid 0 is canceled
     And balances are
       | account          | CSPR balance | REP balance  | REP stake  |
       | InternalWorker   | 0            | 1000         | 0          |
@@ -49,7 +49,7 @@ Feature: VA Bid
       | ExternalWorker   | 900          | 0            | 0          |
     When 2 days passed
     And ExternalWorker cancels the Bid for JobPoster
-    Then ExternalWorker Bid isn't posted
+    Then Bid 0 is canceled
     And balances are
       | account          | CSPR balance | REP balance  | REP stake  |
       | ExternalWorker   | 1000         | 0            | 0          |

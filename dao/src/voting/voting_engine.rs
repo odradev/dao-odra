@@ -35,7 +35,7 @@ pub mod voting_state_machine;
 /// 2. [Variable Repo](crate::variable_repository::VariableRepositoryContract) for reading voting configuration.
 ///
 /// For example implementation see [AdminContract](crate::admin::AdminContract).
-#[odra::module]
+#[odra::module(events = [VotingCreatedInfo, BallotCast, VotingEnded, VotingCanceled, BallotCanceled])]
 pub struct VotingEngine {
     refs: ContractRefsStorage,
     voting_states: Mapping<VotingId, Option<VotingStateMachine>>,

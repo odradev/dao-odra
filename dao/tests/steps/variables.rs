@@ -1,4 +1,6 @@
 use cucumber::{given, then, when};
+use dao::bid_escrow::bid::BidStatus;
+use dao::bid_escrow::types::BidId;
 use odra::types::{U256, U512};
 
 use crate::common::{
@@ -18,6 +20,17 @@ fn bid_is_posted(world: &mut DaoWorld, account: Account, is_posted: String) {
     let bid = world.get_bid(0, account);
 
     assert_eq!(bid.is_some(), is_posted);
+}
+
+#[then(expr = "Bid {int} {word} canceled")]
+fn bid_is_cancelled(world: &mut DaoWorld, bid_id: BidId, is_canceled: String) {
+    let is_canceled = match is_canceled.as_str() {
+        "is" => true,
+        "isn't" => false,
+        _ => panic!("Unknown is_cancelled option - it should be either is or isn't"),
+    };
+    let bid = world.bid_escrow.get_bid(bid_id).unwrap();
+    assert_eq!(bid.status == BidStatus::Canceled, is_canceled);
 }
 
 #[then(expr = "value of {word} is {word}")]
