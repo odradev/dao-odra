@@ -1,14 +1,13 @@
-use std::{fmt::Debug, panic::AssertUnwindSafe, sync::Arc, thread};
-use cucumber::{cli, codegen::WorldInventory, event, parser, step, Event, World};
+use cucumber::{cli, codegen::WorldInventory, event, parser, Event, World};
 use events::{SyncStep, SyncStepError};
 use futures::{
     executor::block_on,
     future,
     stream::{self, LocalBoxStream},
-    FutureExt, Stream, StreamExt, TryStreamExt, channel::mpsc::Receiver,
+    FutureExt, Stream, StreamExt, TryStreamExt,
 };
+use std::{fmt::Debug, panic::AssertUnwindSafe, sync::Arc, thread};
 
-mod executor;
 mod events;
 
 #[derive(Default)]
@@ -21,7 +20,9 @@ where
     W: World + WorldInventory + Debug + Clone + Send + Sync + 'static,
     <W as World>::Error: Debug,
 {
-    fn execute_all<S>(features: S) -> LocalBoxStream<'static, parser::Result<Event<event::Cucumber<W>>>>
+    fn execute_all<S>(
+        features: S,
+    ) -> LocalBoxStream<'static, parser::Result<Event<event::Cucumber<W>>>>
     where
         S: Stream<Item = parser::Result<gherkin::Feature>> + 'static,
     {
@@ -67,61 +68,13 @@ where
             .map(move |ev| event::Feature::Rule(rule.clone(), ev))
     }
 
-
-
     async fn execute_feature_scenario(
         scenario: gherkin::Scenario,
-        background: Option<gherkin::Background>
+        background: Option<gherkin::Background>,
     ) -> impl Stream<Item = event::Feature<W>> {
-        let s = scenario.clone();
-        let (tx, rx) = futures::channel::oneshot::channel();
-        dbg!("start scenario");
-        dbg!(&s.name);
-        thread::spawn(move || {
-            let steps = block_on(async {
-                let mut steps = Vec::new();
-                let mut world = W::new().await.unwrap();
-
-                let mut can_run_scenario = true;
-                if let Some(background) = background {
-                    for step in background.steps {
-                        let (w, ev) = Self::execute_step(world, step.clone()).await;
-                        world = w;
-                        let should_stop = matches!(ev, SyncStep::Failed(..));
-                        steps.push((step, ev));
-                        if should_stop {
-                            can_run_scenario = false;
-                            break;
-                        }
-                    }
-                }
-                
-                if can_run_scenario {
-                    for step in s.steps.clone() {
-                        let (w, ev) = Self::execute_step(world, step.clone()).await;
-                        world = w;
-                        let should_stop = matches!(ev, SyncStep::Failed(..));
-                        steps.push((step, ev));
-                        if should_stop {
-                            break;
-                        }
-                    }
-                }
-                steps
-            });
-            tx.send(steps).unwrap();
-        });
-
-        let steps = rx.await.unwrap();
-        dbg!("ended scenario");
-        dbg!(&s.name);
-
-        let steps: Vec<(gherkin::Step, event::Step<W>)> = steps
-            .into_iter()
-            .map(|(step, ev)| (step, event::Step::from(ev)))
-            .collect();
-
+        let steps = Self::execute_scenario(scenario.clone(), background).await;
         let scenario = Arc::new(scenario);
+
         stream::once(future::ready(event::Scenario::Started))
             .chain(stream::iter(steps.into_iter().flat_map(|(step, ev)| {
                 let step = Arc::new(step);
@@ -146,52 +99,9 @@ where
         scenario: gherkin::Scenario,
         background: Option<gherkin::Background>,
     ) -> impl Stream<Item = event::Rule<W>> {
+        let steps = Self::execute_scenario(scenario.clone(), background).await;
         let scenario = Arc::new(scenario);
-        let s = scenario.clone();
-        let (tx, rx) = futures::channel::oneshot::channel();
 
-        thread::spawn(move || {
-            let steps = block_on(async {
-                let mut steps = Vec::new();
-                let mut world = W::new().await.unwrap();
-
-                let mut can_run_scenario = true;
-                if let Some(background) = background {
-                    for step in background.steps {
-                        let (w, ev) = Self::execute_step(world, step.clone()).await;
-                        world = w;
-                        let should_stop = matches!(ev, SyncStep::Failed(..));
-                        steps.push((step, ev));
-                        if should_stop {
-                            can_run_scenario = false;
-                            break;
-                        }
-                    }
-                }
-
-                if can_run_scenario {
-                    for step in s.steps.clone() {
-                        let (w, ev) = Self::execute_step(world, step.clone()).await;
-                        world = w;
-                        let should_stop = matches!(ev, SyncStep::Failed(..));
-                        steps.push((step, ev));
-                        if should_stop {
-                            break;
-                        }
-                    }
-                }
-                steps
-            });
-            tx.send(steps).unwrap();
-        });
-
-        let steps = rx.await.unwrap();
-        let steps: Vec<(gherkin::Step, event::Step<W>)> = steps
-            .into_iter()
-            .map(|(step, ev)| (step, event::Step::from(ev)))
-            .collect();
-
-        // let scenario = Arc::new(scenario);
         stream::once(future::ready(event::Scenario::Started))
             .chain(stream::iter(steps.into_iter().flat_map(|(step, ev)| {
                 let step = Arc::new(step);
@@ -212,13 +122,13 @@ where
             })
     }
 
-    fn execute_scenario(
+    async fn execute_scenario(
         scenario: gherkin::Scenario,
         background: Option<gherkin::Background>,
-    ) -> Receiver<Vec<(gherkin::Step, SyncStep<W>)>> {
+    ) -> Vec<(gherkin::Step, event::Step<W>)> {
         let scenario = Arc::new(scenario);
         let s = scenario.clone();
-        let (mut tx, rx) = futures::channel::mpsc::channel(1);
+        let (mut tx, mut rx) = futures::channel::mpsc::channel(1);
 
         thread::spawn(move || {
             let steps = block_on(async {
@@ -255,7 +165,12 @@ where
             tx.try_send(steps).unwrap();
         });
 
-        rx
+        let steps = rx.next().await.unwrap();
+        let steps: Vec<(gherkin::Step, event::Step<W>)> = steps
+            .into_iter()
+            .map(|(step, ev)| (step, event::Step::from(ev)))
+            .collect();
+        steps
     }
 
     async fn execute_step(mut world: W, step: gherkin::Step) -> (W, SyncStep<W>) {

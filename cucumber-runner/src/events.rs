@@ -1,6 +1,6 @@
-use std::sync::Arc;
 use cucumber::step;
 use derive_more::{Display, From};
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub enum SyncStep<World> {
