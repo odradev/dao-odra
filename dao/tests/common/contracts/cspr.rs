@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use odra::types::address::OdraAddress;
 use odra::{test_env, types::Address};
 
 use crate::common::helpers::is_cspr_balance_close_enough;
@@ -28,7 +29,11 @@ impl VirtualBalances {
     }
 
     pub fn get(&self, address: Address) -> CsprBalance {
-        let balance = self.current.get(&address).unwrap().0 + test_env::token_balance(address);
+        let mut balance = self.current.get(&address).unwrap().0 + test_env::token_balance(address);
+        if !address.is_contract() {
+            balance += test_env::total_gas_used(address);
+        }
+
         let result = balance
             .checked_sub(self.initial.get(&address).unwrap().0)
             .unwrap();
