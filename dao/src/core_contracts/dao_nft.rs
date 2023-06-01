@@ -62,9 +62,9 @@ impl DaoNft {
             /// Returns the address of the owner of the token.
             ///
             /// If the given `token_id` does not exist the None value is returned.
-            pub fn owner_of(&self, token_id: TokenId) -> Address;
+            pub fn owner_of(&self, token_id: &TokenId) -> Address;
             /// Returns the number of tokens owned by `owner`.
-            pub fn balance_of(&self, owner: Address) -> U256;
+            pub fn balance_of(&self, owner: &Address) -> U256;
         }
     }
 
@@ -154,7 +154,7 @@ impl DaoNft {
         if let Some(token_id) = token_id {
             self.core.balances.subtract(&owner, U256::from(1));
             self.core.owners.set(&token_id, None);
-            self.core.clear_approval(token_id);
+            self.core.clear_approval(&token_id);
             self.total_supply.subtract(Balance::from(1));
             self.tokens.set(&owner, None);
 

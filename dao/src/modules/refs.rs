@@ -53,13 +53,13 @@ impl ContractRefsStorage {
 impl ContractRefsStorage {
     /// Returns the Ref of [Reputation Token](crate::core_contracts::ReputationContract) contract.
     pub fn reputation_token(&self) -> ReputationContractRef {
-        ReputationContractRef::at(self.reputation_token_address())
+        ReputationContractRef::at(&self.reputation_token_address())
     }
 
     /// Returns the Ref of [Variable Repository](crate::core_contracts::VariableRepositoryContract) contract.
     pub fn variable_repository(&self) -> VariableRepositoryContractRef {
         VariableRepositoryContractRef::at(
-            self.variable_repository
+            &self.variable_repository
                 .get()
                 .unwrap_or_revert_with(Error::VariableValueNotSet),
         )
@@ -67,7 +67,7 @@ impl ContractRefsStorage {
 
     /// Returns the Ref of [VA Token](crate::core_contracts::VaNftContract) contract.
     pub fn va_token(&self) -> VaNftContractRef {
-        VaNftContractRef::at(self.va_token_address())
+        VaNftContractRef::at(&self.va_token_address())
     }
 }
 
@@ -108,7 +108,7 @@ impl ContractRefsWithKycStorage {
 
 impl ContractRefsWithKycStorage {
     pub fn kyc_token(&self) -> KycNftContractRef {
-        KycNftContractRef::at(self.kyc_token_address())
+        KycNftContractRef::at(&self.kyc_token_address())
     }
 
     /// Returns the Ref of [Reputation Token](crate::core_contracts::ReputationContract) contract.

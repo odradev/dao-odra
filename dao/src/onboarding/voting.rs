@@ -188,7 +188,7 @@ impl Onboarding {
 
     fn on_quorum_not_reached(&self, request: &Request) {
         withdraw(
-            request.creator(),
+            &request.creator(),
             request.cspr_deposit(),
             TransferReason::OnboardingStakeReturn,
         );
@@ -216,7 +216,7 @@ impl Onboarding {
             .get(&voting_id)
             .unwrap_or_revert_with(Error::OnboardingConfigurationNotFound);
         let amount = redistribute_to_governance(request.cspr_deposit(), &configuration);
-        withdraw(request.creator(), amount, TransferReason::BidStakeReturn);
+        withdraw(&request.creator(), amount, TransferReason::BidStakeReturn);
     }
 }
 

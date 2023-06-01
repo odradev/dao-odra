@@ -22,7 +22,7 @@ impl DaoWorld {
         let contract = self.get_address(contract);
 
         self.set_caller(caller);
-        AccessControlRef::at(contract).add_to_whitelist(user);
+        AccessControlRef::at(&contract).add_to_whitelist(user);
     }
 
     pub fn remove_from_whitelist(&mut self, contract: &Account, caller: &Account, user: &Account) {
@@ -30,12 +30,12 @@ impl DaoWorld {
         let contract = self.get_address(contract);
 
         self.set_caller(caller);
-        AccessControlRef::at(contract).remove_from_whitelist(user);
+        AccessControlRef::at(&contract).remove_from_whitelist(user);
     }
 
     pub fn get_owner(&mut self, contract: &Account) -> Option<Address> {
         let contract = self.get_address(contract);
-        OwnableRef::at(contract).get_owner()
+        OwnableRef::at(&contract).get_owner()
     }
 
     pub fn change_ownership(&mut self, contract: &Account, caller: &Account, new_owner: &Account) {
@@ -43,12 +43,12 @@ impl DaoWorld {
         let contract = self.get_address(contract);
 
         self.set_caller(caller);
-        AccessControlRef::at(contract).change_ownership(new_owner);
+        AccessControlRef::at(&contract).change_ownership(new_owner);
     }
 
     pub fn is_whitelisted(&mut self, contract: &Account, account: &Account) -> bool {
         let account = self.get_address(account);
         let contract = self.get_address(contract);
-        AccessControlRef::at(contract).is_whitelisted(account)
+        AccessControlRef::at(&contract).is_whitelisted(account)
     }
 }

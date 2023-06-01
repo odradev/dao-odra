@@ -410,7 +410,7 @@ impl JobEngine {
             .bid_storage
             .get_job_offer_or_revert(&job.job_offer_id());
         withdraw(
-            job.poster(),
+            &job.poster(),
             job.payment() + job_offer.dos_fee,
             TransferReason::JobPaymentAndDOSFeeReturn,
         );
@@ -418,7 +418,7 @@ impl JobEngine {
 
     fn return_external_worker_cspr_stake(&mut self, job: &Job) {
         withdraw(
-            job.worker(),
+            &job.worker(),
             job.external_worker_cspr_stake(),
             TransferReason::BidStakeReturn,
         );
@@ -512,7 +512,7 @@ impl JobEngine {
         let to_worker = total_left - to_redistribute;
 
         // For External Worker
-        withdraw(job.worker(), to_worker, TransferReason::Redistribution);
+        withdraw(&job.worker(), to_worker, TransferReason::Redistribution);
 
         let redistribute_to_all_vas = self
             .bid_storage
@@ -542,7 +542,7 @@ impl JobEngine {
 
         for (address, balance) in all_balances.balances() {
             let amount = total_left * *balance / total_supply;
-            withdraw(*address, amount, TransferReason::Redistribution);
+            withdraw(address, amount, TransferReason::Redistribution);
         }
     }
 
@@ -551,7 +551,7 @@ impl JobEngine {
             .bid_storage
             .get_job_offer_or_revert(&job.job_offer_id());
         withdraw(
-            job.poster(),
+            &job.poster(),
             job_offer.dos_fee,
             TransferReason::DOSFeeReturn,
         );
@@ -567,7 +567,7 @@ impl JobEngine {
         let partial_supply = balances.total_supply();
         for (address, balance) in balances.balances() {
             let amount = to_redistribute * *balance / partial_supply;
-            withdraw(*address, amount, TransferReason::Redistribution)
+            withdraw(address, amount, TransferReason::Redistribution)
         }
     }
 }

@@ -14,7 +14,7 @@ pub struct KycInfo {
 
 impl KycInfo {
     /// Returns true if the `address` has a non-zero balance of kyc token, false otherwise.
-    pub fn is_kycd(&self, &address: &Address) -> bool {
+    pub fn is_kycd(&self, address: &Address) -> bool {
         !self.refs.kyc_token().balance_of(address).is_zero()
     }
 

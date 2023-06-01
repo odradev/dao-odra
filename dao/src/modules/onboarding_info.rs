@@ -12,7 +12,7 @@ pub struct OnboardingInfo {
 
 impl OnboardingInfo {
     /// Returns true if the `address` has a non-zero balance of va token, false otherwise.
-    pub fn is_onboarded(&self, &address: &Address) -> bool {
+    pub fn is_onboarded(&self, address: &Address) -> bool {
         !self.refs.va_token().balance_of(address).is_zero()
     }
 
@@ -27,7 +27,7 @@ impl OnboardingInfo {
     }
 
     /// Returns the owner of a token with the given id.
-    pub fn owner_of(&self, token_id: TokenId) -> Address {
+    pub fn owner_of(&self, token_id: &TokenId) -> Address {
         self.refs.va_token().owner_of(token_id)
     }
 }

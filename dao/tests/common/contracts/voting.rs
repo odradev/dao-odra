@@ -101,7 +101,7 @@ impl DaoWorld {
         match contract {
             Contract::KycVoter => self.kyc_voter.create_voting(alice, document_hash, *stake),
             Contract::RepoVoter => self.repo_voter.create_voting(
-                self.variable_repository.address(),
+                *self.variable_repository.address(),
                 String::from("key"),
                 Bytes::from(vec![1u8]),
                 None,
@@ -134,7 +134,7 @@ impl DaoWorld {
 
         self.set_caller(&ballot.voter);
         let contract = self.get_address(contract);
-        VoterRef::at(contract).vote(voting_id, voting_type, choice, stake);
+        VoterRef::at(&contract).vote(voting_id, voting_type, choice, stake);
     }
 
     pub fn failing_vote(&mut self, contract: &Account, ballot: &Ballot, expected_error: Error) {
@@ -146,7 +146,7 @@ impl DaoWorld {
         self.set_caller(&ballot.voter);
         let contract = self.get_address(contract);
         test_env::assert_exception(expected_error, || {
-            VoterRef::at(contract).vote(voting_id, voting_type, choice, stake)
+            VoterRef::at(&contract).vote(voting_id, voting_type, choice, stake)
         })
     }
 
@@ -158,7 +158,7 @@ impl DaoWorld {
     ) {
         let voting_type = voting_type.map(|vt| vt.into()).unwrap();
         let contract = self.get_address(contract);
-        VoterRef::at(contract).finish_voting(voting_id, voting_type);
+        VoterRef::at(&contract).finish_voting(voting_id, voting_type);
     }
 
     pub fn voting_exists(
@@ -170,18 +170,18 @@ impl DaoWorld {
         let voting_type = voting_type.into();
 
         let contract = self.get_address(contract);
-        VoterRef::at(contract).voting_exists(voting_id, voting_type)
+        VoterRef::at(&contract).voting_exists(voting_id, voting_type)
     }
 
     pub fn slash_voter(&mut self, contract: &Account, voter: Account, voting_id: u32) {
         let voter = self.get_address(&voter);
 
         let contract = self.get_address(contract);
-        VoterRef::at(contract).slash_voter(voter, voting_id);
+        VoterRef::at(&contract).slash_voter(voter, voting_id);
     }
 
     pub fn get_voting(&mut self, contract: &Account, voting_id: VotingId) -> VotingStateMachine {
-        let voter = VoterRef::at(self.get_address(contract));
+        let voter = VoterRef::at(&self.get_address(contract));
         voter.get_voting(voting_id).expect("Voting does not exists")
     }
 
@@ -194,6 +194,6 @@ impl DaoWorld {
     ) -> Option<DaoBallot> {
         let account = self.get_address(account);
 
-        VoterRef::at(self.get_address(contract)).get_ballot(voting_id, voting_type, account)
+        VoterRef::at(&self.get_address(contract)).get_ballot(voting_id, voting_type, account)
     }
 }

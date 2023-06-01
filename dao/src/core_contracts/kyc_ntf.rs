@@ -49,13 +49,13 @@ impl KycNftContract {
             /// Returns the address of the owner of the token.
             ///
             /// If the given `token_id` does not exist the None value is returned.
-            pub fn owner_of(&self, token_id: TokenId) -> Address;
+            pub fn owner_of(&self, token_id: &TokenId) -> Address;
             /// Returns the token id for a given `address`.
             ///
             /// If the `owner` does not own any token the None value is returned.
             pub fn token_id(&self, address: Address) -> Option<TokenId>;
             /// Returns the number of tokens owned by `owner`.
-            pub fn balance_of(&self, owner: Address) -> U256;
+            pub fn balance_of(&self, owner: &Address) -> U256;
             /// Returns the total number of tokens.
             pub fn total_supply(&self) -> Balance;
             /// Returns a distinct Uniform Resource Identifier (URI) for a given asset.

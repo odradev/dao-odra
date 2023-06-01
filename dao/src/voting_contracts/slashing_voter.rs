@@ -180,18 +180,18 @@ impl SlashingVoterContract {
 
         // Slash all open offers in bid escrows.
         let bid_escrows = self.bid_escrows.get().unwrap_or_default();
-        for bid_escrow_address in bid_escrows {
+        for bid_escrow_address in &bid_escrows {
             SlashableRef::at(bid_escrow_address).slash_all_active_job_offers(slash_task.subject);
         }
 
         // Slash all bids.
         for (bid_escrow_address, bid_id) in stakes.get_bids_stakes_origins() {
-            SlashableRef::at(*bid_escrow_address).slash_bid(*bid_id);
+            SlashableRef::at(bid_escrow_address).slash_bid(*bid_id);
         }
 
         // Slash subject in all voter contracts.
         for (contract_address, voting_id) in stakes.get_voting_stakes_origins() {
-            SlashableRef::at(*contract_address).slash_voter(slash_task.subject, *voting_id);
+            SlashableRef::at(contract_address).slash_voter(slash_task.subject, *voting_id);
         }
     }
 }

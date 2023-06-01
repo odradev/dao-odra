@@ -31,7 +31,7 @@ macro_rules! whitelist {
     ( $( $source:ident => [$( $target:ident ),+] ),+ ) => {
         $(
             $(
-                $source.add_to_whitelist($target.address());
+                $source.add_to_whitelist(*$target.address());
             )+
         )+
     }
@@ -77,9 +77,9 @@ impl Default for DaoWorld {
         let rate_provider = CSPRRateProviderContractDeployer::init(DEFAULT_CSPR_USD_RATE.into());
         let mut ids = DaoIdsContractDeployer::init();
         let mut variable_repository = VariableRepositoryContractDeployer::init(
-            rate_provider.address(),
+            *rate_provider.address(),
             multisig_wallet,
-            ids.address(),
+            *ids.address(),
         );
         let mut reputation_token = ReputationContractDeployer::init();
         let mut kyc_token = KycNftContractDeployer::init(
@@ -90,49 +90,49 @@ impl Default for DaoWorld {
         let mut va_token =
             VaNftContractDeployer::init("va_token".to_string(), "VAT".to_string(), "".to_string());
         let mut admin = AdminContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            va_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *va_token.address(),
         );
 
         // Voters
         let reputation_voter = ReputationVoterContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            va_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *va_token.address(),
         );
         let mut kyc_voter = KycVoterContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            va_token.address(),
-            kyc_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *va_token.address(),
+            *kyc_token.address(),
         );
         let mut repo_voter = RepoVoterContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            va_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *va_token.address(),
         );
         let simple_voter = SimpleVoterContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            va_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *va_token.address(),
         );
         let mut slashing_voter = SlashingVoterContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            va_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *va_token.address(),
         );
         let mut bid_escrow = BidEscrowContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            kyc_token.address(),
-            va_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *kyc_token.address(),
+            *va_token.address(),
         );
         let mut onboarding = OnboardingRequestContractDeployer::init(
-            variable_repository.address(),
-            reputation_token.address(),
-            kyc_token.address(),
-            va_token.address(),
+            *variable_repository.address(),
+            *reputation_token.address(),
+            *kyc_token.address(),
+            *va_token.address(),
         );
 
         whitelist!(
@@ -147,7 +147,7 @@ impl Default for DaoWorld {
             kyc_token => [kyc_voter],
             onboarding => [slashing_voter]
         );
-        slashing_voter.update_bid_escrow_list(vec![bid_escrow.address()]);
+        slashing_voter.update_bid_escrow_list(vec![*bid_escrow.address()]);
 
         Self {
             virtual_balances: Default::default(),

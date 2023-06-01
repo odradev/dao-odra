@@ -71,7 +71,7 @@ impl VotingEngine {
     ) -> (VotingCreatedInfo, VotingStateMachine) {
         RulesBuilder::new()
             .add_validation(CanCreateVoting::create(
-                self.is_va(creator),
+                self.is_va(&creator),
                 configuration.only_va_can_create(),
             ))
             .build()
@@ -604,7 +604,7 @@ impl VotingEngine {
         (mints, burns)
     }
 
-    fn is_va(&self, address: Address) -> bool {
+    fn is_va(&self, address: &Address) -> bool {
         !self.refs.va_token().balance_of(address).is_zero()
     }
 

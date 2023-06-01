@@ -272,7 +272,7 @@ impl BidEngine {
                     .unstake_bid(bid.borrow().into());
             }
             Some(cspr_stake) => {
-                withdraw(bid.worker, cspr_stake, TransferReason::BidStakeReturn);
+                withdraw(&bid.worker, cspr_stake, TransferReason::BidStakeReturn);
             }
         }
     }
@@ -283,7 +283,7 @@ impl BidEngine {
         for i in 0..bids_amount {
             let mut bid = self.bid_storage.get_nth_bid(job_offer_id, i);
             if let Some(cspr) = bid.cspr_stake {
-                withdraw(bid.worker, cspr, TransferReason::BidStakeReturn);
+                withdraw(&bid.worker, cspr, TransferReason::BidStakeReturn);
             }
             bids.push(bid.borrow().into());
             bid.cancel_without_validation();
@@ -295,7 +295,7 @@ impl BidEngine {
     pub fn return_job_offer_poster_dos_fee(&mut self, job_offer_id: &JobOfferId) {
         let job_offer = self.bid_storage.get_job_offer_or_revert(job_offer_id);
         withdraw(
-            job_offer.job_poster,
+            &job_offer.job_poster,
             job_offer.dos_fee,
             TransferReason::DOSFeeReturn,
         );
@@ -309,7 +309,7 @@ impl BidEngine {
 
             if bid.bid_id != *bid_id && bid.status == BidStatus::Created {
                 if let Some(cspr) = bid.cspr_stake {
-                    withdraw(bid.worker, cspr, TransferReason::BidStakeReturn);
+                    withdraw(&bid.worker, cspr, TransferReason::BidStakeReturn);
                 }
                 bids.push(bid.borrow().into());
                 bid.reject_without_validation();
