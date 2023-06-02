@@ -39,6 +39,7 @@ impl DaoWorld {
             Contract::BidEscrow => self.bid_escrow.address(),
             Contract::Onboarding => self.onboarding.address(),
             Contract::CSPRRateProvider => self.rate_provider.address(),
-        }.clone()
+        }
+        .clone()
     }
 }

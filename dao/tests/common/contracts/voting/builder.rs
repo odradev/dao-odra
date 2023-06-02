@@ -55,7 +55,7 @@ pub fn build(world: &DaoWorld, voting: Voting) -> VotingSetup {
                 let values = s.split(' ').collect::<Vec<_>>();
                 let value = values.first().and_then(|s| s.parse().ok()).unwrap();
                 let unit = values.get(1).and_then(|s| s.parse().ok()).unwrap();
-                odra::contract_env::get_block_time() + to_milliseconds(value, unit)
+                to_milliseconds(value, unit)
             });
 
             VotingSetup::Repository(variable_repository_address, key, value, activation_time)

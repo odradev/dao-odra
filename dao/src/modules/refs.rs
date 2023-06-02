@@ -59,7 +59,8 @@ impl ContractRefsStorage {
     /// Returns the Ref of [Variable Repository](crate::core_contracts::VariableRepositoryContract) contract.
     pub fn variable_repository(&self) -> VariableRepositoryContractRef {
         VariableRepositoryContractRef::at(
-            &self.variable_repository
+            &self
+                .variable_repository
                 .get()
                 .unwrap_or_revert_with(Error::VariableValueNotSet),
         )
