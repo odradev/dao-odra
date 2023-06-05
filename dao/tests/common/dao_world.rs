@@ -1,5 +1,3 @@
-use dao::bid_escrow::contract::{BidEscrowContractDeployer, BidEscrowContractRef};
-use dao::bid_escrow::types::{BidId, JobOfferId};
 use dao::voting_contracts::{OnboardingRequestContractDeployer, OnboardingRequestContractRef};
 use dao::{
     core_contracts::{
@@ -21,6 +19,9 @@ use odra::test_env;
 use odra::types::Address;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
+use std::fs::OpenOptions;
+use dao::bid_escrow::contract::{BidEscrowContractDeployer, BidEscrowContractRef};
+use dao::bid_escrow::types::{BidId, JobOfferId};
 
 use super::{contracts::cspr::VirtualBalances, params::Account};
 
@@ -166,6 +167,28 @@ impl Default for DaoWorld {
             onboarding,
             bids: Default::default(),
             offers: Default::default(),
+        }
+    }
+}
+
+impl Drop for DaoWorld {
+    fn drop(&mut self) {
+        use std::io::Write;
+        // let mut total_gas_used: Balance = Balance::zero();
+        // for account_id in 0..17 {
+        //     let account = test_env::get_account(account_id);
+        //     total_gas_used += test_env::total_gas_cost(account);
+        // }
+        let mut file = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open("../gas_used.txt")
+            .unwrap();
+
+        let gas_report = test_env::gas_report();
+        for (reason, gas_cost) in gas_report {
+            let gas: f64 = gas_cost.as_u128() as f64;
+            writeln!(file, "{}: ${}", reason, (gas / 1_000_000_000.0) / 21.0).unwrap();
         }
     }
 }
