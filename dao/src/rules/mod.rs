@@ -8,6 +8,7 @@ pub mod validation;
 
 use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 pub use builder::RulesBuilder;
+use crate::configuration::Configuration;
 
 /// A set of validation rules.
 ///
@@ -31,17 +32,17 @@ impl Rules {
     }
 
     /// Validates only the rules that require voting state.
-    pub fn validate_voting_validations(&self, voting_state_machine: &VotingStateMachine) {
+    pub fn validate_voting_validations(&self, voting_state_machine: &VotingStateMachine, configuration: &Configuration) {
         for validation in &self.voting_validations {
-            if let Err(error) = validation.validate(voting_state_machine) {
+            if let Err(error) = validation.validate(voting_state_machine, configuration) {
                 revert(error)
             }
         }
     }
 
     /// Validates all the rules.
-    pub fn validate(&self, voting_state_machine: &VotingStateMachine) {
+    pub fn validate(&self, voting_state_machine: &VotingStateMachine, configuration: &Configuration) {
         self.validate_generic_validations();
-        self.validate_voting_validations(voting_state_machine);
+        self.validate_voting_validations(voting_state_machine, configuration);
     }
 }

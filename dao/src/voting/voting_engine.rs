@@ -41,6 +41,7 @@ pub struct VotingEngine {
     voting_states: Mapping<VotingId, Option<VotingStateMachine>>,
     ballots: Mapping<(VotingId, VotingType, Address), Ballot>,
     voters: Mapping<(VotingId, VotingType), List<Address>>,
+    configurations: Mapping<VotingId, Configuration>,
 }
 
 impl VotingEngine {
@@ -82,7 +83,7 @@ impl VotingEngine {
         let voting_ids_address = configuration.voting_ids_address();
         let voting_id = get_next_voting_id(voting_ids_address);
         let mut voting =
-            VotingStateMachine::new(voting_id, get_block_time(), creator, configuration);
+            VotingStateMachine::new(voting_id, get_block_time(), creator);
 
         let mut used_stake = None;
         if should_cast_first_vote {
@@ -100,8 +101,9 @@ impl VotingEngine {
             creator,
             voting_id,
             used_stake,
-            voting.voting_configuration(),
+            &configuration,
         );
+        self.configurations.set(&voting_id, configuration);
         self.set_voting(voting.clone());
         (info, voting)
     }
@@ -127,7 +129,7 @@ impl VotingEngine {
     /// * [`ArithmeticOverflow`](Error::ArithmeticOverflow) in an unlikely event of a overflow when calculating reputation to redistribute.
     pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary {
         let mut voting = self.get_voting_or_revert(voting_id);
-
+        let mut configuration = self.get_configuration_or_revert(voting_id);
         self.assert_voting_type(&voting, voting_type);
 
         if voting.completed() {
@@ -140,8 +142,8 @@ impl VotingEngine {
 
         let summary = match voting.voting_type() {
             VotingType::Informal => {
-                let informal_without_stake = voting.is_informal_without_stake();
-                let voting_result = self.finish_informal_voting(&mut voting);
+                let informal_without_stake = voting.is_informal_without_stake(&configuration);
+                let voting_result = self.finish_informal_voting(&mut voting, &mut configuration);
                 if !informal_without_stake {
                     let yes_unstakes = self.return_yes_voters_rep(voting_id, VotingType::Informal);
                     let no_unstakes = self.return_no_voters_rep(voting_id, VotingType::Informal);
@@ -160,15 +162,13 @@ impl VotingEngine {
                 voting_result
             }
             VotingType::Formal => {
-                let voting_result = self.finish_formal_voting(&mut voting);
+                let voting_result = self.finish_formal_voting(&mut voting, &configuration);
                 match voting_result.result() {
                     VotingResult::InFavor => {
-                        if voting
-                            .voting_configuration()
+                        if configuration
                             .should_bind_ballot_for_successful_voting()
                         {
-                            let worker = voting
-                                .voting_configuration()
+                            let worker = configuration
                                 .get_unbound_ballot_address()
                                 .unwrap_or_revert_with(Error::InvalidAddress);
                             self.bound_ballot(&mut voting, worker, VotingType::Formal);
@@ -230,6 +230,7 @@ impl VotingEngine {
     pub fn finish_voting_without_token_redistribution(
         &mut self,
         voting_id: VotingId,
+        configuration: &mut Configuration,
     ) -> VotingSummary {
         let mut voting = self
             .get_voting(voting_id)
@@ -240,8 +241,8 @@ impl VotingEngine {
         }
 
         let summary = match voting.voting_type() {
-            VotingType::Informal => self.finish_informal_voting(&mut voting),
-            VotingType::Formal => self.finish_formal_voting(&mut voting),
+            VotingType::Informal => self.finish_informal_voting(&mut voting, configuration),
+            VotingType::Formal => self.finish_formal_voting(&mut voting, configuration),
         };
 
         self.set_voting(voting);
@@ -249,35 +250,41 @@ impl VotingEngine {
         summary
     }
 
-    fn finish_informal_voting(&mut self, voting: &mut VotingStateMachine) -> VotingSummary {
-        if !voting.is_in_time(get_block_time()) {
+    fn finish_informal_voting(&mut self, voting: &mut VotingStateMachine, configuration: &mut Configuration) -> VotingSummary {
+        if !voting.is_in_time(get_block_time(), configuration) {
             revert(Error::InformalVotingTimeNotReached)
         }
 
         let voting_id = voting.voting_id();
         let voters_count = self.voters_count(voting_id, voting.voting_type());
-        let voting_result = voting.get_result(voters_count);
-        match voting_result {
+        let voting_result = voting.get_result(voters_count, configuration);
+        let double_time_between_votings = match voting_result {
             VotingResult::InFavor | VotingResult::Against => {
-                voting.complete_informal_voting();
+                voting.complete_informal_voting(configuration)
             }
             VotingResult::QuorumNotReached => {
                 voting.finish();
+                false
             }
             VotingResult::Canceled => revert(Error::VotingAlreadyCanceled),
         };
 
+        if double_time_between_votings {
+            configuration.double_time_between_votings();
+            self.configurations.set(&voting_id, configuration.clone());
+        }
+
         VotingSummary::new(voting_result, VotingType::Informal, voting_id)
     }
 
-    fn finish_formal_voting(&mut self, voting: &mut VotingStateMachine) -> VotingSummary {
-        voting.guard_finish_formal_voting(get_block_time());
+    fn finish_formal_voting(&mut self, voting: &mut VotingStateMachine, configuration: &Configuration) -> VotingSummary {
+        voting.guard_finish_formal_voting(get_block_time(), configuration);
         let voting_id = voting.voting_id();
         let voters_count = self.voters_count(voting_id, VotingType::Formal);
-        let voting_result = voting.get_result(voters_count);
+        let voting_result = voting.get_result(voters_count, configuration);
 
         if voting_result == VotingResult::InFavor {
-            self.perform_action(voting.voting_id());
+            self.perform_action(configuration);
         }
 
         voting.finish();
@@ -315,8 +322,9 @@ impl VotingEngine {
         voting: &mut VotingStateMachine,
     ) {
         let voting_id = voting.voting_id();
+        let configuration = self.get_configuration_or_revert(voting_id);
         self.assert_voting_type(voting, voting_type);
-        voting.guard_vote(get_block_time());
+        voting.guard_vote(get_block_time(), &configuration);
         self.assert_vote_doesnt_exist(voting_id, voting.voting_type(), voter);
         self.cast_ballot(voter, voting_id, choice, stake, false, voting);
     }
@@ -369,7 +377,9 @@ impl VotingEngine {
             false,
         );
 
-        if !unbound && !voting.is_informal_without_stake() {
+        let configuration = self.get_configuration_or_revert(voting_id);
+
+        if !unbound && !voting.is_informal_without_stake(&configuration) {
             // Stake the reputation
             self.refs
                 .reputation_token()
@@ -444,14 +454,21 @@ impl VotingEngine {
             .unwrap_or_revert_with(Error::VotingDoesNotExist)
     }
 
+    /// Gets configuration with a given voting_id or stops contract execution.
+    ///
+    /// # Error
+    /// * [Error::ConfigurationNotFound] if the given id does not exist.
+    pub fn get_configuration_or_revert(&self, voting_id: VotingId) -> Configuration {
+        self.configurations.get(&voting_id).unwrap_or_revert_with(Error::ConfigurationNotFound)
+    }
+
     /// Updates voting storage.
     pub fn set_voting(&mut self, voting: VotingStateMachine) {
         self.voting_states.set(&voting.voting_id(), Some(voting))
     }
 
-    fn perform_action(&self, voting_id: VotingId) {
-        let voting = self.get_voting(voting_id).unwrap_or_revert();
-        for contract_call in voting.contract_calls() {
+    fn perform_action(&self, configuration: &Configuration) {
+        for contract_call in configuration.contract_calls() {
             contract_call.call();
         }
     }

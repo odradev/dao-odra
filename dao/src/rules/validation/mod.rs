@@ -7,6 +7,7 @@ pub mod voting;
 use crate::utils::Error;
 use crate::voting::voting_engine::voting_state_machine::VotingStateMachine;
 pub use is_user_kyced::IsUserKyced;
+use crate::configuration::Configuration;
 
 /// A generic validation.
 pub trait Validation {
@@ -17,5 +18,5 @@ pub trait Validation {
 /// A validation in the voting context.
 pub trait VotingValidation {
     /// Returns the result of validation.
-    fn validate(&self, voting_state_machine: &VotingStateMachine) -> Result<(), Error>;
+    fn validate(&self, voting_state_machine: &VotingStateMachine, configuration: &Configuration) -> Result<(), Error>;
 }
