@@ -89,12 +89,13 @@ impl AdminContract {
         address: Address,
         stake: Balance,
     ) {
+        // $0.10
         let mut call_args = CallArgs::new();
         call_args.insert(action.get_arg(), address);
 
         let voting_configuration = ConfigurationBuilder::new(
-            self.refs.va_token().total_supply(),
-            &self.refs.variable_repository().all_variables(),
+            self.refs.va_token().total_supply(),              // $0.08
+            &self.refs.variable_repository().all_variables(), // $2.60 !
         )
         .contract_call(ContractCall {
             address: contract_to_update,
@@ -104,16 +105,21 @@ impl AdminContract {
         })
         .build();
 
+        // $2.79
+        //
         let (info, _) = self
             .voting_engine
-            .create_voting(caller(), stake, voting_configuration);
+            .create_voting(caller(), stake, voting_configuration); // $0.95
 
+        // $3.73
         emit_event(AdminVotingCreated::new(
             contract_to_update,
             action,
             address,
             info,
-        ));
+        )); // $0.05
+
+        // $3.78
     }
 
     pub fn vote(
@@ -127,9 +133,9 @@ impl AdminContract {
             .vote(caller(), voting_id, voting_type, choice, stake);
     }
 
-    pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
+    pub fn slash_voter(&mut self, voter: Address) {
         self.access_control.ensure_whitelisted();
-        self.voting_engine.slash_voter(voter, voting_id);
+        self.voting_engine.slash_voter(voter);
     }
 }
 
@@ -209,5 +215,3 @@ impl Action {
         }
     }
 }
-
-// TODO: Setup Composer, events

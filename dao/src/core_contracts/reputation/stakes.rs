@@ -8,7 +8,7 @@ use crate::voting::types::VotingId;
 use odra::{
     contract_env,
     types::{event::OdraEvent, Address, Balance, OdraType},
-    Mapping, UnwrapOrRevert,
+    List, Mapping, UnwrapOrRevert,
 };
 
 use super::{
@@ -22,8 +22,8 @@ use crate::bid_escrow::types::BidId;
 #[odra::module(events = [Stake, Unstake])]
 pub struct StakesStorage {
     total_stake: Mapping<Address, Balance>,
-    bids: Mapping<Address, Vec<(Address, BidId)>>,
-    votings: Mapping<Address, Vec<(Address, VotingId)>>,
+    bids: Mapping<Address, List<Option<(Address, BidId)>>>,
+    votings: Mapping<Address, List<Option<(Address, VotingId)>>>,
     access_control: AccessControl,
     reputation_storage: BalanceStorage,
 }
@@ -40,8 +40,8 @@ impl StakesStorage {
     /// [`NotWhitelisted`](casper_dao_utils::Error::NotWhitelisted) if called by a not whitelisted account.
     pub fn stake_voting(&mut self, voting_id: VotingId, ballot: ShortenedBallot) {
         self.access_control.ensure_whitelisted();
-
         let ShortenedBallot { voter, stake } = ballot;
+
         self.assert_stake(stake);
         self.assert_balance(voter, stake);
 
@@ -80,7 +80,7 @@ impl StakesStorage {
     /// * `ballots`- a vector of short version of ballots that has been casted.
     ///
     /// # Errors
-    ///
+    ///)
     /// [`NotWhitelisted`](casper_dao_utils::Error::NotWhitelisted) if called by a not whitelisted account.
     pub fn bulk_unstake_voting(&mut self, voting_id: VotingId, ballots: Vec<ShortenedBallot>) {
         self.access_control.ensure_whitelisted();
@@ -184,14 +184,30 @@ impl StakesStorage {
     ///
     /// A returned vector is a tuple of (BidEscrow contract address, bid id).
     pub fn get_bids(&self, address: &Address) -> Vec<(Address, BidId)> {
-        self.bids.get(address).unwrap_or_default()
+        let bids = self.bids.get_instance(address);
+        let mut result = vec![];
+        for maybe_bid in bids.iter() {
+            if let Some((address, bid_id)) = maybe_bid {
+                result.push((address, bid_id));
+            }
+        }
+
+        result
     }
 
     /// Returns all the voting the given account participated in.
     ///
     /// A returned vector is a tuple of (voting contract address, voting id).
     pub fn get_votings(&self, address: &Address) -> Vec<(Address, VotingId)> {
-        self.votings.get(address).unwrap_or_default()
+        let votings = self.votings.get_instance(address);
+        let mut result = vec![];
+        for maybe_voting in votings.iter() {
+            if let Some((address, voting_id)) = maybe_voting {
+                result.push((address, voting_id));
+            }
+        }
+
+        result
     }
 }
 
@@ -233,21 +249,19 @@ trait UpdatableVec<K, R> {
     fn remove_record(&mut self, key: &K, record: R);
 }
 
-impl<Key> UpdatableVec<Key, (Address, u32)> for Mapping<Key, Vec<(Address, u32)>>
+impl<Key> UpdatableVec<Key, (Address, u32)> for Mapping<Key, List<Option<(Address, u32)>>>
 where
     Key: OdraType + Hash,
 {
     fn push_record(&mut self, key: &Key, record: (Address, u32)) {
-        let mut records = self.get(key).unwrap_or_default();
-        records.push(record);
-        self.set(key, records);
+        let mut records = self.get_instance(key);
+        records.push(Some(record));
     }
 
     fn remove_record(&mut self, key: &Key, record: (Address, u32)) {
-        let mut records = self.get(key).unwrap_or_default();
-        if let Some(position) = records.iter().position(|r| r == &record) {
-            records.remove(position);
+        let mut records = self.get_instance(key);
+        if let Some(position) = records.iter().position(|r| r == Some(record)) {
+            records.replace(position as u32, None);
         }
-        self.set(key, records);
     }
 }

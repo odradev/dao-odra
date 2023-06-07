@@ -179,9 +179,9 @@ impl OnboardingRequestContract {
     }
 
     /// Erases the voter from voting with the given id. [Read more](VotingEngine::slash_voter).
-    pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
+    pub fn slash_voter(&mut self, voter: Address) {
         self.access_control.ensure_whitelisted();
-        self.voting.slash_voter(voter, voting_id);
+        self.voting.slash_voter(voter);
     }
 }
 

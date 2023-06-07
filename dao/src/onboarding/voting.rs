@@ -123,7 +123,9 @@ impl Onboarding {
         configuration: Configuration,
         stake: Balance,
     ) -> VotingCreatedInfo {
-        let (voting_info, mut voting) = self.voting.create_voting(creator, stake, configuration);
+        let (voting_info, mut voting) =
+            self.voting
+                .create_voting(creator, stake, configuration.clone());
 
         // passed config disables casting first votes, must be casted manually.
         self.voting.cast_ballot(
@@ -133,6 +135,7 @@ impl Onboarding {
             stake,
             true,
             &mut voting,
+            &configuration,
         );
         self.ids.set(&creator, voting.voting_id());
         self.voting.set_voting(voting);

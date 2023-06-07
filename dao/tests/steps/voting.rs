@@ -1,5 +1,5 @@
 use cucumber::{gherkin::Step, given, then, when};
-use dao::utils::Error as DaoError;
+use dao::{utils::Error as DaoError, voting::voting_engine::voting_state_machine::VotingState};
 use odra::test_env;
 
 use crate::common::{
@@ -52,7 +52,11 @@ fn voting(
             .build(row)
     })
     .filter(|ballot| !ballot.stake.is_zero())
-    .for_each(|ballot| world.vote(&contract, &ballot));
+    .for_each(|ballot| {
+        suppress(|| {
+            world.vote(&contract, &ballot)
+        });
+    });
 }
 
 #[when(expr = "{account} creates test voting in {contract} with {reputation} stake")]
@@ -70,9 +74,9 @@ fn end_voting(world: &mut DaoWorld, voting_type: VotingType, voting_id: u32, con
     world.finish_voting(&contract, voting_id, Some(voting_type));
 }
 
-#[when(expr = "{account} slashes {account} in voting with id {int}")]
-fn slash_voter(world: &mut DaoWorld, contract: Account, voter: Account, voting_id: u32) {
-    world.slash_voter(&contract, voter, voting_id);
+#[when(expr = "{account} calls {account} to slash {account}")]
+fn slash_voter(world: &mut DaoWorld, caller: Account, contract: Account, voter: Account) {
+    world.slash_voter(caller, contract, voter);
 }
 
 #[then(expr = "formal voting with id {int} in {account} contract does not start")]
@@ -219,7 +223,7 @@ fn voting_passes(
 }
 
 #[when(expr = "{account} voting with id {int} created by {account} fails")]
-async fn voting_fails(
+fn voting_fails(
     world: &mut DaoWorld,
     step: &Step,
     contract: Account,
@@ -227,6 +231,18 @@ async fn voting_fails(
     creator: Account,
 ) {
     conduct_voting(world, step, contract, voting_id, creator, Choice::Against);
+}
+
+#[then(expr = "{account} voting with id {int} is canceled")]
+fn assert_voting_is_cancelled(world: &mut DaoWorld, contract: Account, voting_id: u32) {
+    let voting = world.get_voting(&contract, voting_id);
+    let state = voting.state();
+    assert_eq!(
+        state,
+        &VotingState::Canceled,
+        "Voting status is {:?}, but should be canceled",
+        state,
+    );
 }
 
 fn conduct_voting(

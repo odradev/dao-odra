@@ -160,11 +160,6 @@ impl KycVoterContract {
             .vote(caller(), voting_id, voting_type, choice, stake);
     }
 
-    pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
-        self.access_control.ensure_whitelisted();
-        self.voting_engine.slash_voter(voter, voting_id);
-    }
-
     pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary {
         let summary = self.voting_engine.finish_voting(voting_id, voting_type);
         // The voting is ended when:
@@ -179,6 +174,11 @@ impl KycVoterContract {
             self.kyc.clear_voting(&address);
         }
         summary
+    }
+
+    pub fn slash_voter(&mut self, voter: Address) {
+        self.access_control.ensure_whitelisted();
+        self.voting_engine.slash_voter(voter);
     }
 
     fn assert_not_kyced(&self, address: &Address) {

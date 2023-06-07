@@ -1,7 +1,6 @@
 use crate::configuration::Configuration;
 use crate::rules::validation::voting::{AfterFormalVoting, VoteInTime, VotingNotCompleted};
 use crate::rules::RulesBuilder;
-use crate::utils::ContractCall;
 use crate::voting::ballot::Choice;
 use crate::voting::types::VotingId;
 use odra::types::{Address, Balance, BlockTime};
@@ -19,17 +18,11 @@ pub struct VotingStateMachine {
     formal_stats: Stats,
     created_at: u64,
     creator: Address,
-    configuration: Configuration,
 }
 
 impl VotingStateMachine {
     /// Creates new Voting with immutable [`Configuration`](Configuration).
-    pub fn new(
-        voting_id: VotingId,
-        created_at: u64,
-        creator: Address,
-        configuration: Configuration,
-    ) -> Self {
+    pub fn new(voting_id: VotingId, created_at: u64, creator: Address) -> Self {
         VotingStateMachine {
             voting_id,
             state: VotingState::Created,
@@ -38,17 +31,20 @@ impl VotingStateMachine {
             formal_stats: Default::default(),
             created_at,
             creator,
-            configuration,
         }
     }
 
     /// Ends the informal phase, verifies if the result is close, updates voting type to [Formal](VotingType::Formal).
-    pub fn complete_informal_voting(&mut self) {
-        self.state = VotingState::Formal;
-        if self.is_result_close() {
-            self.configuration.double_time_between_votings();
+    pub fn complete_informal_voting(&mut self, configuration: &Configuration) -> bool {
+        let mut result_close = false;
+        if self.is_result_close(configuration) {
+            result_close = true;
         }
+
+        self.state = VotingState::Formal;
         self.voting_type = VotingType::Formal;
+
+        return result_close;
     }
 
     /// Ends the voting process gracefully.
@@ -67,40 +63,39 @@ impl VotingStateMachine {
     }
 
     /// Checks if Voting is of type [Informal](VotingType::Informal) and stakes the reputation.
-    pub fn is_informal_without_stake(&self) -> bool {
-        !self.voting_configuration().informal_stake_reputation()
-            && self.voting_type() == VotingType::Informal
+    pub fn is_informal_without_stake(&self, configuration: &Configuration) -> bool {
+        !configuration.informal_stake_reputation() && self.voting_type() == VotingType::Informal
     }
 
     /// Checks if Voting is still in the voting phase.
-    pub fn is_in_time(&self, block_time: u64) -> bool {
+    pub fn is_in_time(&self, block_time: u64, configuration: &Configuration) -> bool {
         match self.voting_type() {
             VotingType::Informal => {
-                let start_time = self.informal_voting_start_time();
-                let voting_time = self.configuration.informal_voting_time();
+                let start_time = self.informal_voting_start_time(configuration);
+                let voting_time = configuration.informal_voting_time();
                 start_time + voting_time <= block_time
             }
             VotingType::Formal => {
-                self.informal_voting_start_time() + self.configuration.formal_voting_time()
+                self.informal_voting_start_time(configuration) + configuration.formal_voting_time()
                     <= block_time
             }
         }
     }
 
     /// Gets the informal phase end time.
-    pub fn informal_voting_end_time(&self) -> BlockTime {
-        self.informal_voting_start_time() + self.configuration.informal_voting_time()
+    pub fn informal_voting_end_time(&self, configuration: &Configuration) -> BlockTime {
+        self.informal_voting_start_time(&configuration) + configuration.informal_voting_time()
     }
 
     /// Gets the informal-formal break end time.
-    pub fn time_between_votings_end_time(&self) -> BlockTime {
-        self.informal_voting_end_time()
-            + self.configuration.time_between_informal_and_formal_voting()
+    pub fn time_between_votings_end_time(&self, configuration: &Configuration) -> BlockTime {
+        self.informal_voting_end_time(configuration)
+            + configuration.time_between_informal_and_formal_voting()
     }
 
     /// Gets the informal phase end time.
-    pub fn formal_voting_end_time(&self) -> BlockTime {
-        self.time_between_votings_end_time() + self.configuration.formal_voting_time()
+    pub fn formal_voting_end_time(&self, configuration: &Configuration) -> BlockTime {
+        self.time_between_votings_end_time(configuration) + configuration.formal_voting_time()
     }
 
     /// Checks is the `in_favor` stake surpasses the `against` stake.
@@ -126,8 +121,8 @@ impl VotingStateMachine {
     }
 
     /// Gets the current voting result.
-    pub fn get_result(&self, voters_number: u32) -> VotingResult {
-        if self.get_quorum() > voters_number {
+    pub fn get_result(&self, voters_number: u32, configuration: &Configuration) -> VotingResult {
+        if self.get_quorum(configuration) > voters_number {
             VotingResult::QuorumNotReached
         } else if self.is_in_favor() {
             VotingResult::InFavor
@@ -256,16 +251,6 @@ impl VotingStateMachine {
         }
     }
 
-    /// Gets the voting's contract call reference.
-    pub fn contract_calls(&self) -> &Vec<ContractCall> {
-        self.configuration.contract_calls()
-    }
-
-    /// Gets a reference to the voting's voting configuration.
-    pub fn voting_configuration(&self) -> &Configuration {
-        &self.configuration
-    }
-
     /// Gets the voting creator.
     pub fn creator(&self) -> &Address {
         &self.creator
@@ -282,11 +267,15 @@ impl VotingStateMachine {
     }
 
     /// Returns the voting state depending on a given `block_time`.
-    pub fn state_in_time(&self, block_time: BlockTime) -> VotingState {
-        let informal_voting_start = self.informal_voting_start_time();
-        let informal_voting_end = self.informal_voting_end_time();
-        let between_voting_end = self.time_between_votings_end_time();
-        let voting_end = self.formal_voting_end_time();
+    pub fn state_in_time(
+        &self,
+        block_time: BlockTime,
+        configuration: &Configuration,
+    ) -> VotingState {
+        let informal_voting_start = self.informal_voting_start_time(configuration);
+        let informal_voting_end = self.informal_voting_end_time(configuration);
+        let between_voting_end = self.time_between_votings_end_time(configuration);
+        let voting_end = self.formal_voting_end_time(configuration);
 
         if block_time < informal_voting_start {
             VotingState::Created
@@ -311,26 +300,26 @@ impl VotingStateMachine {
         &self.formal_stats
     }
 
-    fn informal_voting_start_time(&self) -> u64 {
-        self.created_at() + self.configuration.voting_delay()
+    fn informal_voting_start_time(&self, configuration: &Configuration) -> u64 {
+        self.created_at() + configuration.voting_delay()
     }
 
     pub fn created_at(&self) -> u64 {
         self.created_at
     }
 
-    fn is_result_close(&self) -> bool {
+    fn is_result_close(&self, configuration: &Configuration) -> bool {
         let stake_in_favor = self.stake_in_favor() + self.unbound_stake_in_favor();
         let stake_against = self.stake_against() + self.unbound_stake_against();
         let stake_diff = stake_in_favor.abs_diff(stake_against);
         let stake_diff_percent = stake_diff.saturating_mul(Balance::from(100)) / self.total_stake();
-        stake_diff_percent <= self.configuration.voting_clearness_delta()
+        stake_diff_percent <= configuration.voting_clearness_delta()
     }
 
-    fn get_quorum(&self) -> u32 {
+    fn get_quorum(&self, configuration: &Configuration) -> u32 {
         match self.voting_type() {
-            VotingType::Informal => self.configuration.informal_voting_quorum(),
-            VotingType::Formal => self.configuration.formal_voting_quorum(),
+            VotingType::Informal => configuration.informal_voting_quorum(),
+            VotingType::Formal => configuration.formal_voting_quorum(),
         }
     }
 
@@ -351,22 +340,22 @@ impl VotingStateMachine {
     /// Verifies if a ballot can be casted.
     ///
     /// Stops contract execution if validation fails. See [`VoteInTime`].
-    pub fn guard_vote(&self, block_time: BlockTime) {
+    pub fn guard_vote(&self, block_time: BlockTime, configuration: &Configuration) {
         RulesBuilder::new()
             .add_voting_validation(VoteInTime::create(block_time))
             .build()
-            .validate(self);
+            .validate(self, configuration);
     }
 
     /// Verifies if the formal voting can be finished.
     ///
     /// Stops contract execution if validation fails. See [`AfterFormalVoting`] and [`VotingNotCompleted`].
-    pub fn guard_finish_formal_voting(&self, block_time: BlockTime) {
+    pub fn guard_finish_formal_voting(&self, block_time: BlockTime, configuration: &Configuration) {
         RulesBuilder::new()
             .add_voting_validation(AfterFormalVoting::create(block_time))
             .add_voting_validation(VotingNotCompleted::create())
             .build()
-            .validate(self);
+            .validate(self, configuration);
     }
 }
 
@@ -388,7 +377,7 @@ pub struct Stats {
 }
 
 /// State of Voting.
-#[derive(OdraType, PartialEq, Eq)]
+#[derive(OdraType, PartialEq, Eq, Debug)]
 pub enum VotingState {
     /// Voting created but informal voting is not started.
     Created,

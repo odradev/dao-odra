@@ -59,15 +59,15 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
     // some calls fail (the owner/deployer is the default caller).
     // TestEnv does not allow to set a contract as the call executor, so we need leave the owner/deployer
     // on the whitelist.
-    transfer_ownership_to_admin!(world, Contract::BidEscrow);
-    transfer_ownership_to_admin!(world, Contract::KycToken);
-    transfer_ownership_to_admin!(world, Contract::KycVoter);
+    // transfer_ownership_to_admin!(world, Contract::BidEscrow);
+    // transfer_ownership_to_admin!(world, Contract::KycToken);
+    // transfer_ownership_to_admin!(world, Contract::KycVoter);
     // transfer_ownership_to_admin!(world, Contract::Onboarding);
-    transfer_ownership_to_admin!(world, Contract::RepoVoter);
-    transfer_ownership_to_admin!(world, Contract::ReputationToken);
-    transfer_ownership_to_admin!(world, Contract::ReputationVoter);
-    transfer_ownership_to_admin!(world, Contract::SimpleVoter);
-    transfer_ownership_to_admin!(world, Contract::SlashingVoter);
-    transfer_ownership_to_admin!(world, Contract::VaToken);
-    transfer_ownership_to_admin!(world, Contract::VariableRepository);
+    // transfer_ownership_to_admin!(world, Contract::RepoVoter);
+    // transfer_ownership_to_admin!(world, Contract::ReputationToken);
+    // transfer_ownership_to_admin!(world, Contract::ReputationVoter);
+    // transfer_ownership_to_admin!(world, Contract::SimpleVoter);
+    // transfer_ownership_to_admin!(world, Contract::SlashingVoter);
+    // transfer_ownership_to_admin!(world, Contract::VaToken);
+    // transfer_ownership_to_admin!(world, Contract::VariableRepository);
 }

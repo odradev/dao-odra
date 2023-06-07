@@ -120,7 +120,6 @@ pub struct Ballot {
     pub voting_type: VotingType,
 }
 
-#[allow(dead_code)]
 #[derive(Default)]
 pub struct BallotBuilder {
     voting_id: u32,

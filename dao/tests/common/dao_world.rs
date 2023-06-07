@@ -21,6 +21,7 @@ use odra::test_env;
 use odra::types::Address;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
+use std::fs::OpenOptions;
 
 use super::{contracts::cspr::VirtualBalances, params::Account};
 
@@ -167,6 +168,24 @@ impl Default for DaoWorld {
             bids: Default::default(),
             offers: Default::default(),
         }
+    }
+}
+
+impl Drop for DaoWorld {
+    fn drop(&mut self) {
+        use std::io::Write;
+        let mut file = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open("../gas_report.txt")
+            .unwrap();
+
+        let gas_report = test_env::gas_report();
+        for (reason, gas_cost) in gas_report {
+            let gas: f64 = gas_cost.as_u128() as f64;
+            writeln!(file, "{}: ${}", reason, (gas / 1_000_000_000.0) / 21.0).unwrap();
+        }
+        writeln!(file, "\n").unwrap();
     }
 }
 

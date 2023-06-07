@@ -504,7 +504,8 @@ impl BidEscrowContract {
     /// Erases the voter from voting with the given id. [Read more](VotingEngine::slash_voter).
     pub fn cancel_voter(&mut self, voter: Address, voting_id: VotingId) {
         self.access_control.ensure_whitelisted();
-        self.voting_engine.slash_voter(voter, voting_id);
+        // TODO
+        // self.voting_engine.slash_voter(voter, voting_id);
     }
 
     /// Invalidates all the active [JobOffer]s, returns `DOS Fee`s to the `Job Poster`s, returns funds to `Bidders`.
