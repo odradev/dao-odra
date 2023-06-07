@@ -97,7 +97,7 @@ impl Default for DaoWorld {
         );
 
         // Voters
-        let reputation_voter = ReputationVoterContractDeployer::init(
+        let mut reputation_voter = ReputationVoterContractDeployer::init(
             *variable_repository.address(),
             *reputation_token.address(),
             *va_token.address(),
@@ -113,7 +113,7 @@ impl Default for DaoWorld {
             *reputation_token.address(),
             *va_token.address(),
         );
-        let simple_voter = SimpleVoterContractDeployer::init(
+        let mut simple_voter = SimpleVoterContractDeployer::init(
             *variable_repository.address(),
             *reputation_token.address(),
             *va_token.address(),
@@ -141,14 +141,30 @@ impl Default for DaoWorld {
             variable_repository => [repo_voter],
             reputation_token => [admin, repo_voter, reputation_voter, kyc_voter, slashing_voter, simple_voter, bid_escrow, onboarding],
             va_token => [slashing_voter, bid_escrow, onboarding],
-            repo_voter => [slashing_voter, simple_voter],
-            kyc_voter => [slashing_voter],
-            admin => [slashing_voter],
-            bid_escrow => [slashing_voter],
             kyc_token => [kyc_voter],
-            onboarding => [slashing_voter]
+            admin => [slashing_voter],
+            kyc_voter => [slashing_voter],
+            onboarding => [slashing_voter],
+            repo_voter => [slashing_voter, simple_voter],
+            reputation_voter => [slashing_voter],
+            simple_voter => [slashing_voter],
+            slashing_voter => [slashing_voter],
+            bid_escrow => [slashing_voter]
         );
         slashing_voter.update_bid_escrow_list(vec![*bid_escrow.address()]);
+
+        let voter_contracts: Vec<Address> = vec![
+            admin.address(),
+            kyc_voter.address(),
+            onboarding.address(),
+            repo_voter.address(),
+            reputation_voter.address(),
+            simple_voter.address(),
+            slashing_voter.address(),
+        ].into_iter().cloned().collect();
+
+        // TODO: Maybe this should be in Admin? Maybe in variable repo?
+        slashing_voter.update_voter_list(voter_contracts);
 
         Self {
             virtual_balances: Default::default(),

@@ -67,21 +67,6 @@
       "return_ty": "Unit"
     },
     {
-      "name": "slash_voter",
-      "is_mutable": true,
-      "args": [
-        {
-          "name": "voter",
-          "ty": "Key"
-        },
-        {
-          "name": "voting_id",
-          "ty": "U32"
-        }
-      ],
-      "return_ty": "Unit"
-    },
-    {
       "name": "finish_voting",
       "is_mutable": true,
       "args": [
@@ -95,6 +80,17 @@
         }
       ],
       "return_ty": "Any"
+    },
+    {
+      "name": "slash_voter",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "voter",
+          "ty": "Key"
+        }
+      ],
+      "return_ty": "Unit"
     },
     {
       "name": "voting_exists",

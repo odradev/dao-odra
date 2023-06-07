@@ -73,10 +73,6 @@
         {
           "name": "voter",
           "ty": "Key"
-        },
-        {
-          "name": "voting_id",
-          "ty": "U32"
         }
       ],
       "return_ty": "Unit"

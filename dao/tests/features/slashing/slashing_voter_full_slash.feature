@@ -15,7 +15,7 @@ Feature: Slashing voter can fully slash VA.
 
   Scenario: VA1 gets removed from the DAO
 
-    # VA1 crates a new voter.
+    # VA1 crates a new voting.
     When VA1 creates test voting in KycVoter with 100 stake
     And voters vote in KycVoter informal voting with id 0
         | account | stake | vote | 

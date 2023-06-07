@@ -34,6 +34,19 @@
       "return_ty": "Unit"
     },
     {
+      "name": "update_voter_list",
+      "is_mutable": true,
+      "args": [
+        {
+          "name": "voters",
+          "ty": {
+            "List": "Key"
+          }
+        }
+      ],
+      "return_ty": "Unit"
+    },
+    {
       "name": "create_voting",
       "is_mutable": true,
       "args": [
@@ -97,10 +110,6 @@
         {
           "name": "voter",
           "ty": "Key"
-        },
-        {
-          "name": "voting_id",
-          "ty": "U32"
         }
       ],
       "return_ty": "Unit"
