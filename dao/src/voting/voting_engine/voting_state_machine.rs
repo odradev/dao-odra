@@ -377,7 +377,7 @@ pub struct Stats {
 }
 
 /// State of Voting.
-#[derive(OdraType, PartialEq, Eq)]
+#[derive(OdraType, PartialEq, Eq, Debug)]
 pub enum VotingState {
     /// Voting created but informal voting is not started.
     Created,

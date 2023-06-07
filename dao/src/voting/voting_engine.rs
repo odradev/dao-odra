@@ -14,7 +14,7 @@ use crate::voting::voting_engine::voting_state_machine::{
 };
 use odra::contract_env::{emit_event, get_block_time, revert};
 use odra::types::{Address, Balance};
-use odra::{List, Mapping, UnwrapOrRevert};
+use odra::{List, Mapping, UnwrapOrRevert, Variable};
 use std::collections::BTreeMap;
 
 pub mod events;
@@ -42,6 +42,7 @@ pub struct VotingEngine {
     ballots: Mapping<(VotingId, VotingType, Address), Ballot>,
     voters: Mapping<(VotingId, VotingType), List<Address>>,
     configurations: Mapping<VotingId, Configuration>,
+    active_votings: Variable<Vec<VotingId>>, // TODO: implement a list with remove method by index.
 }
 
 impl VotingEngine {
@@ -99,6 +100,10 @@ impl VotingEngine {
 
         let info = VotingCreatedInfo::new(creator, voting_id, used_stake, &configuration);
         self.set_voting(voting.clone());
+
+        // Register voting in active votings list.
+        self.add_to_active_list(voting_id);
+
         (info, voting)
     }
 
@@ -262,6 +267,7 @@ impl VotingEngine {
                 voting.complete_informal_voting(configuration)
             }
             VotingResult::QuorumNotReached => {
+                self.remove_from_active_list(voting_id);
                 voting.finish();
                 false
             }
@@ -290,6 +296,7 @@ impl VotingEngine {
             self.perform_action(configuration);
         }
 
+        self.remove_from_active_list(voting_id);
         voting.finish();
 
         VotingSummary::new(voting_result, VotingType::Formal, voting_id)
@@ -687,12 +694,15 @@ impl VotingEngine {
     ///
     /// If the voter is also the creator, voting is canceled.
     /// Otherwise, only his vote is invalidated.
-    pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
-        let voting = self.get_voting_or_revert(voting_id);
-        if &voter == voting.creator() {
-            self.cancel_voting(voting);
-        } else {
-            self.cancel_ballot(voting, voter);
+    pub fn slash_voter(&mut self, voter: Address) {
+        let active_voting_ids = self.active_votings.get_or_default();
+        for voting_id in active_voting_ids.into_iter() {
+            let voting = self.get_voting_or_revert(voting_id);
+            if voting.creator() == &voter {
+                self.cancel_voting(voting);
+            } else {
+                self.cancel_ballot(voting, voter);
+            }
         }
     }
 
@@ -702,6 +712,7 @@ impl VotingEngine {
         let unstakes = self.unstake_all_reputation(voting_id, voting_type);
         voting.cancel();
         self.set_voting(voting);
+        self.remove_from_active_list(voting_id);
 
         // Emit event.
         emit_event(VotingCanceled::new(voting_id, voting_type, unstakes));
@@ -711,10 +722,10 @@ impl VotingEngine {
     fn cancel_ballot(&mut self, mut voting: VotingStateMachine, voter: Address) {
         let voting_id = voting.voting_id();
         let ballots_key = (voting_id, voting.voting_type(), voter);
-        let mut ballot = self
-            .ballots
-            .get(&ballots_key)
-            .unwrap_or_revert_with(Error::BallotDoesNotExist);
+        let mut ballot = match self.ballots.get(&ballots_key) {
+            Some(ballot) => ballot,
+            None => return, // End method if voter never voted in this voting.
+        };
 
         // Unstake reputation.
         self.refs
@@ -737,6 +748,18 @@ impl VotingEngine {
         // Update ballot.
         ballot.canceled = true;
         self.ballots.set(&ballots_key, ballot);
+    }
+
+    fn add_to_active_list(&mut self, voting_id: VotingId) {
+        let mut active_list = self.active_votings.get_or_default();
+        active_list.push(voting_id);
+        self.active_votings.set(active_list);
+    }
+
+    fn remove_from_active_list(&mut self, voting_id: VotingId) {
+        let mut active_list = self.active_votings.get_or_default();
+        active_list.retain(|&id| id != voting_id);
+        self.active_votings.set(active_list);
     }
 }
 

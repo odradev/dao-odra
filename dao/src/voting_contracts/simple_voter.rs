@@ -144,9 +144,9 @@ impl SimpleVoterContract {
             .vote(caller(), voting_id, voting_type, choice, stake);
     }
 
-    pub fn slash_voter(&mut self, voter: Address, voting_id: VotingId) {
+    pub fn slash_voter(&mut self, voter: Address) {
         self.access_control.ensure_whitelisted();
-        self.voting_engine.slash_voter(voter, voting_id);
+        self.voting_engine.slash_voter(voter);
     }
 }
 
@@ -186,5 +186,3 @@ impl SimpleVotingCreated {
         }
     }
 }
-
-// TODO: Setup Composer, events

@@ -33,7 +33,7 @@ pub trait Voter {
         stake: Balance,
     );
     fn finish_voting(&mut self, voting_id: VotingId, voting_type: DaoVotingType) -> VotingSummary;
-    fn slash_voter(&mut self, voter: Address, voting_id: VotingId);
+    fn slash_voter(&mut self, voter: Address);
     fn voting_exists(&self, voting_id: VotingId, voting_type: DaoVotingType) -> bool;
     fn get_voting(&self, voting_id: VotingId) -> Option<VotingStateMachine>;
     fn get_ballot(
@@ -173,11 +173,12 @@ impl DaoWorld {
         VoterRef::at(&contract).voting_exists(voting_id, voting_type)
     }
 
-    pub fn slash_voter(&mut self, contract: &Account, voter: Account, voting_id: u32) {
+    pub fn slash_voter(&mut self, caller: Account, contract: Account, voter: Account) {
+        let caller = self.get_address(&caller);
         let voter = self.get_address(&voter);
-
-        let contract = self.get_address(contract);
-        VoterRef::at(&contract).slash_voter(voter, voting_id);
+        let contract = self.get_address(&contract);
+        test_env::set_caller(caller);
+        VoterRef::at(&contract).slash_voter(voter);
     }
 
     pub fn get_voting(&mut self, contract: &Account, voting_id: VotingId) -> VotingStateMachine {
