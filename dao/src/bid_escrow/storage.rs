@@ -13,30 +13,20 @@ use odra::{List, Mapping, Sequence, UnwrapOrRevert, Variable};
 /// Stores [Bid]-related variables and mappings.
 #[odra::module]
 pub struct BidStorage {
-    pub job_offers: Mapping<JobOfferId, JobOffer>,
-    // poster_active_job_offers_ids: Mapping<Address, Vec<JobOfferId>>,
+    job_offers: Mapping<JobOfferId, JobOffer>,
     job_offers_count: Sequence<JobOfferId>,
     bids: Mapping<BidId, Bid>,
-    pub job_offers_bids: Mapping<JobOfferId, List<BidId>>,
+    job_offers_bids: Mapping<JobOfferId, List<BidId>>,
     bids_count: Sequence<BidId>,
     active_job_offers_ids: Variable<Vec<JobOfferId>>, // TODO: Linked list?
+    worker_bids: Mapping<(Address, JobOfferId), Option<BidId>>,
 }
-
-// 1. Get all active offer_ids
-// 2. self.bids.get((offer_id, address)) -> BidId.
 
 impl BidStorage {
     /// Writes an job offer to the storage.
     pub fn store_job_offer(&mut self, offer: JobOffer) {
-        let poster = offer.job_poster;
         let offer_id = offer.job_offer_id;
         self.job_offers.set(&offer_id, offer);
-
-        // let mut job_offers = self.poster_active_job_offers_ids.get(&poster).unwrap_or_default();
-        // job_offers.push(offer_id);
-        // self.poster_active_job_offers_ids.set(&poster, job_offers);
-
-        self.add_to_active_list(offer_id);
     }
 
     /// Updates the value under the `offer_if` key.
@@ -54,25 +44,6 @@ impl BidStorage {
     pub fn store_bid(&mut self, bid: Bid) {
         self.bids.set(&bid.bid_id.clone(), bid);
     }
-
-    /// Filters active job offer ids, remaining only the given offer id.
-    // pub fn store_active_job_offer_id(&mut self, poster: &Address, offer_id: &JobOfferId) {
-    //     // TODO: Filter in place.
-    //     let offers: Vec<JobOfferId> = self.poster_active_job_offers_ids.get(poster).unwrap_or_default();
-    //     let offers: Vec<JobOfferId> = offers
-    //         .iter()
-    //         .filter(|id| id == &offer_id)
-    //         .cloned()
-    //         .collect();
-    //     self.poster_active_job_offers_ids.set(poster, offers);
-    // }
-
-    // /// Removes from the storage all the active job offer ids of the Bidder.
-    // pub fn clear_active_job_offers_ids(&mut self, bidder: &Address) -> Vec<JobOfferId> {
-    //     let job_offer_ids = self.poster_active_job_offers_ids.get(bidder).unwrap_or_default();
-    //     self.poster_active_job_offers_ids.set(bidder, vec![]);
-    //     job_offer_ids
-    // }
 
     /// Gets the total number of [JobOffer]s.
     pub fn get_job_offer(&self, job_offer_id: &JobOfferId) -> Option<JobOffer> {
@@ -136,16 +107,32 @@ impl BidStorage {
         job_offer.configuration
     }
 
-    fn add_to_active_list(&mut self, voting_id: VotingId) {
+    pub fn add_to_active_offers(&mut self, job_offer_id: JobOfferId) {
         let mut active_list = self.active_job_offers_ids.get_or_default();
-        active_list.push(voting_id);
+        active_list.push(job_offer_id);
         self.active_job_offers_ids.set(active_list);
     }
 
-    fn remove_from_active_list(&mut self, voting_id: VotingId) {
+    pub fn remove_from_active_offers(&mut self, job_offer_id: JobOfferId) {
         let mut active_list = self.active_job_offers_ids.get_or_default();
-        active_list.retain(|&id| id != voting_id);
+        active_list.retain(|&id| id != job_offer_id);
         self.active_job_offers_ids.set(active_list);
+    }
+
+    pub fn get_active_offers(&self) -> Vec<JobOfferId> {
+        self.active_job_offers_ids.get_or_default()
+    }
+
+    pub fn add_to_active_bids(&mut self, worker: Address, job_offer_id: JobOfferId, bid_id: BidId) {
+        self.worker_bids.set(&(worker, job_offer_id), Some(bid_id));
+    }
+
+    pub fn remove_from_active_bids(&mut self, worker: Address, job_offer_id: JobOfferId) {
+        self.worker_bids.set(&(worker, job_offer_id), None);
+    }
+
+    pub fn get_active_bid_id(&self, worker: Address, job_offer_id: JobOfferId) -> Option<BidId> {
+        self.worker_bids.get_or_default(&(worker, job_offer_id))
     }
 }
 
@@ -155,6 +142,7 @@ pub struct JobStorage {
     jobs: Mapping<JobId, Job>,
     jobs_for_voting: Mapping<VotingId, JobId>,
     jobs_count: Sequence<JobId>,
+    active_jobs: Variable<Vec<JobId>>, // TODO: Linked list?
 }
 
 impl JobStorage {
@@ -198,5 +186,19 @@ impl JobStorage {
     /// Increments jobs counter.
     pub fn next_job_id(&mut self) -> JobId {
         self.jobs_count.next_value()
+    }
+
+    /// Adds a job to the list of active jobs.
+    pub fn add_to_active_jobs(&mut self, job_id: JobId) {
+        let mut active_list = self.active_jobs.get_or_default();
+        active_list.push(job_id);
+        self.active_jobs.set(active_list);
+    }
+
+    /// Removes a job from the list of active jobs.
+    pub fn remove_from_active_jobs(&mut self, job_id: JobId) {
+        let mut active_list = self.active_jobs.get_or_default();
+        active_list.retain(|&id| id != job_id);
+        self.active_jobs.set(active_list);
     }
 }

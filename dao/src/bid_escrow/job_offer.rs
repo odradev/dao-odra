@@ -167,4 +167,8 @@ impl JobOffer {
     pub fn configuration(&self) -> &Configuration {
         &self.configuration
     }
+
+    pub fn slash(&mut self) {
+        self.status = JobOfferStatus::Cancelled;
+    }
 }

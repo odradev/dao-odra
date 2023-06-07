@@ -499,33 +499,6 @@ impl BidEscrowContract {
         self_balance()
     }
 
-    /// Erases the voter from voting with the given id. [Read more](VotingEngine::slash_voter).
-    // pub fn cancel_voter(&mut self, voter: Address, voting_id: VotingId) {
-    //     self.access_control.ensure_whitelisted();
-    //     // TODO
-    //     // self.voting_engine.slash_voter(voter, voting_id);
-    // }
-
-    /// Invalidates all the active [JobOffer]s, returns `DOS Fee`s to the `Job Poster`s, returns funds to `Bidders`.
-    ///
-    /// Only a whitelisted account is permitted to call this method.
-    /// Interacts with [Reputation Token Contract](crate::reputation::ReputationContractInterface).
-    ///
-    /// # Errors
-    /// * [Error::BidNotFound]
-    /// * [Error::JobOfferNotFound]
-    /// * [Error::CannotCancelBidOnCompletedJobOffer]
-    // pub fn slash_all_active_job_offers(&mut self, bidder: Address) {
-    //     self.access_control.ensure_whitelisted();
-    //     // Cancel job offers created by the bidder.
-    //     let job_offer_ids = self.bid_engine.clear_active_job_offers_ids(&bidder);
-    //     for job_offer_id in job_offer_ids {
-    //         self.bid_engine.cancel_all_bids(&job_offer_id);
-    //         self.bid_engine
-    //             .return_job_offer_poster_dos_fee(&job_offer_id);
-    //     }
-    // }
-
     /// Updates the [Bid] status and returns locked reputation to the Bidder.
     ///
     /// Only a whitelisted account is permitted to call this method.
@@ -535,34 +508,34 @@ impl BidEscrowContract {
     /// * [Error::BidNotFound]
     /// * [Error::JobOfferNotFound]
     /// * [Error::CannotCancelBidOnCompletedJobOffer]
-    pub fn slash_bid(&mut self, bid_id: BidId) {
-        self.access_control.ensure_whitelisted();
+    // pub fn slash_bid(&mut self, bid_id: BidId) {
+    //     self.access_control.ensure_whitelisted();
 
-        let mut bid = self
-            .get_bid(bid_id)
-            .unwrap_or_revert_with(Error::BidNotFound);
+    //     let mut bid = self
+    //         .get_bid(bid_id)
+    //         .unwrap_or_revert_with(Error::BidNotFound);
 
-        let job_offer = self
-            .get_job_offer(bid.job_offer_id)
-            .unwrap_or_revert_with(Error::JobOfferNotFound);
+    //     let job_offer = self
+    //         .get_job_offer(bid.job_offer_id)
+    //         .unwrap_or_revert_with(Error::JobOfferNotFound);
 
-        if job_offer.status != JobOfferStatus::Created {
-            revert(Error::CannotCancelBidOnCompletedJobOffer);
-        }
+    //     if job_offer.status != JobOfferStatus::Created {
+    //         revert(Error::CannotCancelBidOnCompletedJobOffer);
+    //     }
 
-        bid.cancel_without_validation();
+    //     bid.cancel_without_validation();
 
-        self.refs
-            .reputation_token()
-            .unstake_bid(bid.borrow().into());
+    //     self.refs
+    //         .reputation_token()
+    //         .unstake_bid(bid.borrow().into());
 
-        // TODO: Implement Event
-        self.bid_engine.store_bid(bid);
-    }
+    //     // TODO: Implement Event
+    //     self.bid_engine.store_bid(bid);
+    // }
 
     /// Erases the VA from the all bids, offers and jobs.
-    pub fn slash_va(&mut self, va: Address) {
+    pub fn slash_voter(&mut self, voter: Address) {
         self.access_control.ensure_whitelisted();
-        self.bid_engine.slash_va(va);
+        self.bid_engine.slash_voter(voter);
     }
 }

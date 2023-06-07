@@ -67,11 +67,6 @@ impl BidEngine {
         self.bid_storage.store_bid(bid)
     }
 
-    /// Removes all active job offer ids of the Bidder form the storage.
-    // pub fn clear_active_job_offers_ids(&mut self, bidder: &Address) -> Vec<JobOfferId> {
-    //     self.bid_storage.clear_active_job_offers_ids(bidder)
-    // }
-
     /// Gets the [Configuration] of the [Job].
     pub fn get_job_offer_configuration(&self, job: &Job) -> Configuration {
         self.bid_storage.get_job_offer_configuration(job)
@@ -100,6 +95,8 @@ impl BidEngine {
         let job_offer = JobOffer::new(request);
 
         JobOfferCreated::new(&job_offer).emit();
+        self.bid_storage
+            .add_to_active_offers(job_offer.job_offer_id);
         self.bid_storage.store_job_offer(job_offer);
     }
 
@@ -143,8 +140,10 @@ impl BidEngine {
 
         self.bid_storage.store_bid(bid);
         self.bid_storage.store_bid_id(job_offer_id, bid_id);
+        self.bid_storage
+            .add_to_active_bids(worker, job_offer_id, bid_id);
 
-        let reputation_stake = if reputation_stake == Balance::zero() {
+        let reputation_stake = if reputation_stake.is_zero() {
             None
         } else {
             Some(reputation_stake)
@@ -181,6 +180,8 @@ impl BidEngine {
 
         BidCancelled::new(bid_id, caller, bid.job_offer_id).emit();
 
+        self.bid_storage
+            .remove_from_active_bids(caller, bid.job_offer_id);
         self.bid_storage.store_bid(bid);
     }
 
@@ -205,6 +206,7 @@ impl BidEngine {
         self.return_job_offer_poster_dos_fee(&job_offer_id);
 
         self.bid_storage.update_job_offer(&job_offer_id, job_offer);
+        self.bid_storage.remove_from_active_offers(job_offer_id);
     }
 
     pub fn pick_bid(&mut self, job_offer_id: JobOfferId, bid_id: BidId, cspr_amount: Balance) {
@@ -238,14 +240,23 @@ impl BidEngine {
 
         JobCreated::new(&job).emit();
 
-        self.job_storage.store_job(job);
         self.bid_storage.store_bid(bid);
-        // self.bid_storage
-        //     .store_active_job_offer_id(&job_offer.job_poster, &job_offer_id);
         self.bid_storage.store_job_offer(job_offer);
+        self.bid_storage.remove_from_active_offers(job_offer_id);
+        self.job_storage.store_job(job);
+        self.job_storage.add_to_active_jobs(job_id);
     }
 
-    pub fn slash_va(&mut self, va: Address) {}
+    pub fn slash_voter(&mut self, voter: Address) {
+        for job_offer_id in self.bid_storage.get_active_offers() {
+            let job_offer = self.bid_storage.get_job_offer_or_revert(&job_offer_id);
+            if voter == job_offer.job_poster {
+                self.slash_job_offer(job_offer);
+            } else {
+                self.slash_bid(voter, job_offer_id);
+            }
+        }
+    }
 }
 
 impl BidEngine {
@@ -332,5 +343,28 @@ impl BidEngine {
             .only_va_can_create(false)
             .build(),
         )
+    }
+
+    fn slash_job_offer(&mut self, mut job_offer: JobOffer) {
+        let job_offer_id = job_offer.job_offer_id;
+        self.cancel_all_bids(&job_offer_id);
+        self.return_job_offer_poster_dos_fee(&job_offer_id);
+        self.bid_storage.remove_from_active_offers(job_offer_id);
+        job_offer.slash();
+        self.bid_storage.update_job_offer(&job_offer_id, job_offer);
+    }
+
+    fn slash_bid(&mut self, worker: Address, job_offer_id: JobOfferId) {
+        let bid_id = self.bid_storage.get_active_bid_id(worker, job_offer_id);
+        let bid_id = match bid_id {
+            Some(bid_id) => bid_id,
+            None => return,
+        };
+        let mut bid = self.bid_storage.get_bid_or_revert(&bid_id);
+        self.unstake_cspr_or_reputation_for_bid(&bid);
+        bid.cancel_without_validation();
+        self.bid_storage.store_bid(bid);
+        self.bid_storage
+            .remove_from_active_bids(worker, job_offer_id);
     }
 }

@@ -23,3 +23,20 @@
 - stable rust
 - supress supressed errors
 - Optimize dao_world.
+
+
+# Slashing
+post_job_offer
+    - add job_offer_id to active_job_offers_ids
+submit_bid
+    - add bid to active bids
+cancel_job_offer
+    - remove job_offer_id from active_job_offers_ids
+cancel_bid
+    - remove bid from active bids
+pick_bid
+    - remove job_offer_id from active job offers ids
+    - add job_id to active jobs.
+
+BidEngine::slash_voter? Confirm logic.
+    

@@ -30,8 +30,7 @@ pub struct SlashingVoterContract {
     refs: ContractRefsStorage,
     voting_engine: VotingEngine,
     tasks: Mapping<VotingId, SlashTask>,
-    bid_escrows: Variable<Vec<Address>>,
-    voters: Variable<Vec<Address>>,
+    slashable_contracts: Variable<Vec<Address>>,
     access_control: AccessControl,
 }
 
@@ -46,8 +45,7 @@ impl Instance for SlashingVoterContract {
             refs,
             voting_engine,
             tasks: Composer::new(namespace, "tasks").compose(),
-            bid_escrows: Composer::new(namespace, "bid_escrows").compose(),
-            voters: Composer::new(namespace, "voters").compose(),
+            slashable_contracts: Composer::new(namespace, "slashable_contracts").compose(),
             access_control: Composer::new(namespace, "access_control").compose(),
         }
     }
@@ -97,14 +95,9 @@ impl SlashingVoterContract {
         self.access_control.init(caller());
     }
 
-    pub fn update_bid_escrow_list(&mut self, bid_escrows: Vec<Address>) {
+    pub fn update_slashable_contracts(&mut self, slashable_contracts: Vec<Address>) {
         self.access_control.ensure_whitelisted();
-        self.bid_escrows.set(bid_escrows);
-    }
-
-    pub fn update_voter_list(&mut self, voters: Vec<Address>) {
-        self.access_control.ensure_whitelisted();
-        self.voters.set(voters);
+        self.slashable_contracts.set(slashable_contracts);
     }
 
     pub fn create_voting(&mut self, address_to_slash: Address, slash_ratio: u32, stake: Balance) {
@@ -182,31 +175,15 @@ impl SlashingVoterContract {
         // If full slash burn all reputation
         reputation.burn_all(slash_task.subject);
 
-        // Load account stakes.
-        // let stakes = reputation.stakes_info(slash_task.subject);
-
         // Slash subject in all voter contracts.
-        for voter_address in self.voters.get_or_default() {
-            SlashableRef::at(&voter_address).slash_voter(slash_task.subject);
+        for address in self.slashable_contracts.get_or_default() {
+            SlashableRef::at(&address).slash_voter(slash_task.subject);
         }
-
-        // Slash all open offers in bid escrows.
-        // let bid_escrows = self.bid_escrows.get().unwrap_or_default();
-        // for bid_escrow_address in &bid_escrows {
-        //     SlashableRef::at(bid_escrow_address).slash_all_active_job_offers(slash_task.subject);
-        // }
-
-        // // Slash all bids.
-        // for (bid_escrow_address, bid_id) in stakes.get_bids_stakes_origins() {
-        //     SlashableRef::at(bid_escrow_address).slash_bid(*bid_id);
-        // }
     }
 }
 
 #[odra::external_contract]
 trait Slashable {
-    fn slash_all_active_job_offers(&mut self, bidder: Address);
-    fn slash_bid(&mut self, bid_id: BidId) -> bool;
     fn slash_voter(&mut self, voter: Address);
 }
 
@@ -255,5 +232,3 @@ impl SlashingVotingCreated {
         }
     }
 }
-
-// TODO: Setup Composer, events

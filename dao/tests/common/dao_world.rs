@@ -151,9 +151,8 @@ impl Default for DaoWorld {
             slashing_voter => [slashing_voter],
             bid_escrow => [slashing_voter]
         );
-        slashing_voter.update_bid_escrow_list(vec![*bid_escrow.address()]);
 
-        let voter_contracts: Vec<Address> = vec![
+        let slashable_contracts: Vec<Address> = vec![
             admin.address(),
             kyc_voter.address(),
             onboarding.address(),
@@ -161,13 +160,14 @@ impl Default for DaoWorld {
             reputation_voter.address(),
             simple_voter.address(),
             slashing_voter.address(),
+            bid_escrow.address(),
         ]
         .into_iter()
         .cloned()
         .collect();
 
-        // TODO: Maybe this should be in Admin? Maybe in variable repo?
-        slashing_voter.update_voter_list(voter_contracts);
+        // TODO: Maybe in variable repo?
+        slashing_voter.update_slashable_contracts(slashable_contracts);
 
         Self {
             virtual_balances: Default::default(),

@@ -18,9 +18,10 @@ Feature: Full bid slash on BidEscrow
     And VA1 posted the Bid for JobOffer 0 with proposed timeframe of 2 days and 100 CSPR price and 200 REP stake
     And 8 days passed
     And ExternalWorker posted the Bid for JobOffer 0 with proposed timeframe of 7 days and 500 CSPR price and 500 CSPR stake with onboarding
-
+    And Owner adds Alice to whitelist in BidEscrow contract
+ 
   Scenario: JobPoster gets slashed
-    When JobPoster got his active job offers slashed
+    When Alice calls BidEscrow to slash JobPoster
     Then balances are
       | account          | CSPR balance | REP balance  | REP stake  |
       | BidEscrow        | 0            | 0            | 0          |
@@ -30,7 +31,7 @@ Feature: Full bid slash on BidEscrow
       | VA1              | 0            | 300          | 0          |
 
   Scenario: InternalWorker gets slashed
-    When bid with id 0 is slashed
+    When Alice calls BidEscrow to slash InternalWorker
     Then balances are
       | account          | CSPR balance | REP balance  | REP stake  |
       | BidEscrow        | 900          | 0            | 0          |
