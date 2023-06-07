@@ -68,9 +68,9 @@ impl BidEngine {
     }
 
     /// Removes all active job offer ids of the Bidder form the storage.
-    pub fn clear_active_job_offers_ids(&mut self, bidder: &Address) -> Vec<JobOfferId> {
-        self.bid_storage.clear_active_job_offers_ids(bidder)
-    }
+    // pub fn clear_active_job_offers_ids(&mut self, bidder: &Address) -> Vec<JobOfferId> {
+    //     self.bid_storage.clear_active_job_offers_ids(bidder)
+    // }
 
     /// Gets the [Configuration] of the [Job].
     pub fn get_job_offer_configuration(&self, job: &Job) -> Configuration {
@@ -240,10 +240,12 @@ impl BidEngine {
 
         self.job_storage.store_job(job);
         self.bid_storage.store_bid(bid);
-        self.bid_storage
-            .store_active_job_offer_id(&job_offer.job_poster, &job_offer_id);
+        // self.bid_storage
+        //     .store_active_job_offer_id(&job_offer.job_poster, &job_offer_id);
         self.bid_storage.store_job_offer(job_offer);
     }
+
+    pub fn slash_va(&mut self, va: Address) {}
 }
 
 impl BidEngine {

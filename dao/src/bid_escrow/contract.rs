@@ -269,206 +269,204 @@ impl Instance for BidEscrowContract {
 #[odra::module]
 impl BidEscrowContract {
     delegate! {
-            to self.voting_engine {
-        /// Checks if voting of a given type and id exists.
-                pub fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
-        /// Returns the Voter's [`Ballot`].
-                pub fn get_ballot(
-                    &self,
-                    voting_id: VotingId,
-                    voting_type: VotingType,
-                    address: Address,
-                ) -> Option<Ballot>;
-        /// Returns the address of nth voter who voted on Voting with `voting_id`.
-                pub fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
-        /// Returns [Voting](VotingStateMachine) for given id.
-                pub fn get_voting(&self, voting_id: VotingId) -> Option<VotingStateMachine>;
-            }
+        to self.voting_engine {
+            /// Checks if voting of a given type and id exists.
+            pub fn voting_exists(&self, voting_id: VotingId, voting_type: VotingType) -> bool;
 
+            /// Returns the Voter's [`Ballot`].
+            pub fn get_ballot(
+                &self,
+                voting_id: VotingId,
+                voting_type: VotingType,
+                address: Address,
+            ) -> Option<Ballot>;
 
-            to self.bid_engine {
-    /// Job Poster post a new Job Offer.
-    ///
-    /// # Errors
-    /// * [`Error::NotKyced`] - if the caller is not KYCed
-    /// * [`Error::DosFeeTooLow`] - if the caller has not sent enough DOS Fee
-    ///
-    /// # Events
-    /// * [`JobOfferCreated`](crate::bid_escrow::events::JobOfferCreated)
-        #[odra(payable)]
-        pub fn post_job_offer(&mut self, expected_timeframe: BlockTime, budget: Balance, dos_fee: Balance) {
-            self.bid_engine.post_job_offer(expected_timeframe, budget, dos_fee);
+            /// Returns the address of nth voter who voted on Voting with `voting_id`.
+            pub fn get_voter(&self, voting_id: VotingId, voting_type: VotingType, at: u32) -> Option<Address>;
+
+            /// Returns [Voting](VotingStateMachine) for given id.
+            pub fn get_voting(&self, voting_id: VotingId) -> Option<VotingStateMachine>;
         }
 
-        /// Job poster picks a bid. This creates a new Job object and saves it in a storage.
-        ///
-        /// # Events
-        /// * [`JobCreated`](crate::bid_escrow::events::JobCreated)
-        /// * [`Unstake`](crate::reputation::Unstake) - in case there were other bids on the same Job Offer
-        ///
-        /// # Errors
-        /// * [`OnlyJobPosterCanPickABid`](Error::OnlyJobPosterCanPickABid) - if the caller is not the Job Poster
-        /// * [`PurseBalanceMismatch`](Error::PurseBalanceMismatch) - if the purse balance does not match the bid amount
-        #[odra(payable)]
-        pub fn pick_bid(&mut self, job_offer_id: JobOfferId, bid_id: BidId, cspr_amount: Balance) {
-            self.bid_engine.pick_bid(job_offer_id, bid_id, cspr_amount);
+
+        to self.bid_engine {
+            /// Job Poster post a new Job Offer.
+            ///
+            /// # Errors
+            /// * [`Error::NotKyced`] - if the caller is not KYCed
+            /// * [`Error::DosFeeTooLow`] - if the caller has not sent enough DOS Fee
+            ///
+            /// # Events
+            /// * [`JobOfferCreated`](crate::bid_escrow::events::JobOfferCreated)
+            #[odra(payable)]
+            pub fn post_job_offer(&mut self, expected_timeframe: BlockTime, budget: Balance, dos_fee: Balance);
+
+            /// Job poster picks a bid. This creates a new Job object and saves it in a storage.
+            ///
+            /// # Events
+            /// * [`JobCreated`](crate::bid_escrow::events::JobCreated)
+            /// * [`Unstake`](crate::reputation::Unstake) - in case there were other bids on the same Job Offer
+            ///
+            /// # Errors
+            /// * [`OnlyJobPosterCanPickABid`](Error::OnlyJobPosterCanPickABid) - if the caller is not the Job Poster
+            /// * [`PurseBalanceMismatch`](Error::PurseBalanceMismatch) - if the purse balance does not match the bid amount
+            #[odra(payable)]
+            pub fn pick_bid(&mut self, job_offer_id: JobOfferId, bid_id: BidId, cspr_amount: Balance);
+
+            /// Worker submits a [Bid] for a [Job].
+            ///
+            /// # Events
+            /// * [`BidSubmitted`](crate::bid_escrow::events::BidSubmitted)
+            /// * [`Stake`](crate::reputation::Stake)
+            ///
+            /// # Errors
+            /// * [`Error::NotKyced`] - if the caller is not KYCed
+            /// * [`Error::CannotBidOnOwnJob`] - if the caller is the Job Poster
+            /// * [`Error::VaOnboardedAlready`] - if the caller has already been onboarded, but is trying to
+            /// onboard again
+            /// * [`Error::PaymentExceedsMaxBudget`] - if the proposed payment exceeds the maximum budget
+            /// * [`Error::AuctionNotRunning`] - if the auction is not running
+            /// * [`Error::OnlyOnboardedWorkerCanBid`] - if the Worker is not onboarded and the
+            /// auction is internal
+            /// * [`Error::OnboardedWorkerCannotBid`] - if the Worker is onboarded, auction is public
+            /// and the configuration forbids bidding by onboarded Workers on such auctions
+            /// * [`Error::InsufficientBalance`] - if the Worker has not enough balance to pay for the
+            /// bid
+            /// * [`Error::ZeroStake`] - if the Worker tries to stake 0 reputation
+            /// * [`Error::NotWhitelisted`] - if the contract is not whitelisted for Reputation Staking
+            #[odra(payable)]
+            pub fn submit_bid(
+                &mut self,
+                job_offer_id: JobOfferId,
+                time: BlockTime,
+                payment: Balance,
+                reputation_stake: Balance,
+                onboard: bool,
+                cspr_stake: Option<Balance>
+            );
+
+            /// Worker cancels a [Bid] for a [Job].
+            ///
+            /// Bid can be cancelled only after VABidAcceptanceTimeout time has passed after submitting a Bid.
+            ///
+            /// # Events
+            /// * [`BidCancelled`](crate::bid_escrow::events::BidCancelled)
+            /// * [`Unstake`](crate::reputation::Unstake)
+            ///
+            /// # Errors:
+            /// * [`CannotCancelNotOwnedBid`](Error::CannotCancelNotOwnedBid) when trying to cancel a Bid
+            /// that is not owned by the Worker
+            /// * [`CannotCancelBidOnCompletedJobOffer`](Error::CannotCancelBidOnCompletedJobOffer) when
+            /// trying to cancel a Bid on a Job Offer that is already completed
+            /// * [`CannotCancelBidBeforeAcceptanceTimeout`](Error::CannotCancelBidBeforeAcceptanceTimeout)
+            /// when trying to cancel a Bid before VABidAcceptanceTimeout time has passed
+            pub fn cancel_bid(&mut self, bid_id: BidId);
+
+            /// Invalidates the [`Job Offer`](JobOffer), returns `DOS Fee` to the `Job Poster`, returns funds to `Bidders`.
+            /// [`Read more`](BidEngine::cancel_job_offer()).
+            pub fn cancel_job_offer(&mut self, job_offer_id: JobOfferId);
+
+            /// Returns the total number of job offers.
+            pub fn job_offers_count(&self) -> u32;
+
+            /// Returns the total number of bids.
+            pub fn bids_count(&self) -> u32;
+
+            /// Returns a JobOffer with given [JobOfferId].
+            pub fn get_job_offer(&self, job_offer_id: JobOfferId) -> Option<JobOffer>;
+
+            /// Returns a Bid with given [BidId].
+            pub fn get_bid(&self, bid_id: BidId) -> Option<Bid>;
         }
 
-        /// Worker submits a [Bid] for a [Job].
-        ///
-        /// # Events
-        /// * [`BidSubmitted`](crate::bid_escrow::events::BidSubmitted)
-        /// * [`Stake`](crate::reputation::Stake)
-        ///
-        /// # Errors
-        /// * [`Error::NotKyced`] - if the caller is not KYCed
-        /// * [`Error::CannotBidOnOwnJob`] - if the caller is the Job Poster
-        /// * [`Error::VaOnboardedAlready`] - if the caller has already been onboarded, but is trying to
-        /// onboard again
-        /// * [`Error::PaymentExceedsMaxBudget`] - if the proposed payment exceeds the maximum budget
-        /// * [`Error::AuctionNotRunning`] - if the auction is not running
-        /// * [`Error::OnlyOnboardedWorkerCanBid`] - if the Worker is not onboarded and the
-        /// auction is internal
-        /// * [`Error::OnboardedWorkerCannotBid`] - if the Worker is onboarded, auction is public
-        /// and the configuration forbids bidding by onboarded Workers on such auctions
-        /// * [`Error::InsufficientBalance`] - if the Worker has not enough balance to pay for the
-        /// bid
-        /// * [`Error::ZeroStake`] - if the Worker tries to stake 0 reputation
-        /// * [`Error::NotWhitelisted`] - if the contract is not whitelisted for Reputation Staking
-        #[odra(payable)]
-        pub fn submit_bid(
-            &mut self,
-            job_offer_id: JobOfferId,
-            time: BlockTime,
-            payment: Balance,
-            reputation_stake: Balance,
-            onboard: bool,
-            cspr_stake: Option<Balance>
-        ) {
-            self.bid_engine.submit_bid(job_offer_id, time, payment, reputation_stake, onboard, cspr_stake);
+        to self.job_engine {
+            /// Submits a job proof. This is called by a `Worker` or any KYC'd user during Grace Period.
+            /// This starts a new voting over the result.
+            ///
+            /// # Events
+            /// * [`JobSubmitted`](crate::bid_escrow::events::JobSubmitted)
+            /// * [`Unstake`](crate::reputation::Unstake) - Stake is used in the voting
+            /// * [`BallotCast`](crate::voting::events::BallotCast) - first vote is cast by the Worker
+            ///
+            /// # Errors
+            /// Throws [`JobAlreadySubmitted`](Error::JobAlreadySubmitted) if job was already submitted.
+            /// Throws [`OnlyWorkerCanSubmitProof`](Error::OnlyWorkerCanSubmitProof) if the caller is not the Worker
+            /// and the grace period is not ongoing.
+            pub fn submit_job_proof(&mut self, job_id: JobId, proof: DocumentHash);
+
+            /// Updates the old [`Bid`] and [`Job`], the job is assigned to a new `Worker`. The rest goes the same
+            /// as regular proof submission. See [submit_job_proof()][Self::submit_job_proof].
+            /// The old `Worker` who didn't submit the proof in time, is getting slashed.
+            #[odra(payable)]
+            pub fn submit_job_proof_during_grace_period(
+                &mut self,
+                job_id: JobId,
+                proof: DocumentHash,
+                reputation_stake: Balance,
+                onboard: bool,
+            );
+
+            pub fn cancel_job(&mut self, job_id: JobId);
+
+            /// Casts a vote over a job.
+            ///
+            /// # Events
+            /// * [`BallotCast`](crate::voting::events::BallotCast)
+            ///
+            /// # Errors
+            /// * [`CannotVoteOnOwnJob`](Error::CannotVoteOnOwnJob) if the voter is either of Job Poster or Worker
+            /// * [`VotingNotStarted`](Error::VotingNotStarted) if the voting was not yet started for this job
+            pub fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: Balance);
+
+            /// Finishes voting. Depending on type of voting, different actions are performed.
+            /// [Read more](VotingEngine::finish_voting())
+            ///
+            /// # Events
+            /// * [`VotingEnded`](crate::voting::events::VotingEnded)
+            /// * [`BallotCast`](crate::voting::events::BallotCast) - when formal voting starts
+            /// * [`Unstake`](crate::reputation::Unstake)
+            /// * [`Stake`](crate::reputation::Stake)
+            /// * [`Mint`](crate::reputation::Mint)
+            ///
+            /// # Errors
+            /// * [`BidNotFound`](Error::BidNotFound) if the bid was not found
+            /// * [`VotingDoesNotExist`](Error::VotingDoesNotExist) if the voting does not exist
+            /// * [`VotingWithGivenTypeNotInProgress`](Error::VotingWithGivenTypeNotInProgress) if the voting
+            /// is not in progress
+            /// * [`FinishingCompletedVotingNotAllowed`](Error::FinishingCompletedVotingNotAllowed) if the
+            /// voting is already completed
+            pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary;
+
+            /// Returns the total number of jobs.
+            pub fn jobs_count(&self) -> u32;
+
+            /// Returns a job with given [JobId].
+            pub fn get_job(&self, job_id: JobId) -> Option<Job>;
         }
 
-                /// Worker cancels a [Bid] for a [Job].
-                ///
-                /// Bid can be cancelled only after VABidAcceptanceTimeout time has passed after submitting a Bid.
-                ///
-                /// # Events
-                /// * [`BidCancelled`](crate::bid_escrow::events::BidCancelled)
-                /// * [`Unstake`](crate::reputation::Unstake)
-                ///
-                /// # Errors:
-                /// * [`CannotCancelNotOwnedBid`](Error::CannotCancelNotOwnedBid) when trying to cancel a Bid
-                /// that is not owned by the Worker
-                /// * [`CannotCancelBidOnCompletedJobOffer`](Error::CannotCancelBidOnCompletedJobOffer) when
-                /// trying to cancel a Bid on a Job Offer that is already completed
-                /// * [`CannotCancelBidBeforeAcceptanceTimeout`](Error::CannotCancelBidBeforeAcceptanceTimeout)
-                /// when trying to cancel a Bid before VABidAcceptanceTimeout time has passed
-                pub fn cancel_bid(&mut self, bid_id: BidId);
+        to self.access_control {
+            /// Changes the ownership of the contract. Transfers ownership to the `owner`.
+            /// Only the current owner is permitted to call this method.
+            /// [`Read more`](AccessControl::change_ownership())
+            pub fn change_ownership(&mut self, owner: Address);
 
-        /// Invalidates the [`Job Offer`](JobOffer), returns `DOS Fee` to the `Job Poster`, returns funds to `Bidders`.
-        /// [`Read more`](BidEngine::cancel_job_offer()).
-                pub fn cancel_job_offer(&mut self, job_offer_id: JobOfferId);
+            /// Adds a new address to the whitelist.
+            /// [`Read more`](AccessControl::add_to_whitelist())
+            pub fn add_to_whitelist(&mut self, address: Address);
 
+            /// Remove address from the whitelist.
+            /// [`Read more`](AccessControl::remove_from_whitelist());
+            pub fn remove_from_whitelist(&mut self, address: Address);
 
-        /// Returns the total number of job offers.
-                pub fn job_offers_count(&self) -> u32;
-        /// Returns the total number of bids.
-                pub fn bids_count(&self) -> u32;
-                /// Returns a JobOffer with given [JobOfferId].
-                pub fn get_job_offer(&self, job_offer_id: JobOfferId) -> Option<JobOffer>;
-                /// Returns a Bid with given [BidId].
-                pub fn get_bid(&self, bid_id: BidId) -> Option<Bid>;
-            }
+            /// Checks whether the given address is added to the whitelist.
+            /// [`Read more`](AccessControl::is_whitelisted()).
+            pub fn is_whitelisted(&self, address: Address) -> bool;
 
-            to self.job_engine {
-                /// Submits a job proof. This is called by a `Worker` or any KYC'd user during Grace Period.
-                /// This starts a new voting over the result.
-                ///
-                /// # Events
-                /// * [`JobSubmitted`](crate::bid_escrow::events::JobSubmitted)
-                /// * [`Unstake`](crate::reputation::Unstake) - Stake is used in the voting
-                /// * [`BallotCast`](crate::voting::events::BallotCast) - first vote is cast by the Worker
-                ///
-                /// # Errors
-                /// Throws [`JobAlreadySubmitted`](Error::JobAlreadySubmitted) if job was already submitted.
-                /// Throws [`OnlyWorkerCanSubmitProof`](Error::OnlyWorkerCanSubmitProof) if the caller is not the Worker
-                /// and the grace period is not ongoing.
-                pub fn submit_job_proof(&mut self, job_id: JobId, proof: DocumentHash);
-
-                /// Updates the old [`Bid`] and [`Job`], the job is assigned to a new `Worker`. The rest goes the same
-                /// as regular proof submission. See [submit_job_proof()][Self::submit_job_proof].
-                /// The old `Worker` who didn't submit the proof in time, is getting slashed.
-                #[odra(payable)]
-                pub fn submit_job_proof_during_grace_period(
-                    &mut self,
-                    job_id: JobId,
-                    proof: DocumentHash,
-                    reputation_stake: Balance,
-                    onboard: bool,
-                );
-
-                pub fn cancel_job(&mut self, job_id: JobId);
-
-                /// Casts a vote over a job.
-                ///
-                /// # Events
-                /// * [`BallotCast`](crate::voting::events::BallotCast)
-                ///
-                /// # Errors
-                /// * [`CannotVoteOnOwnJob`](Error::CannotVoteOnOwnJob) if the voter is either of Job Poster or Worker
-                /// * [`VotingNotStarted`](Error::VotingNotStarted) if the voting was not yet started for this job
-                pub fn vote(&mut self, voting_id: VotingId, voting_type: VotingType, choice: Choice, stake: Balance);
-
-                /// Finishes voting. Depending on type of voting, different actions are performed.
-                /// [Read more](VotingEngine::finish_voting())
-                ///
-                /// # Events
-                /// * [`VotingEnded`](crate::voting::events::VotingEnded)
-                /// * [`BallotCast`](crate::voting::events::BallotCast) - when formal voting starts
-                /// * [`Unstake`](crate::reputation::Unstake)
-                /// * [`Stake`](crate::reputation::Stake)
-                /// * [`Mint`](crate::reputation::Mint)
-                ///
-                /// # Errors
-                /// * [`BidNotFound`](Error::BidNotFound) if the bid was not found
-                /// * [`VotingDoesNotExist`](Error::VotingDoesNotExist) if the voting does not exist
-                /// * [`VotingWithGivenTypeNotInProgress`](Error::VotingWithGivenTypeNotInProgress) if the voting
-                /// is not in progress
-                /// * [`FinishingCompletedVotingNotAllowed`](Error::FinishingCompletedVotingNotAllowed) if the
-                /// voting is already completed
-                pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary;
-        /// Returns the total number of jobs.
-                pub fn jobs_count(&self) -> u32;
-                /// Returns a job with given [JobId].
-                pub fn get_job(&self, job_id: JobId) -> Option<Job>;
-            }
-
-            to self.access_control {
-        /// Changes the ownership of the contract. Transfers ownership to the `owner`.
-        /// Only the current owner is permitted to call this method.
-        /// [`Read more`](AccessControl::change_ownership())
-                pub fn change_ownership(&mut self, owner: Address);
-        /// Adds a new address to the whitelist.
-        /// [`Read more`](AccessControl::add_to_whitelist())
-                pub fn add_to_whitelist(&mut self, address: Address);
-                /// Remove address from the whitelist.
-        /// [`Read more`](AccessControl::remove_from_whitelist());
-                pub fn remove_from_whitelist(&mut self, address: Address);
-        /// Checks whether the given address is added to the whitelist.
-        /// [`Read more`](AccessControl::is_whitelisted()).
-                pub fn is_whitelisted(&self, address: Address) -> bool;
-        /// Returns the address of the current owner.
-        /// [`Read more`](AccessControl::get_owner()).
-                pub fn get_owner(&self) -> Option<Address>;
-            }
-
-            to self.refs {
-                /// Returns the address of [Variable Repository](crate::variable_repository::VariableRepositoryContract) contract.
-                pub fn variable_repository_address(&self) -> Address;
-        /// Returns the address of [Reputation Token](crate::reputation::ReputationContract) contract.
-                pub fn reputation_token_address(&self) -> Address;
-            }
+            /// Returns the address of the current owner.
+            /// [`Read more`](AccessControl::get_owner()).
+            pub fn get_owner(&self) -> Option<Address>;
         }
+    }
 
     /// Constructor function.
     ///
@@ -502,11 +500,11 @@ impl BidEscrowContract {
     }
 
     /// Erases the voter from voting with the given id. [Read more](VotingEngine::slash_voter).
-    pub fn cancel_voter(&mut self, voter: Address, voting_id: VotingId) {
-        self.access_control.ensure_whitelisted();
-        // TODO
-        // self.voting_engine.slash_voter(voter, voting_id);
-    }
+    // pub fn cancel_voter(&mut self, voter: Address, voting_id: VotingId) {
+    //     self.access_control.ensure_whitelisted();
+    //     // TODO
+    //     // self.voting_engine.slash_voter(voter, voting_id);
+    // }
 
     /// Invalidates all the active [JobOffer]s, returns `DOS Fee`s to the `Job Poster`s, returns funds to `Bidders`.
     ///
@@ -517,16 +515,16 @@ impl BidEscrowContract {
     /// * [Error::BidNotFound]
     /// * [Error::JobOfferNotFound]
     /// * [Error::CannotCancelBidOnCompletedJobOffer]
-    pub fn slash_all_active_job_offers(&mut self, bidder: Address) {
-        self.access_control.ensure_whitelisted();
-        // Cancel job offers created by the bidder.
-        let job_offer_ids = self.bid_engine.clear_active_job_offers_ids(&bidder);
-        for job_offer_id in job_offer_ids {
-            self.bid_engine.cancel_all_bids(&job_offer_id);
-            self.bid_engine
-                .return_job_offer_poster_dos_fee(&job_offer_id);
-        }
-    }
+    // pub fn slash_all_active_job_offers(&mut self, bidder: Address) {
+    //     self.access_control.ensure_whitelisted();
+    //     // Cancel job offers created by the bidder.
+    //     let job_offer_ids = self.bid_engine.clear_active_job_offers_ids(&bidder);
+    //     for job_offer_id in job_offer_ids {
+    //         self.bid_engine.cancel_all_bids(&job_offer_id);
+    //         self.bid_engine
+    //             .return_job_offer_poster_dos_fee(&job_offer_id);
+    //     }
+    // }
 
     /// Updates the [Bid] status and returns locked reputation to the Bidder.
     ///
@@ -562,9 +560,9 @@ impl BidEscrowContract {
         self.bid_engine.store_bid(bid);
     }
 
-    /// Erases the voter from the given voting. [`Read more`](VotingEngine::slash_voter()).
-    pub fn slash_voter(&mut self, _voter: Address, _voting_id: VotingId) {
+    /// Erases the VA from the all bids, offers and jobs.
+    pub fn slash_va(&mut self, va: Address) {
         self.access_control.ensure_whitelisted();
-        unimplemented!()
+        self.bid_engine.slash_va(va);
     }
 }

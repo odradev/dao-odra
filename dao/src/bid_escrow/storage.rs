@@ -8,18 +8,22 @@ use crate::configuration::Configuration;
 use crate::utils::Error;
 use crate::voting::types::VotingId;
 use odra::types::Address;
-use odra::{List, Mapping, Sequence, UnwrapOrRevert};
+use odra::{List, Mapping, Sequence, UnwrapOrRevert, Variable};
 
 /// Stores [Bid]-related variables and mappings.
 #[odra::module]
 pub struct BidStorage {
     pub job_offers: Mapping<JobOfferId, JobOffer>,
-    active_job_offers_ids: Mapping<Address, Vec<JobOfferId>>,
+    // poster_active_job_offers_ids: Mapping<Address, Vec<JobOfferId>>,
     job_offers_count: Sequence<JobOfferId>,
     bids: Mapping<BidId, Bid>,
     pub job_offers_bids: Mapping<JobOfferId, List<BidId>>,
     bids_count: Sequence<BidId>,
+    active_job_offers_ids: Variable<Vec<JobOfferId>>, // TODO: Linked list?
 }
+
+// 1. Get all active offer_ids
+// 2. self.bids.get((offer_id, address)) -> BidId.
 
 impl BidStorage {
     /// Writes an job offer to the storage.
@@ -28,9 +32,11 @@ impl BidStorage {
         let offer_id = offer.job_offer_id;
         self.job_offers.set(&offer_id, offer);
 
-        let mut job_offers = self.active_job_offers_ids.get(&poster).unwrap_or_default();
-        job_offers.push(offer_id);
-        self.active_job_offers_ids.set(&poster, job_offers);
+        // let mut job_offers = self.poster_active_job_offers_ids.get(&poster).unwrap_or_default();
+        // job_offers.push(offer_id);
+        // self.poster_active_job_offers_ids.set(&poster, job_offers);
+
+        self.add_to_active_list(offer_id);
     }
 
     /// Updates the value under the `offer_if` key.
@@ -50,23 +56,23 @@ impl BidStorage {
     }
 
     /// Filters active job offer ids, remaining only the given offer id.
-    pub fn store_active_job_offer_id(&mut self, poster: &Address, offer_id: &JobOfferId) {
-        // TODO: Filter in place.
-        let offers: Vec<JobOfferId> = self.active_job_offers_ids.get(poster).unwrap_or_default();
-        let offers: Vec<JobOfferId> = offers
-            .iter()
-            .filter(|id| id == &offer_id)
-            .cloned()
-            .collect();
-        self.active_job_offers_ids.set(poster, offers);
-    }
+    // pub fn store_active_job_offer_id(&mut self, poster: &Address, offer_id: &JobOfferId) {
+    //     // TODO: Filter in place.
+    //     let offers: Vec<JobOfferId> = self.poster_active_job_offers_ids.get(poster).unwrap_or_default();
+    //     let offers: Vec<JobOfferId> = offers
+    //         .iter()
+    //         .filter(|id| id == &offer_id)
+    //         .cloned()
+    //         .collect();
+    //     self.poster_active_job_offers_ids.set(poster, offers);
+    // }
 
-    /// Removes from the storage all the active job offer ids of the Bidder.
-    pub fn clear_active_job_offers_ids(&mut self, bidder: &Address) -> Vec<JobOfferId> {
-        let job_offer_ids = self.active_job_offers_ids.get(bidder).unwrap_or_default();
-        self.active_job_offers_ids.set(bidder, vec![]);
-        job_offer_ids
-    }
+    // /// Removes from the storage all the active job offer ids of the Bidder.
+    // pub fn clear_active_job_offers_ids(&mut self, bidder: &Address) -> Vec<JobOfferId> {
+    //     let job_offer_ids = self.poster_active_job_offers_ids.get(bidder).unwrap_or_default();
+    //     self.poster_active_job_offers_ids.set(bidder, vec![]);
+    //     job_offer_ids
+    // }
 
     /// Gets the total number of [JobOffer]s.
     pub fn get_job_offer(&self, job_offer_id: &JobOfferId) -> Option<JobOffer> {
@@ -129,6 +135,18 @@ impl BidStorage {
         let job_offer = self.get_job_offer_or_revert(&job.job_offer_id());
         job_offer.configuration
     }
+
+    fn add_to_active_list(&mut self, voting_id: VotingId) {
+        let mut active_list = self.active_job_offers_ids.get_or_default();
+        active_list.push(voting_id);
+        self.active_job_offers_ids.set(active_list);
+    }
+
+    fn remove_from_active_list(&mut self, voting_id: VotingId) {
+        let mut active_list = self.active_job_offers_ids.get_or_default();
+        active_list.retain(|&id| id != voting_id);
+        self.active_job_offers_ids.set(active_list);
+    }
 }
 
 /// Stores [Job]-related variables and mappings.
@@ -180,18 +198,5 @@ impl JobStorage {
     /// Increments jobs counter.
     pub fn next_job_id(&mut self) -> JobId {
         self.jobs_count.next_value()
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::bid_escrow::types::JobOfferId;
-
-    #[test]
-    fn asa() {
-        let offers: Vec<JobOfferId> = vec![112, 13, 124];
-        let offers: Vec<JobOfferId> = offers.iter().filter(|id| id == &&124).cloned().collect();
-
-        dbg!(offers);
     }
 }

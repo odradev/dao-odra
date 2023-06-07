@@ -93,12 +93,12 @@ impl DaoWorld {
         );
     }
 
-    pub fn slash_all_active_job_offers(&mut self, bidder: Account) {
-        let bidder = self.get_address(&bidder);
-        self.bid_escrow.slash_all_active_job_offers(bidder);
-    }
+    // pub fn slash_all_active_job_offers(&mut self, bidder: Account) {
+    //     let bidder = self.get_address(&bidder);
+    //     self.bid_escrow.slash_all_active_job_offers(bidder);
+    // }
 
-    pub fn slash_bid(&mut self, bid_id: u32) {
-        self.bid_escrow.slash_bid(bid_id);
-    }
+    // pub fn slash_bid(&mut self, bid_id: u32) {
+    //     self.bid_escrow.slash_bid(bid_id);
+    // }
 }

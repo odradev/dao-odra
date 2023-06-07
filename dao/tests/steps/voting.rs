@@ -53,9 +53,7 @@ fn voting(
     })
     .filter(|ballot| !ballot.stake.is_zero())
     .for_each(|ballot| {
-        suppress(|| {
-            world.vote(&contract, &ballot)
-        });
+        suppress(|| world.vote(&contract, &ballot));
     });
 }
 

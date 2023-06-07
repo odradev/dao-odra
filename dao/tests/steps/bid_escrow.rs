@@ -159,17 +159,17 @@ fn cancel_bid(w: &mut DaoWorld, worker: Account, job_poster: Account) {
     });
 }
 
-#[when(expr = "{account} got his active job offers slashed")]
-fn slash_all_active_job_offers(w: &mut DaoWorld, bidder: Account) {
-    w.set_caller(&Account::Owner);
-    w.slash_all_active_job_offers(bidder);
-}
+// #[when(expr = "{account} got his active job offers slashed")]
+// fn slash_all_active_job_offers(w: &mut DaoWorld, bidder: Account) {
+//     w.set_caller(&Account::Owner);
+//     w.slash_all_active_job_offers(bidder);
+// }
 
-#[when(expr = "bid with id {int} is slashed")]
-fn slash_bid(w: &mut DaoWorld, bid_id: u32) {
-    w.set_caller(&Account::Owner);
-    w.slash_bid(bid_id);
-}
+// #[when(expr = "bid with id {int} is slashed")]
+// fn slash_bid(w: &mut DaoWorld, bid_id: u32) {
+//     w.set_caller(&Account::Owner);
+//     w.slash_bid(bid_id);
+// }
 
 #[then(expr = "JobOffer with id {int} {word} cancelled")]
 fn is_job_offer_cancelled(w: &mut DaoWorld, job_offer_id: u32, cancelled: String) {

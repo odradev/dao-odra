@@ -161,7 +161,10 @@ impl Default for DaoWorld {
             reputation_voter.address(),
             simple_voter.address(),
             slashing_voter.address(),
-        ].into_iter().cloned().collect();
+        ]
+        .into_iter()
+        .cloned()
+        .collect();
 
         // TODO: Maybe this should be in Admin? Maybe in variable repo?
         slashing_voter.update_voter_list(voter_contracts);
