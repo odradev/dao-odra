@@ -9,3 +9,17 @@
 - finish_voting returns VotingSummary, but when used via delegate as an entrypoint it should not return anything. Allow Odra to supress return value?
 - remove refs from voters?
 - Allow for owning contracts by deployer.
+
+# Final
+- TODOs
+- install at given key, decide if upgradable
+- slashing
+- gas optimization
+- livenet installer
+- move to make repo
+    - enable GA tests,
+- docs
+- delegate
+- stable rust
+- supress supressed errors
+- Optimize dao_world.
