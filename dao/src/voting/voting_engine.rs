@@ -82,9 +82,9 @@ impl VotingEngine {
 
         let voting_ids_address = configuration.voting_ids_address();
         let voting_id = get_next_voting_id(voting_ids_address);
-        let mut voting =
-            VotingStateMachine::new(voting_id, get_block_time(), creator);
+        let mut voting = VotingStateMachine::new(voting_id, get_block_time(), creator);
 
+        self.configurations.set(&voting_id, configuration.clone());
         let mut used_stake = None;
         if should_cast_first_vote {
             self.cast_vote(
@@ -97,13 +97,7 @@ impl VotingEngine {
             used_stake = Some(stake);
         }
 
-        let info = VotingCreatedInfo::new(
-            creator,
-            voting_id,
-            used_stake,
-            &configuration,
-        );
-        self.configurations.set(&voting_id, configuration);
+        let info = VotingCreatedInfo::new(creator, voting_id, used_stake, &configuration);
         self.set_voting(voting.clone());
         (info, voting)
     }
@@ -154,7 +148,10 @@ impl VotingEngine {
                 match voting_result.result() {
                     VotingResult::InFavor | VotingResult::Against => {
                         // It emits BallotCast event, so no need to capture it in VotingEnded event.
-                        self.recast_creators_ballot_from_informal_to_formal(&mut voting);
+                        self.recast_creators_ballot_from_informal_to_formal(
+                            &mut voting,
+                            &configuration,
+                        );
                     }
                     VotingResult::QuorumNotReached => {}
                     VotingResult::Canceled => revert(Error::VotingAlreadyCanceled),
@@ -165,9 +162,7 @@ impl VotingEngine {
                 let voting_result = self.finish_formal_voting(&mut voting, &configuration);
                 match voting_result.result() {
                     VotingResult::InFavor => {
-                        if configuration
-                            .should_bind_ballot_for_successful_voting()
-                        {
+                        if configuration.should_bind_ballot_for_successful_voting() {
                             let worker = configuration
                                 .get_unbound_ballot_address()
                                 .unwrap_or_revert_with(Error::InvalidAddress);
@@ -250,7 +245,11 @@ impl VotingEngine {
         summary
     }
 
-    fn finish_informal_voting(&mut self, voting: &mut VotingStateMachine, configuration: &mut Configuration) -> VotingSummary {
+    fn finish_informal_voting(
+        &mut self,
+        voting: &mut VotingStateMachine,
+        configuration: &mut Configuration,
+    ) -> VotingSummary {
         if !voting.is_in_time(get_block_time(), configuration) {
             revert(Error::InformalVotingTimeNotReached)
         }
@@ -277,7 +276,11 @@ impl VotingEngine {
         VotingSummary::new(voting_result, VotingType::Informal, voting_id)
     }
 
-    fn finish_formal_voting(&mut self, voting: &mut VotingStateMachine, configuration: &Configuration) -> VotingSummary {
+    fn finish_formal_voting(
+        &mut self,
+        voting: &mut VotingStateMachine,
+        configuration: &Configuration,
+    ) -> VotingSummary {
         voting.guard_finish_formal_voting(get_block_time(), configuration);
         let voting_id = voting.voting_id();
         let voters_count = self.voters_count(voting_id, VotingType::Formal);
@@ -326,7 +329,15 @@ impl VotingEngine {
         self.assert_voting_type(voting, voting_type);
         voting.guard_vote(get_block_time(), &configuration);
         self.assert_vote_doesnt_exist(voting_id, voting.voting_type(), voter);
-        self.cast_ballot(voter, voting_id, choice, stake, false, voting);
+        self.cast_ballot(
+            voter,
+            voting_id,
+            choice,
+            stake,
+            false,
+            voting,
+            &configuration,
+        );
     }
 
     fn assert_vote_doesnt_exist(
@@ -366,6 +377,7 @@ impl VotingEngine {
         stake: Balance,
         unbound: bool,
         voting: &mut VotingStateMachine,
+        configuration: &Configuration,
     ) {
         let ballot = Ballot::new(
             voter,
@@ -376,8 +388,6 @@ impl VotingEngine {
             unbound,
             false,
         );
-
-        let configuration = self.get_configuration_or_revert(voting_id);
 
         if !unbound && !voting.is_informal_without_stake(&configuration) {
             // Stake the reputation
@@ -459,7 +469,9 @@ impl VotingEngine {
     /// # Error
     /// * [Error::ConfigurationNotFound] if the given id does not exist.
     pub fn get_configuration_or_revert(&self, voting_id: VotingId) -> Configuration {
-        self.configurations.get(&voting_id).unwrap_or_revert_with(Error::ConfigurationNotFound)
+        self.configurations
+            .get(&voting_id)
+            .unwrap_or_revert_with(Error::ConfigurationNotFound)
     }
 
     /// Updates voting storage.
@@ -497,7 +509,11 @@ impl VotingEngine {
         transfers
     }
 
-    fn recast_creators_ballot_from_informal_to_formal(&mut self, voting: &mut VotingStateMachine) {
+    fn recast_creators_ballot_from_informal_to_formal(
+        &mut self,
+        voting: &mut VotingStateMachine,
+        configuration: &Configuration,
+    ) {
         let voting_id = voting.voting_id();
         let creator = voting.creator();
         let creator_ballot = self
@@ -511,6 +527,7 @@ impl VotingEngine {
             creator_ballot.stake,
             creator_ballot.unbound,
             voting,
+            &configuration,
         );
     }
 

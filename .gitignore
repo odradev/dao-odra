@@ -5,3 +5,4 @@
 .vscode/*
 cucumber-runner/target
 cucumber-runner/Cargo.lock
+gas_report.txt

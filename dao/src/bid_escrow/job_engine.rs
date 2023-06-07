@@ -95,6 +95,7 @@ impl JobEngine {
             stake_for_voting,
             job.is_unbound(),
             &mut voting,
+            &voting_configuration,
         );
 
         self.job_storage.store_job(job);

@@ -22,11 +22,7 @@ pub struct VotingStateMachine {
 
 impl VotingStateMachine {
     /// Creates new Voting with immutable [`Configuration`](Configuration).
-    pub fn new(
-        voting_id: VotingId,
-        created_at: u64,
-        creator: Address,
-    ) -> Self {
+    pub fn new(voting_id: VotingId, created_at: u64, creator: Address) -> Self {
         VotingStateMachine {
             voting_id,
             state: VotingState::Created,
@@ -68,8 +64,7 @@ impl VotingStateMachine {
 
     /// Checks if Voting is of type [Informal](VotingType::Informal) and stakes the reputation.
     pub fn is_informal_without_stake(&self, configuration: &Configuration) -> bool {
-        !configuration.informal_stake_reputation()
-            && self.voting_type() == VotingType::Informal
+        !configuration.informal_stake_reputation() && self.voting_type() == VotingType::Informal
     }
 
     /// Checks if Voting is still in the voting phase.
@@ -272,7 +267,11 @@ impl VotingStateMachine {
     }
 
     /// Returns the voting state depending on a given `block_time`.
-    pub fn state_in_time(&self, block_time: BlockTime, configuration: &Configuration) -> VotingState {
+    pub fn state_in_time(
+        &self,
+        block_time: BlockTime,
+        configuration: &Configuration,
+    ) -> VotingState {
         let informal_voting_start = self.informal_voting_start_time(configuration);
         let informal_voting_end = self.informal_voting_end_time(configuration);
         let between_voting_end = self.time_between_votings_end_time(configuration);
