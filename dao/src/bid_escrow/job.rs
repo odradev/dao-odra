@@ -181,7 +181,7 @@ impl Job {
     /// # Errors
     /// * [`Error::CannotCancelJob`]
     /// * [`Error::JobCannotBeYetCanceled`]
-    pub fn validate_cancel(&self, block_time: BlockTime) -> Result<(), Error> {
+    pub fn validate_cancel(&self, block_time: BlockTime, caller: Address) -> Result<(), Error> {
         if self.status() != JobStatus::Created {
             return Err(Error::CannotCancelJob);
         }
@@ -190,17 +190,16 @@ impl Job {
             return Err(Error::JobCannotBeYetCanceled);
         }
 
-        Ok(())
-    }
-
-    /// Changes status to the Cancelled
-    pub fn cancel(&mut self, caller: Address) -> Result<(), Error> {
         if self.status() != JobStatus::Created || self.poster() != caller {
             return Err(Error::CannotCancelJob);
         }
 
-        self.status = JobStatus::Cancelled;
         Ok(())
+    }
+
+    /// Changes status to the Cancelled
+    pub fn cancel(&mut self) {
+        self.status = JobStatus::Cancelled;
     }
 
     /// Changes status to the Completed

@@ -11,7 +11,7 @@ use odra::{
 };
 
 use super::{
-    agg::{AggregatedBalance, AggregatedStake, BalanceAggregates, BalanceAggregatesComposer},
+    agg::{AggregatedBalance, BalanceAggregates, BalanceAggregatesComposer},
     balances::{BalanceStorage, BalanceStorageComposer},
     stakes::{StakesStorage, StakesStorageComposer},
 };
@@ -111,20 +111,13 @@ impl ReputationContract {
         }
 
         to self.stakes_storage {
-            /// Returns the total stake of the given account.
+            pub fn stake(&mut self, voter: Address, stake: Balance);
+
+            pub fn unstake(&mut self, voter: Address, stake: Balance);
+
+            pub fn bulk_unstake(&mut self, stakes: Vec<(Address, Balance)>);
+
             pub fn get_stake(&self, address: Address) -> Balance;
-            /// Stakes the reputation used as voting power.
-            pub fn stake_voting(&mut self, voting_id: VotingId, ballot: ShortenedBallot);
-            /// Stakes the reputation used as bid value.
-            pub fn stake_bid(&mut self, bid: ShortenedBid);
-            // Unstakes the reputation used as voting power.
-            pub fn unstake_voting(&mut self, voting_id: VotingId, ballot: ShortenedBallot);
-            /// Unstakes the reputation used as bid value.
-            pub fn unstake_bid(&mut self, bid: ShortenedBid);
-            /// Unstakes the reputation used as voting power.
-            pub fn bulk_unstake_voting(&mut self,voting_id:VotingId,ballots:Vec<ShortenedBallot>);
-            /// Unstakes the reputation used as bid value.
-            pub fn bulk_unstake_bid(&mut self, bids: Vec<ShortenedBid>);
         }
 
         to self.aggregates {
@@ -132,8 +125,6 @@ impl ReputationContract {
             pub fn all_balances(&self) -> AggregatedBalance;
             /// Gets balances of the given account addresses.
             pub fn partial_balances(&self, addresses: Vec<Address>) -> AggregatedBalance;
-            /// Returns all the data about the given user stakes.
-            pub fn stakes_info(&self, address: Address) -> AggregatedStake;
         }
     }
 

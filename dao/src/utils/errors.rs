@@ -107,6 +107,7 @@ execution_error! {
         CannotStakeTwice => 4500,
         VotingStakeDoesntExists => 4501,
         BidStakeDoesntExists => 4502,
+        CannotUnstakeMoreThanStaked => 4503,
 
         InvalidAddress => 5000,
         RepositoryError => 5001,

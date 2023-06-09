@@ -19,6 +19,7 @@ use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{VotingResult, VotingSummary, VotingType};
 use crate::voting::voting_engine::VotingEngine;
 use odra::contract_env::{attached_value, caller, get_block_time, revert};
+use odra::types::Address;
 use odra::types::{event::OdraEvent, Balance};
 use odra::UnwrapOrRevert;
 use std::borrow::Borrow;
@@ -186,11 +187,16 @@ impl JobEngine {
         if new_bid.reputation_stake > Balance::zero() {
             self.refs
                 .reputation_token()
-                .stake_bid(new_bid.borrow().into());
+                .stake(new_bid.worker, new_bid.reputation_stake);
         }
 
+        // Update old job and bid.
+        self.job_storage.remove_from_active_jobs(old_job.job_id());
         self.job_storage.store_job(old_job);
         self.bid_storage.store_bid(old_bid);
+
+        // Store new job and bid.
+        self.job_storage.add_to_active_jobs(new_job.job_id());
         self.job_storage.store_job(new_job);
         self.bid_storage.store_bid(new_bid);
 
@@ -207,38 +213,24 @@ impl JobEngine {
     /// If the state in which the process cannot be canceled, the execution reverts with
     /// [Error::CannotCancelJob] or [Error::JobCannotBeYetCanceled].
     pub fn cancel_job(&mut self, job_id: JobId) {
-        let mut job = self.job_storage.get_job_or_revert(job_id);
-        let configuration = self.bid_storage.get_job_offer_configuration(&job);
+        let job = self.job_storage.get_job_or_revert(job_id);
         let caller = caller();
-
-        if let Err(e) = job.validate_cancel(get_block_time()) {
+        if let Err(e) = job.validate_cancel(get_block_time(), caller) {
             revert(e);
         }
-
-        self.return_job_poster_payment_and_dos_fee(&job);
 
         let bid = self
             .bid_storage
             .get_bid(&job.bid_id())
             .unwrap_or_revert_with(Error::BidNotFound);
 
-        // redistribute cspr stake
-        if let Some(cspr_stake) = bid.cspr_stake {
-            let left = redistribute_to_governance(cspr_stake, &configuration);
-            redistribute_cspr_to_all_vas(left, &self.refs);
-        }
-
-        // burn reputation stake
         self.burn_reputation_stake(&bid);
 
-        // slash worker
-        if self.onboarding.is_onboarded(&bid.worker) {
+        if self.onboarding.is_onboarded(&job.worker()) {
             self.slash_worker(&job);
         }
 
-        job.cancel(caller).unwrap_or_else(|e| revert(e));
-        JobCancelled::new(&job, caller).emit();
-        self.job_storage.store_job(job);
+        self.raw_cancel_job(job, &bid, caller);
     }
 
     /// Records vote in [Voting](crate::voting::voting_state_machine::VotingStateMachine).
@@ -282,7 +274,7 @@ impl JobEngine {
                             .unwrap_or_revert_with(Error::BidNotFound);
                         self.refs
                             .reputation_token()
-                            .unstake_bid(bid.borrow().into());
+                            .unstake(bid.worker, bid.reputation_stake);
                     }
                 }
                 VotingResult::QuorumNotReached => {
@@ -356,6 +348,18 @@ impl JobEngine {
         self.job_storage.store_job(job);
         voting_summary
     }
+
+    pub fn slash_voter(&mut self, voter: Address) {
+        self.voting_engine.slash_voter(voter);
+        for job_id in self.job_storage.get_active_jobs() {
+            let job = self.job_storage.get_job_or_revert(job_id);
+            if job.worker() != voter {
+                return;
+            }
+            let bid = self.bid_storage.get_bid_or_revert(&job.bid_id());
+            self.raw_cancel_job(job, &bid, caller());
+        }
+    }
 }
 
 impl JobEngine {
@@ -376,7 +380,7 @@ impl JobEngine {
         if bid.reputation_stake > Balance::zero() {
             self.refs
                 .reputation_token()
-                .unstake_bid(bid.borrow().into());
+                .unstake(bid.worker, bid.reputation_stake);
             self.refs
                 .reputation_token()
                 .burn(bid.worker, bid.reputation_stake);
@@ -393,7 +397,7 @@ impl JobEngine {
         if informal_stake_reputation && !job.get_stake().is_zero() {
             self.refs
                 .reputation_token()
-                .unstake_bid(bid.borrow().into());
+                .unstake(bid.worker, job.get_stake());
         }
     }
 
@@ -570,5 +574,23 @@ impl JobEngine {
             let amount = to_redistribute * *balance / partial_supply;
             withdraw(address, amount, TransferReason::Redistribution)
         }
+    }
+
+    fn raw_cancel_job(&mut self, mut job: Job, bid: &Bid, caller: Address) {
+        let configuration = self.bid_storage.get_job_offer_configuration(&job);
+
+        self.return_job_poster_payment_and_dos_fee(&job);
+
+        // redistribute cspr stake
+        if let Some(cspr_stake) = bid.cspr_stake {
+            let left = redistribute_to_governance(cspr_stake, &configuration);
+            redistribute_cspr_to_all_vas(left, &self.refs);
+        }
+
+        job.cancel();
+        JobCancelled::new(&job, caller).emit();
+
+        self.job_storage.remove_from_active_jobs(job.job_id());
+        self.job_storage.store_job(job);
     }
 }

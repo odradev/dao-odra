@@ -201,4 +201,9 @@ impl JobStorage {
         active_list.retain(|&id| id != job_id);
         self.active_jobs.set(active_list);
     }
+
+    /// Returns all active jobs.
+    pub fn get_active_jobs(&self) -> Vec<JobId> {
+        self.active_jobs.get_or_default()
+    }
 }

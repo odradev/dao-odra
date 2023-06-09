@@ -1,4 +1,4 @@
-use cucumber::{cli, codegen::WorldInventory, event, parser, Event, World, runner::basic::BeforeHookFn};
+use cucumber::{cli, codegen::WorldInventory, event, parser, Event, World};
 use events::{SyncStep, SyncStepError};
 use futures::{
     executor::block_on,

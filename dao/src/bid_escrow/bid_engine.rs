@@ -269,8 +269,7 @@ impl BidEngine {
     ) -> Option<Balance> {
         match cspr_stake {
             None => {
-                let bid = ShortenedBid::new(bid_id, reputation_stake, worker);
-                self.refs.reputation_token().stake_bid(bid);
+                self.refs.reputation_token().stake(worker, reputation_stake);
                 None
             }
             Some(cspr_stake) => Some(cspr_stake),
@@ -282,7 +281,7 @@ impl BidEngine {
             None => {
                 self.refs
                     .reputation_token()
-                    .unstake_bid(bid.borrow().into());
+                    .unstake(bid.worker, bid.reputation_stake);
             }
             Some(cspr_stake) => {
                 withdraw(&bid.worker, cspr_stake, TransferReason::BidStakeReturn);
@@ -292,17 +291,18 @@ impl BidEngine {
 
     pub fn cancel_all_bids(&mut self, job_offer_id: &JobOfferId) {
         let bids_amount = self.bid_storage.get_bids_count(job_offer_id);
-        let mut bids = Vec::<ShortenedBid>::new();
+        let mut unstakes: Vec<(Address, Balance)> = Vec::new();
         for i in 0..bids_amount {
             let mut bid = self.bid_storage.get_nth_bid(job_offer_id, i);
             if let Some(cspr) = bid.cspr_stake {
                 withdraw(&bid.worker, cspr, TransferReason::BidStakeReturn);
+            } else {
+                unstakes.push((bid.worker, bid.reputation_stake));
             }
-            bids.push(bid.borrow().into());
             bid.cancel_without_validation();
             self.bid_storage.store_bid(bid);
         }
-        self.refs.reputation_token().bulk_unstake_bid(bids);
+        self.refs.reputation_token().bulk_unstake(unstakes);
     }
 
     pub fn return_job_offer_poster_dos_fee(&mut self, job_offer_id: &JobOfferId) {
@@ -316,20 +316,21 @@ impl BidEngine {
 
     fn unstake_not_picked(&mut self, job_offer_id: &JobOfferId, bid_id: &BidId) {
         let bids_amount = self.bid_storage.get_bids_count(job_offer_id);
-        let mut bids = Vec::<ShortenedBid>::new();
+        let mut unstakes: Vec<(Address, Balance)> = Vec::new();
         for i in 0..bids_amount {
             let mut bid = self.bid_storage.get_nth_bid(job_offer_id, i);
 
             if bid.bid_id != *bid_id && bid.status == BidStatus::Created {
                 if let Some(cspr) = bid.cspr_stake {
                     withdraw(&bid.worker, cspr, TransferReason::BidStakeReturn);
+                } else {
+                    unstakes.push((bid.worker, bid.reputation_stake));
                 }
-                bids.push(bid.borrow().into());
                 bid.reject_without_validation();
                 self.bid_storage.store_bid(bid);
             }
         }
-        self.refs.reputation_token().bulk_unstake_bid(bids);
+        self.refs.reputation_token().bulk_unstake(unstakes);
     }
 
     /// Builds Configuration for a Bid Escrow Entities

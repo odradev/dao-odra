@@ -213,18 +213,6 @@
       "return_ty": {
         "Option": "Key"
       }
-    },
-    {
-      "name": "variable_repository_address",
-      "is_mutable": false,
-      "args": [],
-      "return_ty": "Key"
-    },
-    {
-      "name": "reputation_token_address",
-      "is_mutable": false,
-      "args": [],
-      "return_ty": "Key"
     }
   ],
   "events": [

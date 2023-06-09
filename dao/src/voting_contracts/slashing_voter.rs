@@ -172,13 +172,13 @@ impl SlashingVoterContract {
             return;
         }
 
-        // If full slash burn all reputation
-        reputation.burn_all(slash_task.subject);
-
         // Slash subject in all voter contracts.
         for address in self.slashable_contracts.get_or_default() {
             SlashableRef::at(&address).slash_voter(slash_task.subject);
         }
+
+        // If full slash burn all reputation
+        reputation.burn_all(slash_task.subject);
     }
 }
 

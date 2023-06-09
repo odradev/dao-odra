@@ -532,5 +532,6 @@ impl BidEscrowContract {
     pub fn slash_voter(&mut self, voter: Address) {
         self.access_control.ensure_whitelisted();
         self.bid_engine.slash_voter(voter);
+        self.job_engine.slash_voter(voter);
     }
 }

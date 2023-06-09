@@ -10,7 +10,6 @@
 # Final
 - TODOs
 - install at given key, decide if upgradable
-- slashing
 - gas optimization
 - livenet installer
 - move to make repo
@@ -34,5 +33,20 @@ pick_bid
     - remove job_offer_id from active job offers ids
     - add job_id to active jobs.
 
+
+
 BidEngine::slash_voter? Confirm logic.
     
+submit_job_proof
+    
+submit_job_proof_during_grace
+    - remove old job from active
+    - add new job to active
+
+cancel_job
+    - remove job from active
+
+finish_voting
+
+vote
+
