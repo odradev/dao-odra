@@ -1,4 +1,4 @@
-Feature: Full bid slash on BidEscrow
+Feature: Slash on BidEscrow
     VA can have his bids and created jobs offers removed.
 
   Background:

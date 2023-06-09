@@ -74,7 +74,8 @@ Feature: Tokens redistribution
         | ReputationVoter  | Alice              | mint             | 100   |
 
     Scenario Outline: Voting passed
-      When VA1 starts voting with the following config
+      When Admin is the owner of all contracts
+      And VA1 starts voting with the following config
         | voting_contract    | stake | arg1    | arg2    | arg3   |
         | <voting_contract>  | 100   | <arg1>  | <arg2>  | <arg3> |
       And voters vote in <voting_contract> informal voting with id 0

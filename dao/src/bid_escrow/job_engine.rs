@@ -8,7 +8,7 @@ use crate::bid_escrow::types::JobId;
 use crate::configuration::Configuration;
 use crate::modules::kyc_info::KycInfo;
 use crate::modules::onboarding_info::OnboardingInfo;
-use crate::modules::refs::ContractRefsWithKycStorage;
+use crate::modules::refs::ContractRefs;
 use crate::utils::types::DocumentHash;
 use crate::utils::{withdraw, Error};
 use crate::voting::ballot::Choice;
@@ -28,7 +28,7 @@ use std::borrow::Borrow;
 pub struct JobEngine {
     job_storage: JobStorage,
     bid_storage: BidStorage,
-    refs: ContractRefsWithKycStorage,
+    refs: ContractRefs,
     voting_engine: VotingEngine,
     onboarding: OnboardingInfo,
     kyc_info: KycInfo,

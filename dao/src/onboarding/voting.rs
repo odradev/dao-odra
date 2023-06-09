@@ -4,7 +4,7 @@ use crate::bid_escrow::events::TransferReason;
 use crate::configuration::{Configuration, ConfigurationBuilder};
 use crate::modules::kyc_info::KycInfo;
 use crate::modules::onboarding_info::OnboardingInfo;
-use crate::modules::refs::ContractRefsWithKycStorage;
+use crate::modules::refs::ContractRefs;
 use crate::onboarding::request::{OnboardingRequest, Request};
 use crate::utils::types::DocumentHash;
 use crate::utils::{withdraw, Error};
@@ -27,7 +27,7 @@ pub struct Onboarding {
     requests: Mapping<VotingId, Request>,
     configurations: Mapping<VotingId, Configuration>,
     ids: Mapping<Address, VotingId>,
-    refs: ContractRefsWithKycStorage,
+    refs: ContractRefs,
     voting: VotingEngine,
     kyc_info: KycInfo,
     onboarding_info: OnboardingInfo,

@@ -1,4 +1,4 @@
-use cucumber::{cli, codegen::WorldInventory, event, parser, Event, World};
+use cucumber::{cli, codegen::WorldInventory, event, parser, Event, World, runner::basic::BeforeHookFn};
 use events::{SyncStep, SyncStepError};
 use futures::{
     executor::block_on,
@@ -213,3 +213,5 @@ where
         Self::execute_all(features)
     }
 }
+
+// impl<W> BeforeHookFn<W> for 

@@ -18,7 +18,7 @@
 //! [`VotingEngine`]: VotingEngine
 use crate::configuration::ConfigurationBuilder;
 use crate::modules::kyc_info::{KycInfo, KycInfoComposer};
-use crate::modules::refs::{ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer};
+use crate::modules::refs::ContractRefs;
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
 use crate::utils::{consts, ContractCall, Error};
@@ -40,7 +40,7 @@ use odra::{Composer, Event, Instance, UnwrapOrRevert};
 /// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
 #[odra::module(skip_instance, events = [KycVotingCreated])]
 pub struct KycVoterContract {
-    refs: ContractRefsWithKycStorage,
+    refs: ContractRefs,
     voting_engine: VotingEngine,
     access_control: AccessControl,
     kyc: KycInfo,
@@ -52,15 +52,12 @@ impl Instance for KycVoterContract {
         let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
             .with_refs(&refs)
             .compose();
-        let kyc_refs = ContractRefsWithKycStorageComposer::new(namespace, "refs")
-            .with_refs(&refs)
-            .compose();
         let kyc = KycInfoComposer::new(namespace, "kyc_info")
-            .with_refs(&kyc_refs)
+            .with_refs(&refs)
             .compose();
 
         Self {
-            refs: kyc_refs,
+            refs,
             voting_engine,
             access_control: Composer::new(namespace, "access_control").compose(),
             kyc,
@@ -93,11 +90,6 @@ impl KycVoterContract {
             pub fn is_whitelisted(&self, address: Address) -> bool;
             pub fn get_owner(&self) -> Option<Address>;
         }
-
-        to self.refs {
-            pub fn variable_repository_address(&self) -> Address;
-            pub fn reputation_token_address(&self) -> Address;
-        }
     }
 
     #[odra(init)]
@@ -108,8 +100,10 @@ impl KycVoterContract {
         va_token: Address,
         kyc_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token, kyc_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_va_token(va_token);
+        self.refs.set_kyc_token(kyc_token);
         self.access_control.init(caller());
     }
 

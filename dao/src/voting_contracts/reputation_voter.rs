@@ -13,7 +13,7 @@
 //! [`Reputation Token Contract`]: crate::core_contracts::ReputationContract
 //! [`VotingEngine`]: VotingEngine
 use crate::configuration::ConfigurationBuilder;
-use crate::modules::refs::ContractRefsStorage;
+use crate::modules::refs::ContractRefs;
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
 use crate::utils::ContractCall;
@@ -34,7 +34,7 @@ use odra::{Composer, Event, Instance, OdraType};
 /// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
 #[odra::module(skip_instance, events = [ReputationVotingCreated])]
 pub struct ReputationVoterContract {
-    refs: ContractRefsStorage,
+    refs: ContractRefs,
     voting_engine: VotingEngine,
     access_control: AccessControl,
 }
@@ -94,8 +94,9 @@ impl ReputationVoterContract {
         reputation_token: Address,
         va_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_va_token(va_token);
         self.access_control.init(caller());
     }
 

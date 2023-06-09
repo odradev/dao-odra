@@ -1,12 +1,12 @@
 use crate::configuration::Configuration;
-use crate::modules::refs::ContractRefsWithKycStorage;
+use crate::modules::refs::ContractRefs;
 use odra::contract_env::transfer_tokens;
 use odra::types::{Address, Balance};
 
 /// Transfers CSPRs to all VAs'. Each VA gets the amount of CSPR proportionally to their reputation.
 ///
 /// Interacts with [`Reputation Token Contract`](crate::reputation::ReputationContractInterface) to get balances information.
-pub fn redistribute_cspr_to_all_vas(to_redistribute: Balance, refs: &ContractRefsWithKycStorage) {
+pub fn redistribute_cspr_to_all_vas(to_redistribute: Balance, refs: &ContractRefs) {
     let all_balances = refs.reputation_token().all_balances();
     let total_supply = all_balances.total_supply();
     for (address, balance) in all_balances.balances() {

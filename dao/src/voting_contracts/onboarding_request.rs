@@ -27,9 +27,7 @@
 //! [submission process]: crate::bid_escrow#submitting-a-job-proof
 use crate::modules::kyc_info::KycInfoComposer;
 use crate::modules::onboarding_info::OnboardingInfoComposer;
-use crate::modules::refs::{
-    ContractRefsStorageComposer, ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer,
-};
+use crate::modules::refs::ContractRefs;
 use crate::modules::AccessControl;
 use crate::onboarding::{Onboarding, OnboardingComposer};
 use crate::utils::types::DocumentHash;
@@ -47,7 +45,7 @@ use odra::{Composer, Event, Instance};
 
 #[odra::module(skip_instance, events = [OnboardingVotingCreated])]
 pub struct OnboardingRequestContract {
-    refs: ContractRefsWithKycStorage,
+    refs: ContractRefs,
     voting: VotingEngine,
     access_control: AccessControl,
     onboarding: Onboarding,
@@ -55,27 +53,24 @@ pub struct OnboardingRequestContract {
 
 impl Instance for OnboardingRequestContract {
     fn instance(namespace: &str) -> Self {
-        let refs = ContractRefsStorageComposer::new(namespace, "refs").compose();
-        let refs_with_kyc = ContractRefsWithKycStorageComposer::new(namespace, "refs_with_kyc")
-            .with_refs(&refs)
-            .compose();
+        let refs = Composer::new(namespace, "refs").compose();
         let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
             .with_refs(&refs)
             .compose();
         let kyc_info = KycInfoComposer::new(namespace, "kyc_info")
-            .with_refs(&refs_with_kyc)
+            .with_refs(&refs)
             .compose();
         let onboarding_info = OnboardingInfoComposer::new(namespace, "onboarding_info")
-            .with_refs(&refs_with_kyc)
+            .with_refs(&refs)
             .compose();
         let onboarding = OnboardingComposer::new(namespace, "onboarding")
-            .with_refs(&refs_with_kyc)
+            .with_refs(&refs)
             .with_voting(&voting_engine)
             .with_kyc_info(&kyc_info)
             .with_onboarding_info(&onboarding_info)
             .compose();
         Self {
-            refs: refs_with_kyc,
+            refs,
             voting: voting_engine,
             access_control: Composer::new(namespace, "access_control").compose(),
             onboarding,
@@ -157,8 +152,10 @@ impl OnboardingRequestContract {
         kyc_token: Address,
         va_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token, kyc_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_va_token(va_token);
+        self.refs.set_kyc_token(kyc_token);
         self.access_control.init(caller());
     }
 

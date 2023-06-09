@@ -31,53 +31,12 @@
       "return_ty": "U512"
     },
     {
-      "name": "cancel_voter",
+      "name": "slash_voter",
       "is_mutable": true,
       "args": [
         {
           "name": "voter",
           "ty": "Key"
-        },
-        {
-          "name": "voting_id",
-          "ty": "U32"
-        }
-      ],
-      "return_ty": "Unit"
-    },
-    {
-      "name": "slash_all_active_job_offers",
-      "is_mutable": true,
-      "args": [
-        {
-          "name": "bidder",
-          "ty": "Key"
-        }
-      ],
-      "return_ty": "Unit"
-    },
-    {
-      "name": "slash_bid",
-      "is_mutable": true,
-      "args": [
-        {
-          "name": "bid_id",
-          "ty": "U32"
-        }
-      ],
-      "return_ty": "Unit"
-    },
-    {
-      "name": "slash_voter",
-      "is_mutable": true,
-      "args": [
-        {
-          "name": "_voter",
-          "ty": "Key"
-        },
-        {
-          "name": "_voting_id",
-          "ty": "U32"
         }
       ],
       "return_ty": "Unit"
@@ -440,18 +399,6 @@
       "return_ty": {
         "Option": "Key"
       }
-    },
-    {
-      "name": "variable_repository_address",
-      "is_mutable": false,
-      "args": [],
-      "return_ty": "Key"
-    },
-    {
-      "name": "reputation_token_address",
-      "is_mutable": false,
-      "args": [],
-      "return_ty": "Key"
     }
   ],
   "events": [

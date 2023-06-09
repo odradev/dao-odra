@@ -1,5 +1,5 @@
 use crate::configuration::ConfigurationBuilder;
-use crate::modules::refs::ContractRefsStorage;
+use crate::modules::refs::ContractRefs;
 use crate::modules::AccessControl;
 use crate::utils::ContractCall;
 use crate::voting::ballot::{Ballot, Choice};
@@ -17,7 +17,7 @@ use odra::{Composer, Event, Instance, OdraType};
 /// Admin contract needs to have permissions to perform those actions.
 #[odra::module(skip_instance, events = [AdminVotingCreated])]
 pub struct AdminContract {
-    refs: ContractRefsStorage,
+    refs: ContractRefs,
     voting_engine: VotingEngine,
     access_control: AccessControl,
 }
@@ -63,11 +63,6 @@ impl AdminContract {
             pub fn is_whitelisted(&self, address: Address) -> bool;
             pub fn get_owner(&self) -> Option<Address>;
         }
-
-        to self.refs {
-            pub fn variable_repository_address(&self) -> Address;
-            pub fn reputation_token_address(&self) -> Address;
-        }
     }
 
     #[odra(init)]
@@ -77,8 +72,9 @@ impl AdminContract {
         reputation_token: Address,
         va_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_va_token(va_token);
         self.access_control.init(caller());
     }
 
@@ -89,13 +85,12 @@ impl AdminContract {
         address: Address,
         stake: Balance,
     ) {
-        // $0.10
         let mut call_args = CallArgs::new();
         call_args.insert(action.get_arg(), address);
 
         let voting_configuration = ConfigurationBuilder::new(
-            self.refs.va_token().total_supply(),              // $0.08
-            &self.refs.variable_repository().all_variables(), // $2.60 !
+            self.refs.va_token().total_supply(),
+            &self.refs.variable_repository().all_variables(),
         )
         .contract_call(ContractCall {
             address: contract_to_update,
@@ -105,21 +100,16 @@ impl AdminContract {
         })
         .build();
 
-        // $2.79
-        //
         let (info, _) = self
             .voting_engine
-            .create_voting(caller(), stake, voting_configuration); // $0.95
+            .create_voting(caller(), stake, voting_configuration);
 
-        // $3.73
         emit_event(AdminVotingCreated::new(
             contract_to_update,
             action,
             address,
             info,
-        )); // $0.05
-
-        // $3.78
+        ));
     }
 
     pub fn vote(

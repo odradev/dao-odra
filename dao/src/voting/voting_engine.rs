@@ -1,5 +1,5 @@
 use crate::configuration::Configuration;
-use crate::modules::refs::ContractRefsStorage;
+use crate::modules::refs::ContractRefs;
 use crate::rules::validation::voting::CanCreateVoting;
 use crate::rules::RulesBuilder;
 use crate::utils::Error;
@@ -37,7 +37,7 @@ pub mod voting_state_machine;
 /// For example implementation see [AdminContract](crate::admin::AdminContract).
 #[odra::module(events = [VotingCreatedInfo, BallotCast, VotingEnded, VotingCanceled, BallotCanceled])]
 pub struct VotingEngine {
-    refs: ContractRefsStorage,
+    refs: ContractRefs,
     voting_states: Mapping<VotingId, Option<VotingStateMachine>>,
     ballots: Mapping<(VotingId, VotingType, Address), Ballot>,
     voters: Mapping<(VotingId, VotingType), List<Address>>,

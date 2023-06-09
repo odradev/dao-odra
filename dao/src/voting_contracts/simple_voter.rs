@@ -6,7 +6,7 @@ use odra::{
 
 use crate::{
     configuration::ConfigurationBuilder,
-    modules::{refs::ContractRefsStorage, AccessControl},
+    modules::{refs::ContractRefs, AccessControl},
     utils::{types::DocumentHash, Error},
     voting::{
         ballot::{Ballot, Choice},
@@ -26,7 +26,7 @@ use crate::{
 /// The topic of the voting is handled by `document_hash` which is a hash of a document being voted on.
 #[odra::module(skip_instance, events = [SimpleVotingCreated])]
 pub struct SimpleVoterContract {
-    refs: ContractRefsStorage,
+    refs: ContractRefs,
     voting_engine: VotingEngine,
     simple_votings: Mapping<VotingId, DocumentHash>,
     access_control: AccessControl,
@@ -87,8 +87,9 @@ impl SimpleVoterContract {
         reputation_token: Address,
         va_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_va_token(va_token);
         self.access_control.init(caller())
     }
 

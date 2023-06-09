@@ -1,20 +1,10 @@
-use cucumber::{gherkin::Step, given};
+use cucumber::{gherkin::Step, given, when};
 
 use crate::common::{
     config::UserConfiguration,
     params::{Account, Contract},
     DaoWorld,
 };
-
-macro_rules! transfer_ownership_to_admin {
-    ($world:ident, $contract:expr) => {
-        $world.change_ownership(
-            &Account::Contract($contract),
-            &Account::Owner,
-            &Account::Contract(Contract::Admin),
-        );
-    };
-}
 
 #[given(expr = "users")]
 #[given(expr = "accounts")]
@@ -54,20 +44,30 @@ fn users_setup(world: &mut DaoWorld, step: &Step) {
 
         world.set_cspr_balance(account, cspr_balance);
     }
+}
 
-    // A hack - the owner/deployer should be removed from the whitelist but if we do so,
-    // some calls fail (the owner/deployer is the default caller).
-    // TestEnv does not allow to set a contract as the call executor, so we need leave the owner/deployer
-    // on the whitelist.
-    // transfer_ownership_to_admin!(world, Contract::BidEscrow);
-    // transfer_ownership_to_admin!(world, Contract::KycToken);
-    // transfer_ownership_to_admin!(world, Contract::KycVoter);
-    // transfer_ownership_to_admin!(world, Contract::Onboarding);
-    // transfer_ownership_to_admin!(world, Contract::RepoVoter);
-    // transfer_ownership_to_admin!(world, Contract::ReputationToken);
-    // transfer_ownership_to_admin!(world, Contract::ReputationVoter);
-    // transfer_ownership_to_admin!(world, Contract::SimpleVoter);
-    // transfer_ownership_to_admin!(world, Contract::SlashingVoter);
-    // transfer_ownership_to_admin!(world, Contract::VaToken);
-    // transfer_ownership_to_admin!(world, Contract::VariableRepository);
+#[given(expr = "Admin is the owner of all contracts")]
+#[when(expr = "Admin is the owner of all contracts")]
+fn admin_is_the_owner_of_all_contracts(world: &mut DaoWorld) {
+    let contracts = [
+        Contract::BidEscrow,
+        Contract::KycToken,
+        Contract::KycVoter,
+        Contract::Onboarding,
+        Contract::RepoVoter,
+        Contract::ReputationToken,
+        Contract::ReputationVoter,
+        Contract::SimpleVoter,
+        Contract::SlashingVoter,
+        Contract::VaToken,
+        Contract::VariableRepository,
+    ];
+
+    for contract in contracts {
+        world.change_ownership(
+            &Account::Contract(contract),
+            &Account::Owner,
+            &Account::Contract(Contract::Admin),
+        );
+    }
 }

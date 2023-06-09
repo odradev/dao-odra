@@ -102,6 +102,7 @@ execution_error! {
         JobCannotBeYetCanceled => 4032,
         FiatRateNotSet => 4033,
         OnlyJobPosterCanModifyJobOffer => 4034,
+
         // Reputation Token Errors.
         CannotStakeTwice => 4500,
         VotingStakeDoesntExists => 4501,
@@ -115,7 +116,6 @@ execution_error! {
         VMInternalError => 5005,
         CLValueError => 5006,
         TransferError => 6000,
-
 
         ExpectedInformal => 7000,
         ExpectedFormalToBeOn => 7001,

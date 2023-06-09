@@ -6,7 +6,7 @@ use odra::{
 
 use crate::{
     configuration::ConfigurationBuilder,
-    modules::{refs::ContractRefsStorage, AccessControl},
+    modules::{refs::ContractRefs, AccessControl},
     utils::{consts, ContractCall},
     voting::{
         ballot::{Ballot, Choice},
@@ -26,7 +26,7 @@ use crate::{
 /// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
 #[odra::module(skip_instance, events = [RepoVotingCreated])]
 pub struct RepoVoterContract {
-    refs: ContractRefsStorage,
+    refs: ContractRefs,
     voting_engine: VotingEngine,
     access_control: AccessControl,
 }
@@ -86,8 +86,9 @@ impl RepoVoterContract {
         reputation_token: Address,
         va_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_va_token(va_token);
         self.access_control.init(caller());
     }
 

@@ -27,7 +27,12 @@ fn assert_not_whitelisted(world: &mut DaoWorld, account: Account, contract: Acco
 
 #[then(expr = "{account} is whitelisted in {account} contract")]
 fn assert_whitelisted(world: &mut DaoWorld, account: Account, contract: Account) {
-    assert!(world.is_whitelisted(&contract, &account));
+    assert!(
+        world.is_whitelisted(&contract, &account),
+        "{:?} is not whitelisted in {:?}",
+        account,
+        contract
+    );
 }
 
 #[then(expr = "{account} is the owner of {account} contract")]

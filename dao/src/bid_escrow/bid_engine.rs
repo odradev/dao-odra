@@ -9,7 +9,7 @@ use crate::bid_escrow::types::{BidId, JobOfferId};
 use crate::configuration::{Configuration, ConfigurationBuilder};
 use crate::modules::kyc_info::KycInfo;
 use crate::modules::onboarding_info::OnboardingInfo;
-use crate::modules::refs::ContractRefsWithKycStorage;
+use crate::modules::refs::ContractRefs;
 use crate::utils::withdraw;
 use odra::contract_env::{caller, get_block_time};
 use odra::types::{event::OdraEvent, Address, Balance, BlockTime};
@@ -23,7 +23,7 @@ pub struct BidEngine {
     job_storage: JobStorage,
     kyc_info: KycInfo,
     onboarding: OnboardingInfo,
-    refs: ContractRefsWithKycStorage,
+    refs: ContractRefs,
 }
 
 impl BidEngine {

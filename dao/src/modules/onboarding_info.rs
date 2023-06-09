@@ -1,13 +1,14 @@
 use crate::core_contracts::TokenId;
-use crate::modules::refs::ContractRefsWithKycStorage;
 use crate::utils::Error;
 use odra::types::Address;
 use odra::UnwrapOrRevert;
 
+use super::refs::ContractRefs;
+
 /// A utility module that provides information about the current status of the onboarding process.
 #[odra::module]
 pub struct OnboardingInfo {
-    refs: ContractRefsWithKycStorage,
+    refs: ContractRefs,
 }
 
 impl OnboardingInfo {

@@ -21,24 +21,11 @@
       "return_ty": "Unit"
     },
     {
-      "name": "update_bid_escrow_list",
+      "name": "update_slashable_contracts",
       "is_mutable": true,
       "args": [
         {
-          "name": "bid_escrows",
-          "ty": {
-            "List": "Key"
-          }
-        }
-      ],
-      "return_ty": "Unit"
-    },
-    {
-      "name": "update_voter_list",
-      "is_mutable": true,
-      "args": [
-        {
-          "name": "voters",
+          "name": "slashable_contracts",
           "ty": {
             "List": "Key"
           }

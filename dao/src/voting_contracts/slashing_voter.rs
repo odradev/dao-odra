@@ -5,9 +5,8 @@ use odra::{
 };
 
 use crate::{
-    bid_escrow::types::BidId,
     configuration::ConfigurationBuilder,
-    modules::{refs::ContractRefsStorage, AccessControl},
+    modules::{refs::ContractRefs, AccessControl},
     utils::Error,
     voting::{
         ballot::{Ballot, Choice},
@@ -27,7 +26,7 @@ use crate::{
 /// For details see [SlashingVoterContractInterface](SlashingVoterContractInterface)
 #[odra::module(skip_instance, events = [SlashingVotingCreated])]
 pub struct SlashingVoterContract {
-    refs: ContractRefsStorage,
+    refs: ContractRefs,
     voting_engine: VotingEngine,
     tasks: Mapping<VotingId, SlashTask>,
     slashable_contracts: Variable<Vec<Address>>,
@@ -90,8 +89,9 @@ impl SlashingVoterContract {
         reputation_token: Address,
         va_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_va_token(va_token);
         self.access_control.init(caller());
     }
 

@@ -190,26 +190,22 @@ use crate::bid_escrow::bid::Bid;
 use crate::bid_escrow::bid_engine::{BidEngine, BidEngineComposer};
 use crate::bid_escrow::job::Job;
 use crate::bid_escrow::job_engine::{JobEngine, JobEngineComposer};
-use crate::bid_escrow::job_offer::{JobOffer, JobOfferStatus};
+use crate::bid_escrow::job_offer::JobOffer;
 use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
 use crate::modules::kyc_info::KycInfoComposer;
 use crate::modules::onboarding_info::OnboardingInfoComposer;
-use crate::modules::refs::{
-    ContractRefsStorageComposer, ContractRefsWithKycStorage, ContractRefsWithKycStorageComposer,
-};
+use crate::modules::refs::ContractRefs;
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
-use crate::utils::Error;
 use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::voting_state_machine::{
     VotingStateMachine, VotingSummary, VotingType,
 };
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
-use odra::contract_env::{caller, revert, self_balance};
+use odra::contract_env::{caller, self_balance};
 use odra::types::{Address, Balance, BlockTime};
-use odra::{Composer, Instance, UnwrapOrRevert};
-use std::borrow::Borrow;
+use odra::{Composer, Instance};
 
 /// A contract that manages the full `Bid Escrow` process.
 /// Uses [`VotingEngine`](crate::voting::VotingEngine) to conduct the voting process.
@@ -217,7 +213,7 @@ use std::borrow::Borrow;
 /// For details see [BidEscrowContractInterface](BidEscrowContractInterface).
 #[odra::module(skip_instance)]
 pub struct BidEscrowContract {
-    refs: ContractRefsWithKycStorage,
+    refs: ContractRefs,
     access_control: AccessControl,
     job_engine: JobEngine,
     bid_engine: BidEngine,
@@ -226,23 +222,20 @@ pub struct BidEscrowContract {
 
 impl Instance for BidEscrowContract {
     fn instance(namespace: &str) -> Self {
-        let refs = ContractRefsStorageComposer::new(namespace, "refs").compose();
-        let refs_with_kyc = ContractRefsWithKycStorageComposer::new(namespace, "refs_with_kyc")
-            .with_refs(&refs)
-            .compose();
+        let refs = Composer::new(namespace, "refs").compose();
         let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
             .with_refs(&refs)
             .compose();
         let kyc = KycInfoComposer::new(namespace, "kyc_info")
-            .with_refs(&refs_with_kyc)
+            .with_refs(&refs)
             .compose();
         let onboarding_info = OnboardingInfoComposer::new(namespace, "onboarding_info")
-            .with_refs(&refs_with_kyc)
+            .with_refs(&refs)
             .compose();
         let job_storage = Composer::new(namespace, "job_storage").compose();
         let bid_storage = Composer::new(namespace, "bid_storage").compose();
         let job_engine = JobEngineComposer::new(namespace, "job_engine")
-            .with_refs(&refs_with_kyc)
+            .with_refs(&refs)
             .with_job_storage(&job_storage)
             .with_bid_storage(&bid_storage)
             .with_voting_engine(&voting_engine)
@@ -250,14 +243,14 @@ impl Instance for BidEscrowContract {
             .with_onboarding(&onboarding_info)
             .compose();
         let bid_engine = BidEngineComposer::new(namespace, "bid_engine")
-            .with_refs(&refs_with_kyc)
+            .with_refs(&refs)
             .with_job_storage(&job_storage)
             .with_bid_storage(&bid_storage)
             .with_kyc_info(&kyc)
             .with_onboarding(&onboarding_info)
             .compose();
         Self {
-            refs: refs_with_kyc,
+            refs,
             access_control: Composer::new(namespace, "access_control").compose(),
             job_engine,
             bid_engine,
@@ -489,8 +482,10 @@ impl BidEscrowContract {
         kyc_token: Address,
         va_token: Address,
     ) {
-        self.refs
-            .init(variable_repository, reputation_token, va_token, kyc_token);
+        self.refs.set_variable_repository(variable_repository);
+        self.refs.set_reputation_token(reputation_token);
+        self.refs.set_kyc_token(kyc_token);
+        self.refs.set_va_token(va_token);
         self.access_control.init(caller());
     }
 
