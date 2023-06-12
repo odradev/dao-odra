@@ -20,6 +20,7 @@ use odra::contract_env::{attached_value, caller, get_block_time, revert};
 use odra::types::Address;
 use odra::types::{event::OdraEvent, Balance};
 use odra::UnwrapOrRevert;
+use std::collections::BTreeMap;
 
 /// Manages Jobs lifecycle.
 #[odra::module(events = [JobSubmitted, JobRejected, JobCancelled, JobDone, BidEscrowVotingCreated])]
@@ -465,6 +466,8 @@ impl JobEngine {
             )
             .unwrap_or_revert_with(Error::VotingDoesNotExist);
 
+        let mut mints = BTreeMap::new();
+
         for i in 0..self
             .voting_engine
             .voters(voting.voting_id(), VotingType::Formal)
@@ -477,7 +480,13 @@ impl JobEngine {
                 continue;
             }
             let to_transfer = ballot.stake * amount / voting.total_bound_stake();
-            self.refs.reputation_token().mint(ballot.voter, to_transfer);
+            mints.insert(ballot.voter, to_transfer);
+        }
+
+        if !mints.is_empty() {
+            self.refs
+                .reputation_token()
+                .bulk_mint_burn(mints, BTreeMap::new());
         }
     }
 
