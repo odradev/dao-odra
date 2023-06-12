@@ -26,7 +26,7 @@ Feature: Voting id generation
     Then voting with id 2 in RepoVoter contract starts
     When VA1 starts voting with the following config
       | voting_contract | stake | arg1 | arg2 |
-      | SlashingVoter   | 100   | Bob  | 1    |
+      | SlashingVoter   | 100   | VA2  | 1    |
     Then voting with id 3 in SlashingVoter contract starts
     When VA1 starts voting with the following config
       | voting_contract | stake | arg1  |

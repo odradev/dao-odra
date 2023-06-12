@@ -33,7 +33,7 @@ Feature: Slashing in voter contract
         | SlashingVoter   |
         | Admin           |
 
-    Scenario Outline: Voting participan gets slashed.
+    Scenario Outline: Voting participant gets slashed.
       When Owner adds Alice to whitelist in <contract> contract
       And VA1 creates test voting in <contract> with 500 stake
       Then balances are

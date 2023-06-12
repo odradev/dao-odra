@@ -95,6 +95,7 @@ impl DaoWorld {
         stake: ReputationBalance,
     ) {
         let alice = self.get_address(&Account::Alice);
+        let va2 = self.get_address(&Account::VA(1));
         let document_hash = DocumentHash::from("123");
 
         self.set_caller(&creator);
@@ -120,7 +121,7 @@ impl DaoWorld {
                 alice,
                 *stake,
             ),
-            Contract::SlashingVoter => self.slashing_voter.create_voting(alice, 100, *stake),
+            Contract::SlashingVoter => self.slashing_voter.create_voting(va2, 100, *stake),
             Contract::SimpleVoter => self.simple_voter.create_voting(document_hash, *stake),
             contract => panic!("{:?} is not a voting contract", contract),
         }

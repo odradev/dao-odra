@@ -8,6 +8,7 @@ Feature: Staking
         | VA1     | true         | 1000        |
         | VA2     | true         | 1000        |
         | VA3     | true         | 1000        |
+        | VA5     | true         | 1000        |
       And VA1 starts voting with the following config
         | voting_contract   | stake | arg1   | arg2   | arg3   |
         | <voting_contract> | 100   | <arg1> | <arg2> | <arg3> |
@@ -25,7 +26,7 @@ Feature: Staking
         | voting_contract  | arg1               | arg2             | arg3  |
         | KycVoter         | Alice              |                  |       |      
         | Admin            | ReputationToken    | add_to_whitelist | Alice |
-        | SlashingVoter    | Bob                | 1                |       |
+        | SlashingVoter    | VA5                | 1                |       |
         | RepoVoter        | VariableRepository | PostJobDOSFee    | 1     | 
         | SimpleVoter      |                    |                  |       |
         | ReputationVoter  | Alice              | mint             | 100   |

@@ -4,6 +4,8 @@ use odra::{
     Composer, Event, Instance, Mapping, OdraType, UnwrapOrRevert, Variable,
 };
 
+use crate::rules::validation::IsVa;
+use crate::rules::RulesBuilder;
 use crate::{
     configuration::ConfigurationBuilder,
     modules::{refs::ContractRefs, AccessControl},
@@ -101,8 +103,19 @@ impl SlashingVoterContract {
     }
 
     pub fn create_voting(&mut self, address_to_slash: Address, slash_ratio: u32, stake: Balance) {
-        // TODO: constraints
-        // Check if the caller is a VA.
+        let creator = caller();
+
+        // Both creator and address_to_slash must be VA.
+        RulesBuilder::new()
+            .add_validation(IsVa::create(
+                !self.refs.va_token().balance_of(&creator).is_zero(),
+            ))
+            .add_validation(IsVa::create(
+                !self.refs.va_token().balance_of(&address_to_slash).is_zero(),
+            ))
+            .build()
+            .validate_generic_validations();
+
         let current_reputation = self.refs.reputation_token().balance_of(address_to_slash);
 
         let voting_configuration = ConfigurationBuilder::new(
@@ -111,7 +124,6 @@ impl SlashingVoterContract {
         )
         .build();
 
-        let creator = caller();
         let (info, _) = self
             .voting_engine
             .create_voting(creator, stake, voting_configuration);

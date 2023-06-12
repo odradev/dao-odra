@@ -366,32 +366,6 @@
           "ty": "U512"
         }
       ]
-    },
-    {
-      "name": "Mint",
-      "fields": [
-        {
-          "name": "address",
-          "ty": "Key"
-        },
-        {
-          "name": "amount",
-          "ty": "U512"
-        }
-      ]
-    },
-    {
-      "name": "Burn",
-      "fields": [
-        {
-          "name": "address",
-          "ty": "Key"
-        },
-        {
-          "name": "amount",
-          "ty": "U512"
-        }
-      ]
     }
   ]
 }

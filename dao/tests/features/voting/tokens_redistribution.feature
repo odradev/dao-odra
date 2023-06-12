@@ -34,7 +34,7 @@ Feature: Tokens redistribution
         | voting_contract  | arg1               | arg2             | arg3  |
         | KycVoter         | Alice              |                  |       |      
         | Admin            | ReputationToken    | add_to_whitelist | Alice |
-        | SlashingVoter    | Bob                | 1                |       |
+        | SlashingVoter    | VA5                | 1                |       |
         | RepoVoter        | VariableRepository | PostJobDOSFee    | 1     | 
         | SimpleVoter      |                    |                  |       |
         | ReputationVoter  | Alice              | mint             | 100   |
@@ -68,7 +68,7 @@ Feature: Tokens redistribution
         | voting_contract  | arg1               | arg2             | arg3  |
         | KycVoter         | Alice              |                  |       |      
         | Admin            | ReputationToken    | add_to_whitelist | Alice |
-        | SlashingVoter    | Bob                | 1                |       |
+        | SlashingVoter    | VA5                | 1                |       |
         | RepoVoter        | VariableRepository | PostJobDOSFee    | 1     | 
         | SimpleVoter      |                    |                  |       |
         | ReputationVoter  | Alice              | mint             | 100   |
@@ -105,7 +105,7 @@ Feature: Tokens redistribution
         | voting_contract  | arg1               | arg2             | arg3  |
         | KycVoter         | Alice              |                  |       | 
         | Admin            | ReputationToken    | add_to_whitelist | Alice |
-        | SlashingVoter    | Bob                | 1                |       |
+        | SlashingVoter    | VA5                | 1                |       |
         | RepoVoter        | VariableRepository | PostJobDOSFee    | 1     | 
         | SimpleVoter      |                    |                  |       |
         | ReputationVoter  | Alice              | mint             | 100   |
@@ -141,7 +141,7 @@ Feature: Tokens redistribution
         | voting_contract  | arg1               | arg2             | arg3  |
         | KycVoter         | Alice              |                  |       |      
         | Admin            | ReputationToken    | add_to_whitelist | Alice |
-        | SlashingVoter    | Bob                | 1                |       |
+        | SlashingVoter    | VA5                | 1                |       |
         | RepoVoter        | VariableRepository | PostJobDOSFee    | 1     | 
         | SimpleVoter      |                    |                  |       |
         | ReputationVoter  | Alice              | mint             | 100   |
