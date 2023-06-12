@@ -194,7 +194,6 @@ impl DaoWorld {
         voting_type: DaoVotingType,
     ) -> Option<DaoBallot> {
         let account = self.get_address(account);
-
         VoterRef::at(&self.get_address(contract)).get_ballot(voting_id, voting_type, account)
     }
 }

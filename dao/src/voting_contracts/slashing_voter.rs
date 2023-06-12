@@ -102,6 +102,7 @@ impl SlashingVoterContract {
 
     pub fn create_voting(&mut self, address_to_slash: Address, slash_ratio: u32, stake: Balance) {
         // TODO: constraints
+        // Check if the caller is a VA.
         let current_reputation = self.refs.reputation_token().balance_of(address_to_slash);
 
         let voting_configuration = ConfigurationBuilder::new(
