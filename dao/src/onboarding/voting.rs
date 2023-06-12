@@ -130,7 +130,6 @@ impl Onboarding {
         // passed config disables casting first votes, must be casted manually.
         self.voting.cast_ballot(
             creator,
-            voting.voting_id(),
             Choice::InFavor,
             stake,
             true,

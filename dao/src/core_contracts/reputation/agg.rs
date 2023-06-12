@@ -1,20 +1,15 @@
-use std::{collections::BTreeMap, slice::Iter};
-
-use crate::bid_escrow::types::BidId;
-use crate::voting::types::VotingId;
 use odra::{
     types::{Address, Balance},
     OdraType,
 };
+use std::collections::BTreeMap;
 
 use super::balances::BalanceStorage;
-use super::stakes::StakesStorage;
 
 /// A module that provides aggregated data about reputation tokens.
 #[odra::module]
 pub struct BalanceAggregates {
     reputation_storage: BalanceStorage,
-    stakes_storage: StakesStorage,
 }
 
 impl BalanceAggregates {

@@ -22,7 +22,6 @@ use odra::contract_env::{attached_value, caller, get_block_time, revert};
 use odra::types::Address;
 use odra::types::{event::OdraEvent, Balance};
 use odra::UnwrapOrRevert;
-use std::borrow::Borrow;
 
 /// Manages Jobs lifecycle.
 #[odra::module(events = [JobSubmitted, JobRejected, JobCancelled, JobDone, BidEscrowVotingCreated])]
@@ -91,7 +90,6 @@ impl JobEngine {
 
         self.voting_engine.cast_ballot(
             worker,
-            voting_info.voting_id,
             Choice::InFavor,
             stake_for_voting,
             job.is_unbound(),

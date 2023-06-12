@@ -3,7 +3,7 @@ use crate::modules::refs::ContractRefs;
 use crate::rules::validation::voting::CanCreateVoting;
 use crate::rules::RulesBuilder;
 use crate::utils::Error;
-use crate::voting::ballot::{Ballot, Choice, ShortenedBallot};
+use crate::voting::ballot::{Ballot, Choice};
 use crate::voting::ids::get_next_voting_id;
 use crate::voting::types::VotingId;
 use crate::voting::voting_engine::events::{
@@ -336,15 +336,7 @@ impl VotingEngine {
         self.assert_voting_type(voting, voting_type);
         voting.guard_vote(get_block_time(), &configuration);
         self.assert_vote_doesnt_exist(voting_id, voting.voting_type(), voter);
-        self.cast_ballot(
-            voter,
-            voting_id,
-            choice,
-            stake,
-            false,
-            voting,
-            &configuration,
-        );
+        self.cast_ballot(voter, choice, stake, false, voting, &configuration);
     }
 
     fn assert_vote_doesnt_exist(
@@ -379,13 +371,13 @@ impl VotingEngine {
     pub fn cast_ballot(
         &mut self,
         voter: Address,
-        voting_id: VotingId,
         choice: Choice,
         stake: Balance,
         unbound: bool,
         voting: &mut VotingStateMachine,
         configuration: &Configuration,
     ) {
+        let voting_id = voting.voting_id();
         let ballot = Ballot::new(
             voter,
             voting_id,
@@ -396,7 +388,7 @@ impl VotingEngine {
             false,
         );
 
-        if !unbound && !voting.is_informal_without_stake(&configuration) {
+        if !unbound && !voting.is_informal_without_stake(configuration) {
             // Stake the reputation
             self.refs.reputation_token().stake(voter, stake);
         }
@@ -517,20 +509,18 @@ impl VotingEngine {
         voting: &mut VotingStateMachine,
         configuration: &Configuration,
     ) {
-        let voting_id = voting.voting_id();
         let creator = voting.creator();
         let creator_ballot = self
-            .get_ballot(voting_id, VotingType::Informal, *creator)
+            .get_ballot(voting.voting_id(), VotingType::Informal, *creator)
             .unwrap_or_revert_with(Error::BallotDoesNotExist);
 
         self.cast_ballot(
             *creator,
-            voting_id,
             Choice::InFavor,
             creator_ballot.stake,
             creator_ballot.unbound,
             voting,
-            &configuration,
+            configuration,
         );
     }
 

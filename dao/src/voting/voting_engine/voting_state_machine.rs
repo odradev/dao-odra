@@ -44,7 +44,7 @@ impl VotingStateMachine {
         self.state = VotingState::Formal;
         self.voting_type = VotingType::Formal;
 
-        return result_close;
+        result_close
     }
 
     /// Ends the voting process gracefully.
@@ -84,7 +84,7 @@ impl VotingStateMachine {
 
     /// Gets the informal phase end time.
     pub fn informal_voting_end_time(&self, configuration: &Configuration) -> BlockTime {
-        self.informal_voting_start_time(&configuration) + configuration.informal_voting_time()
+        self.informal_voting_start_time(configuration) + configuration.informal_voting_time()
     }
 
     /// Gets the informal-formal break end time.

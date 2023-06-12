@@ -1,9 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::bid_escrow::bid::ShortenedBid;
 use crate::modules::{access_control::AccessControlComposer, AccessControl};
-use crate::voting::ballot::ShortenedBallot;
-use crate::voting::types::VotingId;
 use odra::{
     contract_env,
     types::{Address, Balance},
@@ -42,7 +39,6 @@ impl Instance for ReputationContract {
             .compose();
         let aggregates = BalanceAggregatesComposer::new(namespace, "aggregates")
             .with_reputation_storage(&reputation_storage)
-            .with_stakes_storage(&stakes_storage)
             .compose();
 
         ReputationContractComposer::new(namespace, "reputation")

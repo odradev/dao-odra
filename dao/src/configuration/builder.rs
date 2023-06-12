@@ -1,6 +1,6 @@
-use crate::configuration::configuration::Configuration;
 use crate::configuration::dao_configuration::DaoConfiguration;
 use crate::configuration::voting_configuration::VotingConfiguration;
+use crate::configuration::Configuration;
 use crate::utils::consts;
 use crate::utils::ContractCall;
 use crate::utils::Error;

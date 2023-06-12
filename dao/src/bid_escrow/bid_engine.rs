@@ -1,4 +1,4 @@
-use crate::bid_escrow::bid::{Bid, BidStatus, CancelBidRequest, ShortenedBid, SubmitBidRequest};
+use crate::bid_escrow::bid::{Bid, BidStatus, CancelBidRequest, SubmitBidRequest};
 use crate::bid_escrow::events::{
     BidCancelled, BidSubmitted, JobCreated, JobOfferCreated, TransferReason,
 };
@@ -13,7 +13,6 @@ use crate::modules::refs::ContractRefs;
 use crate::utils::withdraw;
 use odra::contract_env::{caller, get_block_time};
 use odra::types::{event::OdraEvent, Address, Balance, BlockTime};
-use std::borrow::Borrow;
 use std::rc::Rc;
 
 /// Manages the Bidding process.
@@ -116,7 +115,7 @@ impl BidEngine {
         let block_time = get_block_time();
 
         let cspr_stake =
-            self.stake_cspr_or_reputation_for_bid(reputation_stake, cspr_stake, worker, bid_id);
+            self.stake_cspr_or_reputation_for_bid(reputation_stake, cspr_stake, worker);
 
         let submit_bid_request = SubmitBidRequest {
             bid_id,
@@ -265,7 +264,6 @@ impl BidEngine {
         reputation_stake: Balance,
         cspr_stake: Option<Balance>,
         worker: Address,
-        bid_id: BidId,
     ) -> Option<Balance> {
         match cspr_stake {
             None => {
