@@ -7,8 +7,6 @@ use crate::bid_escrow::job_offer::{CancelJobOfferRequest, JobOffer, PostJobOffer
 use crate::bid_escrow::storage::{BidStorage, JobStorage};
 use crate::bid_escrow::types::{BidId, JobOfferId};
 use crate::configuration::{Configuration, ConfigurationBuilder};
-use crate::modules::kyc_info::KycInfo;
-use crate::modules::onboarding_info::OnboardingInfo;
 use crate::modules::refs::ContractRefs;
 use crate::utils::withdraw;
 use odra::contract_env::{caller, get_block_time};
@@ -20,8 +18,6 @@ use std::rc::Rc;
 pub struct BidEngine {
     bid_storage: BidStorage,
     job_storage: JobStorage,
-    kyc_info: KycInfo,
-    onboarding: OnboardingInfo,
     refs: ContractRefs,
 }
 
@@ -82,7 +78,7 @@ impl BidEngine {
 
         let request = PostJobOfferRequest {
             job_offer_id: self.bid_storage.next_job_offer_id(),
-            job_poster_kyced: self.kyc_info.is_kycd(&caller),
+            job_poster_kyced: !self.refs.kyc_token().balance_of(&caller).is_zero(),
             job_poster: caller,
             max_budget: budget,
             expected_timeframe,
@@ -127,8 +123,8 @@ impl BidEngine {
             cspr_stake,
             onboard,
             worker,
-            worker_kyced: self.kyc_info.is_kycd(&worker),
-            worker_is_va: self.onboarding.is_onboarded(&worker),
+            worker_kyced: !self.refs.kyc_token().balance_of(&worker).is_zero(),
+            worker_is_va: !self.refs.va_token().balance_of(&worker).is_zero(),
             job_poster: job_offer.job_poster,
             max_budget: job_offer.max_budget,
             auction_state: job_offer.auction_state(block_time),
@@ -221,7 +217,7 @@ impl BidEngine {
             caller: caller(),
             poster: job_offer.job_poster,
             worker: bid.worker,
-            is_worker_va: self.onboarding.is_onboarded(&bid.worker),
+            is_worker_va: !self.refs.va_token().balance_of(&bid.worker).is_zero(),
             onboard: bid.onboard,
             block_time: get_block_time(),
             timeframe: bid.proposed_timeframe,

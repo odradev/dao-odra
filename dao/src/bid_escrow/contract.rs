@@ -192,8 +192,6 @@ use crate::bid_escrow::job::Job;
 use crate::bid_escrow::job_engine::{JobEngine, JobEngineComposer};
 use crate::bid_escrow::job_offer::JobOffer;
 use crate::bid_escrow::types::{BidId, JobId, JobOfferId};
-use crate::modules::kyc_info::KycInfoComposer;
-use crate::modules::onboarding_info::OnboardingInfoComposer;
 use crate::modules::refs::ContractRefs;
 use crate::modules::AccessControl;
 use crate::utils::types::DocumentHash;
@@ -226,12 +224,6 @@ impl Instance for BidEscrowContract {
         let voting_engine = VotingEngineComposer::new(namespace, "voting_engine")
             .with_refs(&refs)
             .compose();
-        let kyc = KycInfoComposer::new(namespace, "kyc_info")
-            .with_refs(&refs)
-            .compose();
-        let onboarding_info = OnboardingInfoComposer::new(namespace, "onboarding_info")
-            .with_refs(&refs)
-            .compose();
         let job_storage = Composer::new(namespace, "job_storage").compose();
         let bid_storage = Composer::new(namespace, "bid_storage").compose();
         let job_engine = JobEngineComposer::new(namespace, "job_engine")
@@ -239,15 +231,11 @@ impl Instance for BidEscrowContract {
             .with_job_storage(&job_storage)
             .with_bid_storage(&bid_storage)
             .with_voting_engine(&voting_engine)
-            .with_kyc_info(&kyc)
-            .with_onboarding(&onboarding_info)
             .compose();
         let bid_engine = BidEngineComposer::new(namespace, "bid_engine")
             .with_refs(&refs)
             .with_job_storage(&job_storage)
             .with_bid_storage(&bid_storage)
-            .with_kyc_info(&kyc)
-            .with_onboarding(&onboarding_info)
             .compose();
         Self {
             refs,

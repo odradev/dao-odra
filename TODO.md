@@ -1,8 +1,4 @@
 # Final
-- VotingEngine should have KycInfo features.
-- Constraints in slashing.
-- clippy
-
 - Odra, install at given key, decide if upgradable
 - livenet installer
 

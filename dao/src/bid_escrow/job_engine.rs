@@ -6,8 +6,6 @@ use crate::bid_escrow::job::{Job, ReclaimJobRequest, SubmitJobProofRequest, Work
 use crate::bid_escrow::storage::{BidStorage, JobStorage};
 use crate::bid_escrow::types::JobId;
 use crate::configuration::Configuration;
-use crate::modules::kyc_info::KycInfo;
-use crate::modules::onboarding_info::OnboardingInfo;
 use crate::modules::refs::ContractRefs;
 use crate::utils::types::DocumentHash;
 use crate::utils::{withdraw, Error};
@@ -30,8 +28,6 @@ pub struct JobEngine {
     bid_storage: BidStorage,
     refs: ContractRefs,
     voting_engine: VotingEngine,
-    onboarding: OnboardingInfo,
-    kyc_info: KycInfo,
 }
 
 #[odra::module]
@@ -145,7 +141,7 @@ impl JobEngine {
         self.burn_reputation_stake(&old_bid);
 
         // slash original worker
-        if self.onboarding.is_onboarded(&old_bid.worker) {
+        if !self.refs.va_token().balance_of(&old_bid.worker).is_zero() {
             self.slash_worker(&old_job);
         }
 
@@ -155,8 +151,8 @@ impl JobEngine {
             cspr_stake,
             reputation_stake,
             new_worker,
-            new_worker_va: self.onboarding.is_onboarded(&new_worker),
-            new_worker_kyced: self.kyc_info.is_kycd(&new_worker),
+            new_worker_va: !self.refs.va_token().balance_of(&new_worker).is_zero(),
+            new_worker_kyced: !self.refs.kyc_token().balance_of(&new_worker).is_zero(),
             job_poster: old_job.poster(),
             onboard,
             block_time,
@@ -224,7 +220,7 @@ impl JobEngine {
 
         self.burn_reputation_stake(&bid);
 
-        if self.onboarding.is_onboarded(&job.worker()) {
+        if !self.refs.va_token().balance_of(&job.worker()).is_zero() {
             self.slash_worker(&job);
         }
 
