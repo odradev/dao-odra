@@ -18,35 +18,36 @@ cucumber-runner = { path = "../cucumber-runner" }
 default = ["mock-vm"]
 mock-vm = ["odra/mock-vm", "odra-modules/mock-vm", "macros/mock-vm"]
 casper = ["odra/casper", "odra-modules/casper", "macros/casper"]
+casper-livenet = ["odra/casper-livenet", "odra-modules/casper-livenet", "macros/casper-livenet"]
 
 [[test]]
 name = "test_ownership"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false
 
 [[test]]
 name = "test_kyc"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false
 
 [[test]]
 name = "test_va"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false
 
 [[test]]
 name = "test_rate_provider"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false
 
 [[test]]
 name = "test_variables"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false
 
 [[test]]
 name = "test_voting"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false
 
 [[test]]
 name = "test_bid_escrow"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false
 
 [[test]]
 name = "test_slashing"
-harness = false  # allows Cucumber to print output instead of libtest
+harness = false

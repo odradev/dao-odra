@@ -14,4 +14,3 @@
 - Optimize dao_world.
 - supress supressed errors
 - docs
-- stable rust

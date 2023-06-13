@@ -10,10 +10,30 @@ use std::{fmt::Debug, panic::AssertUnwindSafe, sync::Arc, thread};
 
 mod events;
 
+type ScenarioHook = fn (gherkin::Scenario);
+
 #[derive(Default)]
 pub struct SyncRunner<W: World + WorldInventory + Debug + Send> {
     _phantom: std::marker::PhantomData<W>,
+    before_scenario: Option<ScenarioHook>,
+    after_scenario: Option<ScenarioHook>,
 }
+
+impl<W: World + WorldInventory + Debug + Send + Default> SyncRunner<W> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_before_scenario(mut self, hook: ScenarioHook) -> Self {
+        self.before_scenario = Some(hook);
+        self
+    }
+
+    pub fn with_after_scenario(mut self, hook: ScenarioHook) -> Self {
+        self.after_scenario = Some(hook);
+        self
+    }
+} 
 
 impl<W> SyncRunner<W>
 where
@@ -22,6 +42,8 @@ where
 {
     fn execute_all<S>(
         features: S,
+        before: Option<ScenarioHook>,
+        after: Option<ScenarioHook>,
     ) -> LocalBoxStream<'static, parser::Result<Event<event::Cucumber<W>>>>
     where
         S: Stream<Item = parser::Result<gherkin::Feature>> + 'static,
@@ -29,7 +51,7 @@ where
         stream::once(future::ok(event::Cucumber::Started))
             .chain(
                 features
-                    .map_ok(|f| Self::execute_feature(f).map(Ok))
+                    .map_ok(move |f| Self::execute_feature(f, before, after).map(Ok))
                     .try_flatten(),
             )
             .chain(stream::once(future::ok(event::Cucumber::Finished)))
@@ -37,31 +59,36 @@ where
             .boxed_local()
     }
 
-    fn execute_feature(feature: gherkin::Feature) -> impl Stream<Item = event::Cucumber<W>> {
+    fn execute_feature(feature: gherkin::Feature, before: Option<ScenarioHook>,
+        after: Option<ScenarioHook>) -> impl Stream<Item = event::Cucumber<W>> {
         let feature = Arc::new(feature);
         let background = feature.background.clone();
         stream::once(future::ready(event::Feature::Started))
             .chain(
                 stream::iter(feature.scenarios.clone())
-                    .then(move |s| Self::execute_feature_scenario(s, background.clone()))
+                    .then(move |s| Self::execute_feature_scenario(s, background.clone(), before, after))
                     .flatten(),
             )
             .chain(
                 stream::iter(feature.rules.clone())
-                    .then(Self::execute_rule)
+                    .then(move |r| Self::execute_rule(r, before, after))
                     .flatten(),
             )
             .chain(stream::once(future::ready(event::Feature::Finished)))
             .map(move |ev| event::Cucumber::Feature(feature.clone(), ev))
     }
 
-    async fn execute_rule(rule: gherkin::Rule) -> impl Stream<Item = event::Feature<W>> {
+    async fn execute_rule(
+        rule: gherkin::Rule,
+        before: Option<ScenarioHook>,
+        after: Option<ScenarioHook>
+    ) -> impl Stream<Item = event::Feature<W>> {
         let rule = Arc::new(rule);
         let background = rule.background.clone();
         stream::once(future::ready(event::Rule::Started))
             .chain(
                 stream::iter(rule.scenarios.clone())
-                    .then(move |s| Self::execute_rule_scenario(s, background.clone()))
+                    .then(move |s| Self::execute_rule_scenario(s, background.clone(), before, after))
                     .flatten(),
             )
             .chain(stream::once(future::ready(event::Rule::Finished)))
@@ -71,8 +98,10 @@ where
     async fn execute_feature_scenario(
         scenario: gherkin::Scenario,
         background: Option<gherkin::Background>,
+        before: Option<ScenarioHook>,
+        after: Option<ScenarioHook>
     ) -> impl Stream<Item = event::Feature<W>> {
-        let steps = Self::execute_scenario(scenario.clone(), background).await;
+        let steps = Self::execute_scenario(scenario.clone(), background, before, after).await;
         let scenario = Arc::new(scenario);
 
         stream::once(future::ready(event::Scenario::Started))
@@ -98,8 +127,10 @@ where
     async fn execute_rule_scenario(
         scenario: gherkin::Scenario,
         background: Option<gherkin::Background>,
+        before: Option<ScenarioHook>,
+        after: Option<ScenarioHook>
     ) -> impl Stream<Item = event::Rule<W>> {
-        let steps = Self::execute_scenario(scenario.clone(), background).await;
+        let steps = Self::execute_scenario(scenario.clone(), background, before, after).await;
         let scenario = Arc::new(scenario);
 
         stream::once(future::ready(event::Scenario::Started))
@@ -125,16 +156,21 @@ where
     async fn execute_scenario(
         scenario: gherkin::Scenario,
         background: Option<gherkin::Background>,
+        before: Option<ScenarioHook>,
+        after: Option<ScenarioHook>,
     ) -> Vec<(gherkin::Step, event::Step<W>)> {
+        let hook_scenario = scenario.clone();
         let scenario = Arc::new(scenario);
         let s = scenario.clone();
         let (mut tx, mut rx) = futures::channel::mpsc::channel(1);
 
         thread::spawn(move || {
             let steps = block_on(async {
+                if let Some(before) = before {
+                    before(hook_scenario.clone());
+                };
                 let mut steps = Vec::new();
                 let mut world = W::new().await.unwrap();
-
                 let mut can_run_scenario = true;
                 if let Some(background) = background {
                     for step in background.steps {
@@ -160,6 +196,9 @@ where
                         }
                     }
                 }
+                if let Some(after) = after {
+                    after(hook_scenario);
+                };
                 steps
             });
             tx.try_send(steps).unwrap();
@@ -210,8 +249,6 @@ where
     where
         S: Stream<Item = parser::Result<gherkin::Feature>> + 'static,
     {
-        Self::execute_all(features)
+        Self::execute_all(features, self.before_scenario, self.after_scenario)
     }
 }
-
-// impl<W> BeforeHookFn<W> for 
