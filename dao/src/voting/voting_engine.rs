@@ -94,6 +94,7 @@ impl VotingEngine {
                 Choice::InFavor,
                 stake,
                 &mut voting,
+                &configuration,
             );
             used_stake = Some(stake);
         }
@@ -319,7 +320,15 @@ impl VotingEngine {
         stake: Balance,
     ) {
         let mut voting = self.get_voting_or_revert(voting_id);
-        self.cast_vote(voter, voting_type, choice, stake, &mut voting);
+        let configuration = self.get_configuration_or_revert(voting_id);
+        self.cast_vote(
+            voter,
+            voting_type,
+            choice,
+            stake,
+            &mut voting,
+            &configuration,
+        );
         self.set_voting(voting);
     }
 
@@ -330,13 +339,13 @@ impl VotingEngine {
         choice: Choice,
         stake: Balance,
         voting: &mut VotingStateMachine,
+        configuration: &Configuration,
     ) {
         let voting_id = voting.voting_id();
-        let configuration = self.get_configuration_or_revert(voting_id);
         self.assert_voting_type(voting, voting_type);
-        voting.guard_vote(get_block_time(), &configuration);
+        voting.guard_vote(get_block_time(), configuration);
         self.assert_vote_doesnt_exist(voting_id, voting.voting_type(), voter);
-        self.cast_ballot(voter, choice, stake, false, voting, &configuration);
+        self.cast_ballot(voter, choice, stake, false, voting, configuration);
     }
 
     fn assert_vote_doesnt_exist(
