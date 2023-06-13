@@ -19,6 +19,7 @@ impl DaoWorld {
         self.offers.get(&job_poster)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn post_bid(
         &mut self,
         offer_id: JobOfferId,

@@ -1601,6 +1601,7 @@ dependencies = [
 [[package]]
 name = "odra"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "cfg-if",
  "hex",
@@ -1619,6 +1620,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-backend"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "casper-contract",
  "casper-event-standard",
@@ -1634,6 +1636,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-codegen"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "casper-event-standard",
  "casper-types",
@@ -1651,6 +1654,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-shared"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "casper-event-standard",
  "hex",
@@ -1660,6 +1664,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-test-env"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "casper-engine-test-support",
  "casper-execution-engine",
@@ -1674,6 +1679,7 @@ dependencies = [
 [[package]]
 name = "odra-casper-types"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "casper-event-standard",
  "casper-types",
@@ -1684,6 +1690,7 @@ dependencies = [
 [[package]]
 name = "odra-codegen"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "convert_case 0.5.0",
  "derive_more",
@@ -1699,6 +1706,7 @@ dependencies = [
 [[package]]
 name = "odra-ir"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "anyhow",
  "itertools",
@@ -1711,6 +1719,7 @@ dependencies = [
 [[package]]
 name = "odra-mock-vm"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "anyhow",
  "colored",
@@ -1724,6 +1733,7 @@ dependencies = [
 [[package]]
 name = "odra-mock-vm-types"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "borsh",
  "hex",
@@ -1736,6 +1746,7 @@ dependencies = [
 [[package]]
 name = "odra-modules"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "hex",
  "odra",
@@ -1745,6 +1756,7 @@ dependencies = [
 [[package]]
 name = "odra-proc-macros"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "odra-codegen",
  "odra-ir",
@@ -1756,10 +1768,12 @@ dependencies = [
 [[package]]
 name = "odra-types"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 
 [[package]]
 name = "odra-utils"
 version = "0.4.0"
+source = "git+https://github.com/odradev/odra.git?branch=release/0.4.0#d7ec417b26180907b0300d36377a8afd2caa5194"
 dependencies = [
  "convert_case 0.5.0",
 ]

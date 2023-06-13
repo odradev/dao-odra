@@ -69,6 +69,7 @@ fn submit_bid_internal(
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 #[when(
     expr = "{account} posted the Bid for JobOffer {int} with proposed timeframe of {int} {time_unit} and {balance} CSPR price and {balance} CSPR stake {word} onboarding"
 )]

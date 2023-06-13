@@ -1,0 +1,40 @@
+name: ci-casper-rust-contract
+
+on:
+  push:
+    branches:
+      - master
+
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "docs-high-level/**"
+      - "dao-contracts-schemas/**"
+
+  pull_request:
+    branches:
+      - master
+      - develop
+      - feature/*
+      - final
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "docs-high-level/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v1
+      - uses: extractions/setup-just@v1
+      - run: sudo apt install wabt
+      - run: cargo install cargo-odra
+      - run: just prepare
+      - run: just check-lint
+      - run: just test
