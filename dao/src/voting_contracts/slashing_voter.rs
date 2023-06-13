@@ -24,8 +24,6 @@ use crate::{
 /// Slashing Voter contract uses [VotingEngine](VotingEngine) to vote on changes of ownership and managing whitelists of other contracts.
 ///
 /// Slashing Voter contract needs to have permissions to perform those actions.
-///
-/// For details see [SlashingVoterContractInterface](SlashingVoterContractInterface)
 #[odra::module(skip_instance, events = [SlashingVotingCreated])]
 pub struct SlashingVoterContract {
     refs: ContractRefs,

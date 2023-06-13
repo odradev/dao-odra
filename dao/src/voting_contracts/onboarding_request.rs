@@ -125,9 +125,9 @@ impl OnboardingRequestContract {
         }
 
         to self.refs {
-            /// Returns the address of [Variable Repository](crate::variable_repository::VariableRepositoryContract) contract.
+            /// Returns the address of [Variable Repository](crate::core_contracts::VariableRepositoryContract) contract.
             pub fn variable_repository_address(&self) -> Address;
-            /// Returns the address of [Reputation Token](crate::reputation::ReputationContract) contract.
+            /// Returns the address of [Reputation Token](crate::core_contracts::ReputationContract) contract.
             pub fn reputation_token_address(&self) -> Address;
         }
     }

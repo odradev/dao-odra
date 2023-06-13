@@ -29,7 +29,7 @@ use odra::{Composer, Event, Instance, OdraType};
 
 /// ReputationVoterContract
 ///
-/// It is responsible for managing variables held in [Variable Repo](crate::variable_repository::VariableRepositoryContract).
+/// It is responsible for managing variables held in [Variable Repo](crate::core_contracts::VariableRepositoryContract).
 ///
 /// Each change to the variable is being voted on, and when the voting passes, a change is made at given time.
 #[odra::module(skip_instance, events = [ReputationVotingCreated])]
