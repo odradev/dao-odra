@@ -242,15 +242,20 @@ impl BidEngine {
         self.job_storage.add_to_active_jobs(job_id);
     }
 
-    pub fn slash_voter(&mut self, voter: Address) {
+    pub fn slash_voter(&mut self, voter: Address) -> (Vec<JobOfferId>, Vec<BidId>) {
+        let mut slashed_job_offers = vec![];
+        let mut slashed_bids = vec![];
         for job_offer_id in self.bid_storage.get_active_offers() {
             let job_offer = self.bid_storage.get_job_offer_or_revert(&job_offer_id);
             if voter == job_offer.job_poster {
                 self.slash_job_offer(job_offer);
+                slashed_job_offers.push(job_offer_id);
             } else {
                 self.slash_bid(voter, job_offer_id);
+                slashed_bids.push(job_offer_id);
             }
         }
+        (slashed_job_offers, slashed_bids)
     }
 }
 

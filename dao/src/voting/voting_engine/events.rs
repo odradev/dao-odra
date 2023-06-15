@@ -9,7 +9,6 @@ use odra::types::{Address, Balance, BlockTime};
 use odra::{Event, OdraType};
 use std::collections::BTreeMap;
 
-// TODO: Check if OdraType serialization is the same as in DAO
 /// Represents an explanation for a particular action (mint, burn, stake).
 #[derive(OdraType, Copy, Eq, PartialEq, Hash, Ord, PartialOrd, Debug)]
 pub enum Reason {

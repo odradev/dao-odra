@@ -344,16 +344,21 @@ impl JobEngine {
         voting_summary
     }
 
-    pub fn slash_voter(&mut self, voter: Address) {
-        self.voting_engine.slash_voter(voter);
+    /// Slashes the voter and cancels all his active jobs.
+    /// Returns the lists of slashed jobs, canceled votings and affected votings.
+    pub fn slash_voter(&mut self, voter: Address) -> (Vec<JobId>, Vec<VotingId>, Vec<VotingId>) {
+        let (canceled_votings, affected_votings) = self.voting_engine.slash_voter(voter);
+        let mut slashed_jobs = vec![];
         for job_id in self.job_storage.get_active_jobs() {
             let job = self.job_storage.get_job_or_revert(job_id);
             if job.worker() != voter {
-                return;
+                continue;
             }
             let bid = self.bid_storage.get_bid_or_revert(&job.bid_id());
             self.raw_cancel_job(job, &bid, caller());
+            slashed_jobs.push(job_id);
         }
+        (slashed_jobs, canceled_votings, affected_votings)
     }
 }
 

@@ -1,4 +1,4 @@
-//! TODO: docs
+//! Voting module for onboarding requests.
 
 use crate::bid_escrow::events::TransferReason;
 use crate::configuration::{Configuration, ConfigurationBuilder};

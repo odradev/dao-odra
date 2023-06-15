@@ -42,7 +42,7 @@ pub struct VotingEngine {
     ballots: Mapping<(VotingId, VotingType, Address), Ballot>,
     voters: Mapping<(VotingId, VotingType), List<Address>>,
     configurations: Mapping<VotingId, Configuration>,
-    active_votings: Variable<Vec<VotingId>>, // TODO: implement a list with remove method by index.
+    active_votings: Variable<Vec<VotingId>>,
 }
 
 impl VotingEngine {
@@ -675,20 +675,26 @@ impl VotingEngine {
         }
     }
 
-    /// Erases a voter from a given voting.
+    /// Erases a voter from all active votings.
     ///
     /// If the voter is also the creator, voting is canceled.
     /// Otherwise, only his vote is invalidated.
-    pub fn slash_voter(&mut self, voter: Address) {
+    ///
+    /// Returns a tuple of vectors listing canceled and affected votings.j
+    pub fn slash_voter(&mut self, voter: Address) -> (Vec<VotingId>, Vec<VotingId>) {
         let active_voting_ids = self.active_votings.get_or_default();
+        let mut affected_votings = vec![];
+        let mut canceled_votings = vec![];
         for voting_id in active_voting_ids.into_iter() {
             let voting = self.get_voting_or_revert(voting_id);
             if voting.creator() == &voter {
                 self.cancel_voting(voting);
-            } else {
-                self.cancel_ballot(voting, voter);
+                canceled_votings.push(voting_id);
+            } else if self.cancel_ballot(voting, voter) {
+                affected_votings.push(voting_id);
             }
         }
+        (canceled_votings, affected_votings)
     }
 
     fn cancel_voting(&mut self, mut voting: VotingStateMachine) {
@@ -704,12 +710,14 @@ impl VotingEngine {
     }
 
     // Note: it doesn't remove a voter from self.votings to keep the quorum num right.
-    fn cancel_ballot(&mut self, mut voting: VotingStateMachine, voter: Address) {
+    /// Cancels voter's ballot in the given voting.
+    /// Returns true if the voter has voted in the voting and the ballot was canceled.
+    fn cancel_ballot(&mut self, mut voting: VotingStateMachine, voter: Address) -> bool {
         let voting_id = voting.voting_id();
         let ballots_key = (voting_id, voting.voting_type(), voter);
         let mut ballot = match self.ballots.get(&ballots_key) {
             Some(ballot) => ballot,
-            None => return, // End method if voter never voted in this voting.
+            None => return false, // End method if voter never voted in this voting.
         };
 
         // Unstake reputation.
@@ -731,6 +739,8 @@ impl VotingEngine {
         // Update ballot.
         ballot.canceled = true;
         self.ballots.set(&ballots_key, ballot);
+
+        true
     }
 
     fn add_to_active_list(&mut self, voting_id: VotingId) {

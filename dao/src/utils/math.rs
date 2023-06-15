@@ -46,7 +46,6 @@ fn per_mil_of_ordered(number: Balance, other: Balance) -> Result<Balance, Error>
 #[cfg(test)]
 mod tests {
     use super::*;
-    // use crate::utils::Error;
 
     #[test]
     fn test_per_mils_of() {
@@ -55,19 +54,5 @@ mod tests {
         assert_eq!(per_mil_of(6, 334).unwrap(), 2.into());
         assert_eq!(per_mil_of(6, 333).unwrap(), 1.into());
         assert_eq!(per_mil_of(10, 750).unwrap(), 7.into());
-
-        // TODO: Fix this test
-        // assert_eq!(
-        //     per_mil_of(Balance::max_value(), 10).unwrap(),
-        //     Balance::max_value() / <i32 as Into<Balance>>::into(100)
-        // );
-        // assert_eq!(
-        //     per_mil_of(10, Balance::max_value()).unwrap(),
-        //     Balance::max_value() / <i32 as Into<Balance>>::into(100)
-        // );
-        // assert_eq!(
-        //     per_mil_of(1001, Balance::max_value()),
-        //     Err(Error::ArithmeticOverflow)
-        // );
     }
 }

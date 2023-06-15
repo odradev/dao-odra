@@ -188,6 +188,7 @@
 
 use crate::bid_escrow::bid::Bid;
 use crate::bid_escrow::bid_engine::{BidEngine, BidEngineComposer};
+use crate::bid_escrow::events::BidEscrowSlashResults;
 use crate::bid_escrow::job::Job;
 use crate::bid_escrow::job_engine::{JobEngine, JobEngineComposer};
 use crate::bid_escrow::job_offer::JobOffer;
@@ -202,7 +203,7 @@ use crate::voting::voting_engine::voting_state_machine::{
 };
 use crate::voting::voting_engine::{VotingEngine, VotingEngineComposer};
 use odra::contract_env::{caller, self_balance};
-use odra::types::{Address, Balance, BlockTime};
+use odra::types::{event::OdraEvent, Address, Balance, BlockTime};
 use odra::{Composer, Instance};
 
 /// A contract that manages the full `Bid Escrow` process.
@@ -482,44 +483,30 @@ impl BidEscrowContract {
         self_balance()
     }
 
-    /// Updates the [Bid] status and returns locked reputation to the Bidder.
-    ///
+    /// Erases the VA from the all bids, offers and jobs.
     /// Only a whitelisted account is permitted to call this method.
-    /// Interacts with [Reputation Token Contract](crate::reputation::ReputationContractInterface).
+    /// Interacts with [Reputation Token Contract](crate::core_contracts::ReputationContract).
     ///
     /// # Errors
-    /// * [Error::BidNotFound]
-    /// * [Error::JobOfferNotFound]
-    /// * [Error::CannotCancelBidOnCompletedJobOffer]
-    // pub fn slash_bid(&mut self, bid_id: BidId) {
-    //     self.access_control.ensure_whitelisted();
-
-    //     let mut bid = self
-    //         .get_bid(bid_id)
-    //         .unwrap_or_revert_with(Error::BidNotFound);
-
-    //     let job_offer = self
-    //         .get_job_offer(bid.job_offer_id)
-    //         .unwrap_or_revert_with(Error::JobOfferNotFound);
-
-    //     if job_offer.status != JobOfferStatus::Created {
-    //         revert(Error::CannotCancelBidOnCompletedJobOffer);
-    //     }
-
-    //     bid.cancel_without_validation();
-
-    //     self.refs
-    //         .reputation_token()
-    //         .unstake_bid(bid.borrow().into());
-
-    //     // TODO: Implement Event
-    //     self.bid_engine.store_bid(bid);
-    // }
-
-    /// Erases the VA from the all bids, offers and jobs.
+    /// * [crate::utils::Error::BidNotFound]
+    /// * [crate::utils::Error::JobOfferNotFound]
+    /// * [crate::utils::Error::CannotCancelBidOnCompletedJobOffer]
+    /// * [crate::utils::Error::NotWhitelisted]
+    ///
+    /// # Events
+    /// * [`BidEscrowSlashResults`](BidEscrowSlashResults)
     pub fn slash_voter(&mut self, voter: Address) {
         self.access_control.ensure_whitelisted();
-        self.bid_engine.slash_voter(voter);
-        self.job_engine.slash_voter(voter);
+        let (slashed_job_offers, slashed_bids) = self.bid_engine.slash_voter(voter);
+        let (slashed_jobs, canceled_votings, affected_votings) = self.job_engine.slash_voter(voter);
+
+        BidEscrowSlashResults {
+            slashed_job_offers,
+            slashed_bids,
+            slashed_jobs,
+            canceled_votings,
+            affected_votings,
+        }
+        .emit();
     }
 }

@@ -18,7 +18,7 @@ pub struct BidStorage {
     bids: Mapping<BidId, Bid>,
     job_offers_bids: Mapping<JobOfferId, List<BidId>>,
     bids_count: Sequence<BidId>,
-    active_job_offers_ids: Variable<Vec<JobOfferId>>, // TODO: Linked list?
+    active_job_offers_ids: Variable<Vec<JobOfferId>>,
     worker_bids: Mapping<(Address, JobOfferId), Option<BidId>>,
 }
 
@@ -142,7 +142,7 @@ pub struct JobStorage {
     jobs: Mapping<JobId, Job>,
     jobs_for_voting: Mapping<VotingId, JobId>,
     jobs_count: Sequence<JobId>,
-    active_jobs: Variable<Vec<JobId>>, // TODO: Linked list?
+    active_jobs: Variable<Vec<JobId>>,
 }
 
 impl JobStorage {

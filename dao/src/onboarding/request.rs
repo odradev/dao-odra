@@ -1,4 +1,4 @@
-//! TODO: docs
+//! Onboarding request related structs
 use crate::rules::validation::bid_escrow::{ExistsOngoingVoting, IsNotVa};
 use crate::rules::validation::IsUserKyced;
 use crate::rules::RulesBuilder;
@@ -6,6 +6,7 @@ use crate::utils::types::DocumentHash;
 use odra::types::{Address, Balance};
 use odra::OdraType;
 
+/// Onboarding request
 pub struct OnboardingRequest {
     pub requestor: Address,
     pub reason: DocumentHash,
@@ -16,6 +17,7 @@ pub struct OnboardingRequest {
     pub is_kyced: bool,
 }
 
+/// Onboarding request saved in the state
 #[derive(OdraType, Debug)]
 pub struct Request {
     creator: Address,
@@ -25,6 +27,7 @@ pub struct Request {
 }
 
 impl Request {
+    /// Creates new onboarding request
     pub fn new(request: OnboardingRequest) -> Self {
         RulesBuilder::new()
             .add_validation(IsUserKyced::create(request.is_kyced))
@@ -41,18 +44,22 @@ impl Request {
         }
     }
 
+    /// Returns creator of the request
     pub fn creator(&self) -> Address {
         self.creator
     }
 
+    /// Returns reason of the request
     pub fn reason(&self) -> &DocumentHash {
         &self.reason
     }
 
+    /// Returns reputation stake of the request
     pub fn rep_stake(&self) -> Balance {
         self.rep_stake
     }
 
+    /// Returns CSPR deposit of the request
     pub fn cspr_deposit(&self) -> Balance {
         self.cspr_deposit
     }
