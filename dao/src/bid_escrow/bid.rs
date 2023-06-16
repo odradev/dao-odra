@@ -275,35 +275,3 @@ impl Bid {
         self.bid_id
     }
 }
-
-///  Serializable shortened representation of a `Bid`.
-///
-/// Derives from the [`Bid`] struct.
-/// Contains only the essential fields from the original [`Bid`] required in cross-contract communication.
-#[derive(OdraType)]
-pub struct ShortenedBid {
-    pub bid_id: BidId,
-    pub reputation_stake: Balance,
-    pub worker: Address,
-}
-
-impl ShortenedBid {
-    /// Creates a new instance of ShortenedBid.
-    pub fn new(bid_id: BidId, reputation_stake: Balance, worker: Address) -> Self {
-        Self {
-            bid_id,
-            reputation_stake,
-            worker,
-        }
-    }
-}
-
-impl From<&Bid> for ShortenedBid {
-    fn from(value: &Bid) -> Self {
-        Self {
-            bid_id: value.bid_id,
-            reputation_stake: value.reputation_stake,
-            worker: value.worker,
-        }
-    }
-}
