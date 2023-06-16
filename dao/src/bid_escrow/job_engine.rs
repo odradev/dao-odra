@@ -1,3 +1,4 @@
+//! Job Engine module.
 use crate::bid_escrow::bid::{Bid, ReclaimBidRequest};
 use crate::bid_escrow::events::{
     BidEscrowVotingCreated, JobCancelled, JobDone, JobRejected, JobSubmitted, TransferReason,
@@ -228,7 +229,7 @@ impl JobEngine {
         self.raw_cancel_job(job, &bid, caller);
     }
 
-    /// Records vote in [Voting](crate::voting::voting_state_machine::VotingStateMachine).
+    /// Records vote in [Voting](crate::voting::voting_engine::voting_state_machine::VotingStateMachine).
     ///
     /// # Error
     /// * [`Error::CannotVoteOnOwnJob`].
@@ -251,7 +252,7 @@ impl JobEngine {
 
     /// Ends the current voting phase and redistributes funds.
     ///
-    /// Interacts with [`Reputation Token Contract`](crate::reputation::ReputationContractInterface) to
+    /// Interacts with [`Reputation Token Contract`](crate::core_contracts::ReputationContract) to
     /// redistribute reputation.
     pub fn finish_voting(&mut self, voting_id: VotingId, voting_type: VotingType) -> VotingSummary {
         let job = self.job_storage.get_job_by_voting_id(voting_id);

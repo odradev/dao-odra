@@ -1,4 +1,4 @@
-//! Bid-related structs.
+//! Bid struct and structs that the Bid uses.
 use crate::bid_escrow::job::{JobStatus, PickBidRequest};
 use crate::bid_escrow::job_offer::{AuctionState, JobOfferStatus};
 use crate::bid_escrow::types::{BidId, JobOfferId};
@@ -72,7 +72,7 @@ pub struct CancelBidRequest {
     pub va_bid_acceptance_timeout: BlockTime,
 }
 
-/// Data required to reclaim a bid during [Grace Period](crate::bid_escrow#grace-period).
+/// Data required to reclaim a bid during [Grace Period](crate::bid_escrow::contract#grace-period).
 pub struct ReclaimBidRequest {
     /// New bid id.
     pub new_bid_id: BidId,
@@ -117,7 +117,7 @@ pub struct Bid {
     pub proposed_payment: Balance,
     /// Bid reputation stake.
     pub reputation_stake: Balance,
-    /// Bid CSPR stake - for an [External Worker](crate::bid_escrow#definitions).
+    /// Bid CSPR stake - for an [External Worker](crate::bid_escrow::contract#definitions).
     pub cspr_stake: Option<Balance>,
     /// Should be onborded when the Job is done.
     pub onboard: bool,
