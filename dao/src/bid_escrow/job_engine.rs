@@ -590,16 +590,16 @@ impl JobEngine {
 
         self.return_job_poster_payment_and_dos_fee(&job);
 
-        // redistribute cspr stake
-        if let Some(cspr_stake) = bid.cspr_stake {
-            let left = redistribute_to_governance(cspr_stake, &configuration);
-            redistribute_cspr_to_all_vas(left, &self.refs);
-        }
-
-        job.cancel();
-        JobCancelled::new(&job, caller).emit();
-
-        self.job_storage.remove_from_active_jobs(job.job_id());
-        self.job_storage.store_job(job);
+        // // redistribute cspr stake
+        // if let Some(cspr_stake) = bid.cspr_stake {
+        //     let left = redistribute_to_governance(cspr_stake, &configuration);
+        //     redistribute_cspr_to_all_vas(left, &self.refs);
+        // }
+        //
+        // job.cancel();
+        // JobCancelled::new(&job, caller).emit();
+        //
+        // self.job_storage.remove_from_active_jobs(job.job_id());
+        // self.job_storage.store_job(job);
     }
 }

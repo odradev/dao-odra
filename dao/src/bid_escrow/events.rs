@@ -159,7 +159,7 @@ impl JobCancelled {
             caller,
             job_poster: job.poster(),
             worker: job.worker(),
-            cspr_amount: Default::default(),
+            cspr_amount: job.payment(),
         }
     }
 }
