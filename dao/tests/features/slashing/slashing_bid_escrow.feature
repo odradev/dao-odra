@@ -4,6 +4,7 @@ Feature: Slashing in Bid Escrow contract
     Given following balances
       | account           | REP balance | CSPR balance  | is_kyced  | is_va |
       | Alice             | 0           | 0             | false     | false |
+      | BidEscrow         | 0           | 0             | false     | false |
       | JobPoster         | 0           | 1000          | true      | false |
       | VA1               | 1000        | 1000          | true      | true  |
       | VA2               | 1000        | 0             | true      | true  |
@@ -38,6 +39,7 @@ Feature: Slashing in Bid Escrow contract
       | VA1               | 1000        | 1000          |
       | VA2               | 1000        | 0             |
       | VA3               | 1000        | 0             |
+    And total reputation is 4000
 
   Scenario: VA1 gets slashed while being a JobPoster in active job
     When Owner adds Alice to whitelist in BidEscrow contract
@@ -56,13 +58,16 @@ Feature: Slashing in Bid Escrow contract
       | Alice             | 0           | 0             |
       | JobPoster         | 0           | 1000          |
       # We did not perform voting, so the reputation is not burned
-      # TODO: WHAT HAPPENED TO CSPR?
-      | VA1               | 1000        | 100           |
+      # TODO: Should the VA1 got CSPR returned and VA2 left without any CSPR? Asked Wulf.
+      | VA1               | 1000        | 1000          |
       | VA2               | 1000        | 0             |
       | VA3               | 1000        | 0             |
+      | BidEscrow         | 0           | 0             |
+    And total reputation is 4000
 
   Scenario: VA1 votes in formal job acceptance voting
     When Owner adds Alice to whitelist in BidEscrow contract
+    And Owner adds Alice to whitelist in ReputationToken contract
     And JobPoster posted a JobOffer with expected timeframe of 14 days, maximum budget of 1000 CSPR and 400 CSPR DOS Fee
     And VA2 posted the Bid for JobOffer 0 with proposed timeframe of 7 days and 500 CSPR price and 100 REP stake
     And 8 days passed
@@ -83,14 +88,16 @@ Feature: Slashing in Bid Escrow contract
       | VA3              | 500       | Yes    |
       | VA4              | 500       | No     |
     And Alice calls BidEscrow to slash VA1
+    # We burn all reputation, this mimicks the whole slashing voting process
+    And Alice burns all reputation of VA1
     And 6 days passed
     And formal voting with id 0 ends in BidEscrow contract
     Then balances are
-    # TODO: WHAT's going to happen there:
       | account           | REP balance | CSPR balance  |
       | Alice             | 0           | 0             |
       | JobPoster         | 0           | 500           |
       | VA2               | 1119.69     | 165.20        |
       | VA3               | 1423.48     | 210.02        |
       | VA4               | 506.82      | 74.77         |
-      | VA1               | 1000        | 0             |
+      | VA1               | 0           | 1000          |
+    And total reputation is 3050

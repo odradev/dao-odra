@@ -583,7 +583,7 @@ impl VotingEngine {
 
         for i in 0..self.voters_count(voting_id, voting_type) {
             let ballot = self.get_ballot_at(voting_id, voting_type, i);
-            if ballot.unbound {
+            if ballot.unbound || ballot.canceled {
                 continue;
             }
             if ballot.choice.is_against() {
@@ -614,7 +614,7 @@ impl VotingEngine {
         let mut stakes: Vec<(Address, Balance)> = Vec::new();
         for i in 0..self.voters_count(voting_id, voting_type) {
             let ballot = self.get_ballot_at(voting_id, voting_type, i);
-            if ballot.unbound {
+            if ballot.unbound || ballot.canceled {
                 continue;
             }
             if ballot.choice.is_in_favor() {

@@ -351,7 +351,7 @@ impl JobEngine {
         let mut slashed_jobs = vec![];
         for job_id in self.job_storage.get_active_jobs() {
             let job = self.job_storage.get_job_or_revert(job_id);
-            if job.worker() != voter {
+            if job.worker() != voter && job.poster() != voter {
                 continue;
             }
             let bid = self.bid_storage.get_bid_or_revert(&job.bid_id());
