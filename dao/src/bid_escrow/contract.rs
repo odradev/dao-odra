@@ -497,16 +497,16 @@ impl BidEscrowContract {
     /// * [`BidEscrowSlashResults`](BidEscrowSlashResults)
     pub fn slash_voter(&mut self, voter: Address) {
         self.access_control.ensure_whitelisted();
-        // let (slashed_job_offers, slashed_bids) = self.bid_engine.slash_voter(voter);
+        let (slashed_job_offers, slashed_bids) = self.bid_engine.slash_voter(voter);
         let (slashed_jobs, canceled_votings, affected_votings) = self.job_engine.slash_voter(voter);
 
-        // BidEscrowSlashResults {
-        //     slashed_job_offers,
-        //     slashed_bids,
-        //     slashed_jobs,
-        //     canceled_votings,
-        //     affected_votings,
-        // }
-        // .emit();
+        BidEscrowSlashResults {
+            slashed_job_offers,
+            slashed_bids,
+            slashed_jobs,
+            canceled_votings,
+            affected_votings,
+        }
+        .emit();
     }
 }

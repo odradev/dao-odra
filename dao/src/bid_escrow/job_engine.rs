@@ -352,12 +352,11 @@ impl JobEngine {
         let mut slashed_jobs = vec![];
         for job_id in self.job_storage.get_active_jobs() {
             let job = self.job_storage.get_job_or_revert(job_id);
-            if job.worker() != voter && job.poster() != voter {
-                continue;
+            if job.worker() == voter {
+                let bid = self.bid_storage.get_bid_or_revert(&job.bid_id());
+                self.raw_cancel_job(job, &bid, caller());
+                slashed_jobs.push(job_id);
             }
-            let bid = self.bid_storage.get_bid_or_revert(&job.bid_id());
-            self.raw_cancel_job(job, &bid, caller());
-            slashed_jobs.push(job_id);
         }
         (slashed_jobs, canceled_votings, affected_votings)
     }
@@ -505,11 +504,7 @@ impl JobEngine {
 
     fn redistribute_cspr_internal_worker(&mut self, job: &Job, configuration: &Configuration) {
         let to_redistribute = redistribute_to_governance(job.payment(), configuration);
-        let redistribute_to_all_vas = self
-            .bid_storage
-            .get_job_offer_or_revert(&job.job_offer_id())
-            .configuration
-            .distribute_payment_to_non_voters();
+        let redistribute_to_all_vas = configuration.distribute_payment_to_non_voters();
 
         // For VA's
         if redistribute_to_all_vas {
@@ -528,11 +523,7 @@ impl JobEngine {
         // For External Worker
         withdraw(&job.worker(), to_worker, TransferReason::Redistribution);
 
-        let redistribute_to_all_vas = self
-            .bid_storage
-            .get_job_offer_or_revert(&job.job_offer_id())
-            .configuration
-            .distribute_payment_to_non_voters();
+        let redistribute_to_all_vas = configuration.distribute_payment_to_non_voters();
 
         // For VA's
         if redistribute_to_all_vas {
@@ -590,16 +581,16 @@ impl JobEngine {
 
         self.return_job_poster_payment_and_dos_fee(&job);
 
-        // // redistribute cspr stake
-        // if let Some(cspr_stake) = bid.cspr_stake {
-        //     let left = redistribute_to_governance(cspr_stake, &configuration);
-        //     redistribute_cspr_to_all_vas(left, &self.refs);
-        // }
-        //
-        // job.cancel();
-        // JobCancelled::new(&job, caller).emit();
-        //
-        // self.job_storage.remove_from_active_jobs(job.job_id());
-        // self.job_storage.store_job(job);
+        // redistribute cspr stake
+        if let Some(cspr_stake) = bid.cspr_stake {
+            let left = redistribute_to_governance(cspr_stake, &configuration);
+            redistribute_cspr_to_all_vas(left, &self.refs);
+        }
+
+        job.cancel();
+        JobCancelled::new(&job, caller).emit();
+
+        self.job_storage.remove_from_active_jobs(job.job_id());
+        self.job_storage.store_job(job);
     }
 }
